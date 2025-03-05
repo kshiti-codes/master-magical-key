@@ -1,0 +1,146 @@
+
+.home-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+    max-height: 100vh;
+    overflow-y: auto;
+    text-align: center;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+.home-container::-webkit-scrollbar {
+    display: none;
+}
+
+.hero-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+.mystical-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: #fff;
+    text-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
+    margin-bottom: 10px;
+    font-size: 2.5rem;
+}
+
+.mystical-subtitle {
+    font-family: 'Cinzel', serif;
+    font-weight: 500;
+    letter-spacing: 3px;
+    color: #d8b5ff;
+    margin-bottom: 30px;
+    font-size: 1.5rem;
+}
+
+/* Digital Book Interface */
+.digital-book-interface {
+    background: rgba(15, 15, 35, 0.7);
+    border: 1px solid rgba(138, 43, 226, 0.5);
+    border-radius: 8px;
+    margin: 20px 0;
+    overflow: hidden;
+}
+
+.book-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: rgba(10, 10, 20, 0.8);
+    border-bottom: 1px solid rgba(138, 43, 226, 0.5);
+}
+
+.book-nav-arrow {
+    font-size: 1.5rem;
+    color: #d8b5ff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.book-nav-arrow:hover {
+    color: white;
+    transform: scale(1.1);
+}
+
+.page-indicator {
+    color: rgba(255, 255, 255, 0.8);
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.book-content {
+    padding: 25px;
+    min-height: 150px;
+}
+
+/* Social Icons specifically for home page */
+.home-social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/* Content revealed styling */
+.content-revealed {
+    background: rgba(10, 10, 30, 0.7);
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(138, 43, 226, 0.5);
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.mystical-book-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #fff;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767px) {
+    .mystical-title {
+        font-size: 1.8rem;
+    }
+    
+    .mystical-subtitle {
+        font-size: 1.2rem;
+    }
+    
+    .magical-door-wrapper {
+        transform: scale(0.8);
+    }
+    
+    .content-revealed {
+        padding: 20px;
+    }
+    
+    .digital-book-interface {
+        margin: 15px 0;
+    }
+    
+    .book-content {
+        min-height: 120px;
+        padding: 15px;
+    }
+    
+    .mystical-book-title {
+        font-size: 1.5rem;
+    }
+}
