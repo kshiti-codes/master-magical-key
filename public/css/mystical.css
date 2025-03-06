@@ -325,7 +325,7 @@ h1, h2, h3, .mystical-title, .card-header {
 
 /* Base responsive adjustments */
 html, body {
-    overflow-y: hidden;
+    overflow-y: auto;
 }
 
 /* Responsive adjustments */

@@ -23,7 +23,7 @@
             price: {{ $chapter->price }},
             isPurchased: {{ $chapter->isPurchased() ? 'true' : 'false' }},
             readUrl: "{{ route('chapters.read', $chapter->id) }}",
-            purchaseUrl: "{{ route('chapters.purchase', $chapter->id) }}"
+            purchaseUrl: "{{ route('payment.checkout', $chapter->id) }}"
         },
         @endforeach
     ];
@@ -61,10 +61,10 @@
                                 // Navigate to the specific chapter
                                 setTimeout(() => {
                                     // Try to navigate to the chapter
-                                    const navigated = window.openSpecificChapter(openChapter);
-                                    
-                                    if (!navigated) {
-                                        console.error('Could not navigate to chapter', openChapter);
+                                        const navigated = window.openSpecificChapter(openChapter);
+                                        
+                                        if (!navigated) {
+                                            console.error('Could not navigate to chapter', openChapter);
                                     }
                                 }, 800); // Give time for book to render
                             }

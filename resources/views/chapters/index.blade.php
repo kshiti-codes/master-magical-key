@@ -19,7 +19,7 @@
                 @if($chapter->isPurchased())
                     <a href="{{ route('chapters.read', $chapter->id) }}" class="btn btn-portal">Read Now</a>
                 @else
-                    <a href="{{ route('chapters.purchase', $chapter->id) }}" class="btn btn-portal">Purchase</a>
+                    <a href="{{ route('payment.checkout', $chapter->id) }}" class="btn btn-portal">Purchase</a>
                 @endif
             </div>
         @endforeach
@@ -37,7 +37,7 @@
                 @if($chapter->isPurchased())
                     <a href="{{ route('chapters.read', $chapter->id) }}" class="btn-portal">Read Now</a>
                 @else
-                    <a href="{{ route('chapters.purchase', $chapter->id) }}" class="btn-portal">Purchase</a>
+                    <a href="{{ route('payment.checkout', $chapter->id) }}" class="btn-portal">Purchase</a>
                 @endif
             </div>
         @endforeach
