@@ -28,7 +28,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
     
     // Payment routes
-    Route::get('/chapters/{chapter}/purchase', [PaymentController::class, 'checkout'])->name('chapters.purchase');
+    Route::get('/checkout/{chapter}', [PaymentController::class, 'checkout'])->name('payment.checkout');
     Route::post('/payment/process', [PaymentController::class, 'process'])->name('payment.process');
     Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
     Route::get('/payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
