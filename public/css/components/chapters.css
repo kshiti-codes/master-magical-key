@@ -144,6 +144,62 @@
     }
 }
 
+.chapter-actions {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.chapter-actions form {
+    flex: 1;
+}
+
+.btn-add-cart {
+    background: rgba(138, 43, 226, 0.3);
+    border: 1px solid rgba(138, 43, 226, 0.6);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+}
+
+.btn-add-cart:hover {
+    background: rgba(138, 43, 226, 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 7px 14px rgba(75, 0, 130, 0.4);
+    color: white;
+}
+
+.chapter-actions-mobile {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn-add-cart-mobile {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(138, 43, 226, 0.3);
+    border: 1px solid rgba(138, 43, 226, 0.6);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.btn-add-cart-mobile:hover {
+    background: rgba(138, 43, 226, 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 7px 14px rgba(75, 0, 130, 0.4);
+}
+
 /* Purchase Page */
 .chapter-purchase-container {
     max-width: 800px;
@@ -251,6 +307,7 @@
 .chapter-content p {
     margin-bottom: 20px;
 }
+
 @media (min-width: 768px) {
     .desktop-only {
         display: grid;

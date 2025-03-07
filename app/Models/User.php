@@ -44,4 +44,28 @@ class User extends Authenticatable
         return $this->purchases()->where('chapter_id', $chapter->id)
             ->where('status', 'completed')->exists();
     }
+
+    /**
+     * Get the user's active cart.
+     */
+    public function cart()
+    {
+        return $this->hasOne(Cart::class)->latest();
+    }
+
+    /**
+     * Get or create a cart for the user.
+     */
+    public function getCart()
+    {
+        $cart = $this->cart;
+        
+        if (!$cart) {
+            $cart = $this->cart()->create([
+                'user_id' => $this->id
+            ]);
+        }
+        
+        return $cart;
+    }
 }

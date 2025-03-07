@@ -14,7 +14,18 @@ class ChapterController extends Controller
             ->orderBy('order')
             ->get();
         
-        return view('chapters.index', compact('chapters'));
+        $cartItemCount = 0;
+        $chaptersInCart = [];
+        
+        if (Auth::check()) {
+            $cart = Auth::user()->getCart();
+            $cartItemCount = $cart->itemCount;
+            
+            // Get IDs of chapters already in cart
+            $chaptersInCart = $cart->items->pluck('chapter_id')->toArray();
+        }
+        
+        return view('chapters.index', compact('chapters', 'cartItemCount', 'chaptersInCart'));
     }
 
     public function show(Chapter $chapter)

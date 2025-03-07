@@ -3,7 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
+use App\Models\Cart;
+use App\Models\CartItem;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,6 +34,21 @@ class AppServiceProvider extends ServiceProvider
                     }
                 });
             </script>";
+        });
+
+        Relation::morphMap([
+            'cart' => Cart::class,
+            'cart_item' => CartItem::class,
+        ]);
+
+        \DB::listen(function ($query) {
+            \Log::info(
+                $query->sql,
+                [
+                    'bindings' => $query->bindings,
+                    'time' => $query->time
+                ]
+            );
         });
     }
 }

@@ -2,28 +2,108 @@
 
 @push('styles')
 <link href="{{ asset('css/components/payment.css') }}" rel="stylesheet">
-@endpush
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // If navigating to home with open_chapter param
-    const readNowBtn = document.querySelector('.btn-read');
-    
-    if (readNowBtn) {
-        readNowBtn.addEventListener('click', function(e) {
-            // Add a flag to indicate we should refresh the content
-            const currentUrl = new URL(this.href);
-            currentUrl.searchParams.append('refresh_content', 'true');
-            this.href = currentUrl.toString();
-        });
+<style>
+    .success-icon {
+        font-size: 5rem;
+        color: #4BB543;
+        margin-bottom: 20px;
+        animation: pulse 2s ease-in-out;
     }
-});
-</script>
+    
+    @keyframes pulse {
+        0% { transform: scale(0.8); opacity: 0; }
+        50% { transform: scale(1.2); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .success-title {
+        font-family: 'Cinzel', serif;
+        color: #fff;
+        font-size: 2rem;
+        margin-bottom: 30px;
+        text-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
+    }
+    
+    .purchase-items-table {
+        width: 100%;
+        margin-bottom: 20px;
+        border-collapse: collapse;
+    }
+    
+    .purchase-items-table th {
+        text-align: left;
+        padding: 12px 15px;
+        border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+        color: #d8b5ff;
+    }
+    
+    .purchase-items-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+    }
+    
+    .purchase-items-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .purchase-items-table .text-right {
+        text-align: right;
+    }
+    
+    .item-title {
+        font-family: 'Cinzel', serif;
+        color: #fff;
+        margin-bottom: 5px;
+        text-align: left;
+    }
+    
+    .purchase-summary {
+        margin: 25px 0;
+        background: rgba(10, 10, 30, 0.5);
+        border-radius: 8px;
+        padding: 20px;
+        border: 1px solid rgba(138, 43, 226, 0.3);
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+    }
+    
+    .summary-row:last-child {
+        border-bottom: none;
+    }
+    
+    .summary-row.total {
+        margin-top: 10px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(138, 43, 226, 0.3);
+        font-weight: bold;
+        color: #d8b5ff;
+        font-size: 1.2rem;
+    }
+    
+    .transaction-details {
+        background: rgba(10, 10, 30, 0.5);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 25px;
+        border: 1px solid rgba(138, 43, 226, 0.3);
+        text-align: center;
+    }
+    
+    .transaction-id {
+        color: #d8b5ff;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 1px;
+    }
+</style>
 @endpush
 
 @section('content')
-<div class="payment-container">
+<div class="payment-container fade-transition">
     <div class="success-card">
         <div class="success-icon">
             <i class="fas fa-check-circle"></i>
@@ -31,15 +111,64 @@ document.addEventListener('DOMContentLoaded', function() {
         
         <h1 class="success-title">Payment Successful!</h1>
         
-        <div class="success-details">
-            <p>Thank you for your purchase of Chapter {{ $purchase->chapter->id }}: {{ $purchase->chapter->title }}</p>
-            <p class="success-amount">${{ number_format($purchase->amount, 2) }} {{ $purchase->currency }}</p>
+        <div class="transaction-details">
+            <p>Transaction Date: {{ $purchase->created_at->format('F j, Y, g:i a') }}</p>
             <p class="transaction-id">Transaction ID: {{ $purchase->transaction_id }}</p>
         </div>
         
+        <!-- Purchased Items -->
+        <h3>Purchased Items</h3>
+        <table class="purchase-items-table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th class="text-right">Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if(isset($purchasedItems) && count($purchasedItems) > 0)
+                    @foreach($purchasedItems as $item)
+                        <tr>
+                            <td>
+                                <div class="item-title">Chapter {{ $item['chapter_id'] }}: {{ $item['title'] }}</div>
+                                @if(isset($item['quantity']) && $item['quantity'] > 1)
+                                    <div class="item-quantity">Qty: {{ $item['quantity'] }}</div>
+                                @endif
+                            </td>
+                            <td class="text-right">${{ number_format($item['price'] * ($item['quantity'] ?? 1), 2) }}</td>
+                        </tr>
+                    @endforeach
+                @else
+                    <tr>
+                        <td colspan="2" class="text-center">
+                            Thank you for your purchase. Your items will be available in your digital book.
+                        </td>
+                    </tr>
+                @endif
+            </tbody>
+        </table>
+        
+        <!-- Purchase Summary -->
+        <div class="purchase-summary">
+            <div class="summary-row">
+                <div>Subtotal:</div>
+                <div>${{ number_format($subtotal ?? ($purchase->amount / 1.1), 2) }}</div>
+            </div>
+            
+            <div class="summary-row">
+                <div>GST (10%):</div>
+                <div>${{ number_format($tax ?? ($purchase->amount - $purchase->amount / 1.1), 2) }}</div>
+            </div>
+            
+            <div class="summary-row total">
+                <div>Total:</div>
+                <div>${{ number_format($total ?? $purchase->amount, 2) }} {{ $purchase->currency }}</div>
+            </div>
+        </div>
+        
         <div class="success-actions">
-            <a href="{{ route('home', ['open_chapter' => $purchase->chapter_id]) }}" class="btn-read">
-                Read Chapter Now
+            <a href="{{ route('home') }}" class="btn-read">
+                Open Digital Book
             </a>
             
             <a href="{{ route('chapters.index') }}" class="btn-chapters">
@@ -49,3 +178,58 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Create success particles
+        const container = document.querySelector('.success-card');
+        if (!container) return;
+        
+        // Create particle container
+        const particlesContainer = document.createElement('div');
+        particlesContainer.className = 'success-particles';
+        particlesContainer.style.position = 'absolute';
+        particlesContainer.style.top = '0';
+        particlesContainer.style.left = '0';
+        particlesContainer.style.width = '100%';
+        particlesContainer.style.height = '100%';
+        particlesContainer.style.pointerEvents = 'none';
+        particlesContainer.style.zIndex = '-1';
+        container.appendChild(particlesContainer);
+        
+        // Generate particles
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.style.position = 'absolute';
+            particle.style.width = `${3 + Math.random() * 5}px`;
+            particle.style.height = particle.style.width;
+            particle.style.backgroundColor = `hsl(${120 + Math.random() * 60}, 70%, 60%)`;
+            particle.style.borderRadius = '50%';
+            particle.style.opacity = '0';
+            
+            // Random position
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            
+            // Animation
+            particle.style.animation = `fadeInOut ${3 + Math.random() * 2}s infinite`;
+            particle.style.animationDelay = `${Math.random() * 2}s`;
+            
+            particlesContainer.appendChild(particle);
+        }
+        
+        // Add keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInOut {
+                0% { transform: translateY(0) scale(1); opacity: 0; }
+                20% { opacity: 0.7; }
+                80% { opacity: 0.7; }
+                100% { transform: translateY(-50px) scale(0.5); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+@endpush
