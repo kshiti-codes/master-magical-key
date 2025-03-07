@@ -21,7 +21,9 @@ class Chapter extends Model
         'is_published'
     ];
 
-    // Check if the chapter is purchased by the current user
+    /**
+     * Check if the chapter is purchased by the current user
+     */
     public function isPurchased()
     {
         if (!Auth::check()) {
@@ -29,14 +31,25 @@ class Chapter extends Model
         }
         
         return Purchase::where('user_id', Auth::id())
-            ->where('chapter_id', $this->id)
-            ->where('status', 'completed')
-            ->exists();
+        ->where('chapter_id', $this->id)
+        ->where('status', 'completed')
+        ->exists();
     }
     
+    /**
+     * Get purchase items associated with this chapter.
+     */
+    public function purchaseItems()
+    {
+        return $this->hasMany(PurchaseItem::class);
+    }
+
+    /**
+     * Get purchases that include this chapter.
+     */
     public function purchases()
     {
-        return $this->hasMany(Purchase::class);
+        return $this->hasManyThrough(Purchase::class, PurchaseItem::class, 'chapter_id', 'id', 'id', 'purchase_id');
     }
 
     public function users()
