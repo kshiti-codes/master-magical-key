@@ -26,7 +26,7 @@ Route::get('/chapters/{chapter}', [ChapterController::class, 'show'])->name('cha
 // Protected routes
 Route::middleware(['auth'])->group(function () {
     // User dashboard
-    Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
+    // Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
     
     // Payment routes
     Route::get('/checkout/{chapter}', [PaymentController::class, 'checkout'])->name('payment.checkout');

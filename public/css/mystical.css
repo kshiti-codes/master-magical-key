@@ -37,35 +37,6 @@ body::before {
     pointer-events: none;
 }
 
-/* Nebula effect */
-.nebula {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    opacity: 0.3;
-    pointer-events: none;
-}
-
-.nebula-cloud {
-    position: absolute;
-    background: radial-gradient(ellipse at center, 
-        rgba(138, 43, 226, 0.2) 0%, 
-        rgba(75, 0, 130, 0.1) 50%, 
-        transparent 70%);
-    border-radius: 50%;
-    filter: blur(30px);
-    animation: nebula-float 30s infinite ease-in-out;
-}
-
-@keyframes nebula-float {
-    0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
-    50% { transform: translate(30px, -20px) scale(1.2); opacity: 0.5; }
-    100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
-}
-
 /* Page transition animations */
 .fade-transition {
     animation: fadeTransition 0.5s ease-out;

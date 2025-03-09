@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Chapter;
 use App\Models\Purchase;
+use App\Services\InvoiceService;
+use App\Mail\InvoiceEmail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
@@ -350,6 +354,43 @@ class PaymentController extends Controller
                         'tax' => $tax,
                         'tax_rate' => 10.00, // 10% GST
                     ]);
+
+                    // Generate invoice number if not already set
+                    if (empty($purchase->invoice_number)) {
+                        $purchase->invoice_number = $this->generateInvoiceNumber();
+                        $purchase->save();
+                    }
+
+                    try {
+                        // Generate PDF invoice
+                        $invoiceService = new InvoiceService();
+                        $pdfData = $invoiceService->generateInvoice($purchase);
+                        
+                        // Store PDF data directly in the database using a raw query
+                        \DB::statement('UPDATE purchases SET invoice_data = ?, emailed_at = NOW() WHERE id = ?', [
+                            $pdfData,
+                            $purchase->id
+                        ]);
+                        
+                        // Refresh the model to get the updated values
+                        $purchase->refresh();
+                        
+                        // Send email with invoice
+                            Mail::to($purchase->user->email)
+                                ->send(new InvoiceEmail($purchase, $pdfData));
+                        
+                        // Mark as emailed only if no exception occurred
+                        $purchase->emailed_at = now();
+                        $purchase->save();
+                        
+                        \Log::info("Invoice generated and emailed for purchase #{$purchase->id}");
+                    } catch (\Exception $e) {
+                        // Log error but continue with checkout process
+                        \Log::error("Failed to generate/send invoice for purchase #{$purchase->id}", [
+                            'error' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString()
+                        ]);
+                    }
                     
                     // Grant access to the chapter
                     Auth::user()->chapters()->syncWithoutDetaching([
@@ -372,29 +413,36 @@ class PaymentController extends Controller
                     ];
                     
                 } else {
-                    // Process cart purchase
+                    // Process cart purchase - CONSOLIDATED APPROACH
                     $cartId = $request->session()->get('cart_id');
                     $cart = Auth::user()->cart()->findOrFail($cartId);
-
+                    
+                    // Create a SINGLE purchase record for the entire order
+                    $purchase = Purchase::create([
+                        'user_id' => Auth::id(),
+                        'transaction_id' => $captureId,
+                        'amount' => $total, // Total amount from session (all items)
+                        'currency' => $currency,
+                        'status' => 'completed',
+                        'subtotal' => $subtotal, // Subtotal from session
+                        'tax' => $tax, // Tax from session
+                        'tax_rate' => 10.00,
+                        'invoice_number' => $this->generateInvoiceNumber()
+                    ]);
+                    
                     // Prepare items data for display on success page
                     $purchasedItems = [];
                     
-                    // Process each item in the cart
+                    // Process each item in the cart - create purchase items, NOT purchases
                     foreach ($cart->items as $item) {
-                        // Create purchase record for each chapter
-                        $purchase = Purchase::create([
-                            'user_id' => Auth::id(),
-                            'chapter_id' => $item->chapter->id,  // Direct chapter_id reference
-                            'transaction_id' => $captureId . '-' . $item->chapter->id, // Make unique for each item
-                            'amount' => $item->price * $item->quantity,
-                            'currency' => $currency,
-                            'status' => 'completed',
-                            'subtotal' => $item->price * $item->quantity / 1.1,
-                            'tax' => $item->price * $item->quantity * 0.1,
-                            'tax_rate' => 10.00
+                        // Create a purchase item record associated with the main purchase
+                        \App\Models\PurchaseItem::create([
+                            'purchase_id' => $purchase->id,
+                            'chapter_id' => $item->chapter->id,
+                            'quantity' => $item->quantity,
+                            'price' => $item->price
                         ]);
-                        $purchase->update(['emailed_at' => now()]);
-
+                        
                         // Add to purchased items for display
                         $purchasedItems[] = [
                             'chapter_id' => $item->chapter->id,
@@ -410,7 +458,35 @@ class PaymentController extends Controller
                                 'last_page' => 1,
                             ]
                         ]);
+                    }
+                    
+                    // Generate a SINGLE invoice for the entire purchase
+                    try {
+                        // Generate PDF invoice
+                        $invoiceService = new InvoiceService();
+                        $pdfData = $invoiceService->generateInvoice($purchase);
                         
+                        // Store PDF data directly in the database using a raw query
+                        \DB::statement('UPDATE purchases SET invoice_data = ?, emailed_at = NOW() WHERE id = ?', [
+                            $pdfData,
+                            $purchase->id
+                        ]);
+                        
+                        // Refresh the model to get the updated values
+                        $purchase->refresh();
+                        
+                        // Send ONE email with the consolidated invoice
+                        Mail::to($purchase->user->email)
+                            ->send(new InvoiceEmail($purchase, $pdfData));
+                        
+                        // Log success
+                        \Log::info("Consolidated invoice generated and emailed for purchase #{$purchase->id}");
+                    } catch (\Exception $e) {
+                        // Log error but continue with checkout process
+                        \Log::error("Failed to generate/send consolidated invoice for purchase #{$purchase->id}", [
+                            'error' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString()
+                        ]);
                     }
                     
                     // Clear the cart
@@ -448,6 +524,18 @@ class PaymentController extends Controller
             return redirect()->route('chapters.index')
                 ->with('error', 'An error occurred while processing your payment. Please contact support.');
         }
+    }
+
+    /**
+     * Generate a unique invoice number
+     */
+    private function generateInvoiceNumber()
+    {
+        $prefix = 'INV';
+        $timestamp = date('Ymd');
+        $random = strtoupper(substr(uniqid(), -4));
+        
+        return "{$prefix}-{$timestamp}-{$random}";
     }
     
     /**
