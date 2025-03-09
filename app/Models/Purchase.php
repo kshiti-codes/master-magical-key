@@ -25,9 +25,19 @@ class Purchase extends Model
     ];
 
     protected $casts = [
-        'invoice_data' => 'array',
         'emailed_at' => 'datetime',
     ];
+    
+    // Exclude binary data from JSON serialization
+    protected $hidden = [
+        'invoice_data'
+    ];
+
+    // Override the attribute setter for invoice_data
+    public function setInvoiceDataAttribute($value)
+    {
+        $this->attributes['invoice_data'] = $value;
+    }
 
     public function user()
     {

@@ -23,7 +23,7 @@
             price: {{ $chapter->price }},
             isPurchased: {{ $chapter->isPurchased() ? 'true' : 'false' }},
             readUrl: "{{ route('chapters.read', $chapter->id) }}",
-            purchaseUrl: "{{ route('payment.checkout', $chapter->id) }}"
+            purchaseUrl: "{{ route('chapters.index', $chapter->id) }}"
         },
         @endforeach
     ];
