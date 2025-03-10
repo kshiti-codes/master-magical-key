@@ -142,6 +142,10 @@
     .chapter-list-item {
         padding: 12px 15px;
     }
+
+    .btn-buy-now {
+        width: 100%;
+    }
 }
 
 .chapter-actions {

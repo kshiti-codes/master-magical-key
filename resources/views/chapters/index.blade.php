@@ -5,7 +5,7 @@
 <style>
     .floating-cart-button {
         position: fixed;
-        bottom: 30px;
+        bottom: 60px;
         right: 30px;
         width: 60px;
         height: 60px;
@@ -86,7 +86,7 @@
                             @csrf
                             <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
                             <input type="hidden" name="buy_now" value="1">
-                            <button type="submit" class="btn btn-portal btn-sm">Buy Now</button>
+                            <button type="submit" class="btn btn-portal btn-buy-now btn-sm">Buy Now</button>
                         </form>
                         
                         <form action="{{ route('cart.add') }}" method="POST" class="add-to-cart-form">
@@ -130,7 +130,7 @@
                             @csrf
                             <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
                             <input type="hidden" name="buy_now" value="1">
-                            <button type="submit" class="btn-portal btn-sm">Buy</button>
+                            <button type="submit" class="btn-portal btn-buy-now btn-sm">Buy</button>
                         </form>
                     </div>
                 @endif
@@ -158,12 +158,13 @@
         
         // Disable add-to-cart buttons after submission to prevent double-clicks
         const addToCartForms = document.querySelectorAll('.add-to-cart-form');
+                
         addToCartForms.forEach(form => {
             form.addEventListener('submit', function() {
                 const button = this.querySelector('button');
                 button.disabled = true;
                 button.classList.add('btn-disabled');
-                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             });
         });
     });
