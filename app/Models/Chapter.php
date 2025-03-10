@@ -30,10 +30,14 @@ class Chapter extends Model
             return false;
         }
         
-        return Purchase::where('user_id', Auth::id())
-        ->where('chapter_id', $this->id)
-        ->where('status', 'completed')
+        $isPurchased = \App\Models\PurchaseItem::where('chapter_id', $this->id)
+        ->whereHas('purchase', function($query) {
+            $query->where('user_id', Auth::id())
+                  ->where('status', 'completed');
+        })
         ->exists();
+        
+        return $isPurchased;
     }
     
     /**
