@@ -36,9 +36,12 @@ class CartController extends Controller
         if ($chapter->isPurchased()) {
             return back()->with('info', 'You already own this chapter.');
         }
-        
-        // Add to cart
-        $cart->addItem($chapter, $request->quantity ?? 1);
+
+        $existingCartItem = $cart->items()->where('chapter_id', $chapter->id)->first();
+        if(empty($existingCartItem)) {
+            // Add to cart
+            $cart->addItem($chapter, $request->quantity ?? 1);
+        }
 
         // Determine if we should redirect to cart or checkout
         if ($request->buy_now) {

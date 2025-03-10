@@ -15,6 +15,10 @@ const MysticalTransitions = {
         
         // Merge user options
         Object.assign(settings, options);
+
+        // Track if animations have been applied already to avoid double animations
+        if (window.animationsApplied) return;
+        window.animationsApplied = true;
         
         // Add page transition animation
         if (settings.pageTransition) {

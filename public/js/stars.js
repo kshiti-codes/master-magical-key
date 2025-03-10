@@ -102,47 +102,6 @@ document.addEventListener('mousemove', function(e) {
     glow.style.top = `${e.clientY - 75}px`;
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Create nebula container
-    const nebulaContainer = document.createElement('div');
-    nebulaContainer.className = 'nebula';
-    document.body.appendChild(nebulaContainer);
-    
-    // Create nebula clouds
-    for (let i = 0; i < 5; i++) {
-        createNebulaCloud(nebulaContainer);
-    }
-});
-
-function createNebulaCloud(container) {
-    const cloud = document.createElement('div');
-    cloud.className = 'nebula-cloud';
-    
-    // Random position
-    cloud.style.left = `${Math.random() * 100}%`;
-    cloud.style.top = `${Math.random() * 100}%`;
-    
-    // Random size between 200px and 500px
-    const size = 200 + Math.random() * 300;
-    cloud.style.width = `${size}px`;
-    cloud.style.height = `${size}px`;
-    
-    // Random color (purple/blue hues)
-    const hue = 240 + Math.random() * 60; // blue to purple
-    const saturation = 70 + Math.random() * 30;
-    const lightness = 30 + Math.random() * 20;
-    cloud.style.background = `radial-gradient(ellipse at center, 
-        hsla(${hue}, ${saturation}%, ${lightness}%, 0.2) 0%, 
-        hsla(${hue}, ${saturation}%, ${lightness}%, 0.1) 50%, 
-        transparent 70%)`;
-    
-    // Animation
-    cloud.style.animation = `nebula-float ${30 + Math.random() * 20}s infinite ease-in-out`;
-    cloud.style.animationDelay = `${Math.random() * 10}s`;
-    
-    container.appendChild(cloud);
-}
-
 // Add debounce function to prevent excessive executions
 function debounce(func, wait) {
     let timeout;

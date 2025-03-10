@@ -37,7 +37,7 @@ class ChapterController extends Controller
     {
         // Check if user has purchased this chapter
         if (!$chapter->isPurchased()) {
-            return redirect()->route('payment.checkout', $chapter);
+            return redirect()->route('home');
         }
         
         // Redirect to home page with chapter parameter
@@ -60,10 +60,5 @@ class ChapterController extends Controller
         ]);
         
         return response()->json(['success' => true]);
-    }
-
-    public function purchase(Chapter $chapter)
-    {
-        return view('payment.checkout', compact('chapter'));
     }
 }
