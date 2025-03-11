@@ -36,6 +36,22 @@
     font-size: 1.1rem;
 }
 
+.free-badge {
+    background: linear-gradient(to right, #9dd8ff, #0477c4);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 15px;
+    font-size: 1.5rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.free-chapter-notice, .owned-chapter-notice {
+    color: #d8b5ff;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+
 .btn-portal {
     background: linear-gradient(to right, #4b0082, #9400d3);
     border: none;

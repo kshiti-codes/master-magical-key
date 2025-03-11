@@ -11,7 +11,6 @@ class Purchase extends Model
 
     protected $fillable = [
         'user_id',
-        'chapter_id',
         'transaction_id',
         'amount',
         'currency',
@@ -27,7 +26,7 @@ class Purchase extends Model
     protected $casts = [
         'emailed_at' => 'datetime',
     ];
-    
+
     // Exclude binary data from JSON serialization
     protected $hidden = [
         'invoice_data'
