@@ -76,7 +76,11 @@
             <div class="chapter-card">
                 <h2 class="chapter-title">Chapter {{ $chapter->id }}</h2>
                 <p class="chapter-description">{{ $chapter->description }}</p>
-                <p class="chapter-price">${{ number_format($chapter->price, 2) }} AUD</p>
+                @if($chapter->isFree())
+                    <p class="chapter-price"><span class="free-badge">Free</span></p>
+                @else
+                    <p class="chapter-price">${{ number_format($chapter->price, 2) }} AUD</p>
+                @endif
                 
                 @if($chapter->isPurchased())
                     <a href="{{ route('chapters.read', $chapter->id) }}" class="btn btn-portal">Read Now</a>
@@ -110,7 +114,11 @@
             <div class="chapter-list-item">
                 <div class="chapter-info">
                     <h2 class="chapter-title">Chapter {{ $chapter->id }}</h2>
-                    <p class="chapter-price">${{ number_format($chapter->price, 2) }} AUD</p>
+                    @if($chapter->isFree())
+                        <p class="chapter-price"><span class="free-badge">Free</span></p>
+                    @else
+                        <p class="chapter-price">${{ number_format($chapter->price, 2) }} AUD</p>
+                    @endif
                 </div>
                 
                 @if($chapter->isPurchased())
