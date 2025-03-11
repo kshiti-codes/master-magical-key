@@ -4,11 +4,13 @@
 <link href="{{ asset('css/components/magical-door.css') }}" rel="stylesheet">
 <link href="{{ asset('css/components/home.css') }}" rel="stylesheet">
 <link href="{{ asset('css/components/digital-book.css') }}" rel="stylesheet">
+<link rel="stylesheet" href="{{ asset('css/components/disclaimer.css') }}">
 @endpush
 
 @push('scripts')
 <script src="{{ asset('js/components/magical-door.js') }}" defer></script>
 <script src="{{ asset('js/components/digital-book.js') }}" defer></script>
+<script src="{{ asset('js/components/disclaimer.js') }}"></script>
 <script>
     // Pass chapters data to JavaScript
     window.bookChapters = [

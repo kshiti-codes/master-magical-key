@@ -18,14 +18,28 @@ class Chapter extends Model
         'price',
         'currency',
         'order',
-        'is_published'
+        'is_published',
+        'is_free',
     ];
+
+    /**
+     * Check if the chapter is free
+     */
+    public function isFree()
+    {
+        return $this->is_free || $this->price == 0;
+    }
 
     /**
      * Check if the chapter is purchased by the current user
      */
     public function isPurchased()
     {
+        // Free chapters are accessible to everyone
+        if ($this->isFree()) {
+            return true;
+        }
+
         if (!Auth::check()) {
             return false;
         }
