@@ -21,6 +21,10 @@ Route::get('/faq', [HomeController::class, 'faq'])->name('faq');
 Route::get('/chapters', [ChapterController::class, 'index'])->name('chapters.index');
 Route::get('/chapters/{chapter}', [ChapterController::class, 'show'])->name('chapters.show');
 
+// Chapter page API endpoints
+Route::get('/api/chapters/{chapter}/pages', [ChapterController::class, 'getPages'])
+    ->name('api.chapters.pages');
+
 // Auth routes (already included with Laravel UI)
 
 // Protected routes

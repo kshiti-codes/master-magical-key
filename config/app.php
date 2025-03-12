@@ -123,4 +123,13 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'book_pagination' => [
+        'page_width' => 600,
+        'page_height' => 800,
+        'avg_char_width' => 8,
+        'line_height' => 22,
+        'paragraph_spacing' => 10,
+        'heading_space' => 40,
+    ],
+
 ];

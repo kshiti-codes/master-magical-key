@@ -93,6 +93,29 @@
     z-index: 1;
 }
 
+.chapter-image {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1em auto;
+}
+
+.chapter-image.large {
+  width: 100%;
+}
+
+.chapter-image.left {
+  float: left;
+  margin-right: 1em;
+  max-width: 40%;
+}
+
+.chapter-image.right {
+  float: right;
+  margin-left: 1em;
+  max-width: 40%;
+}
+
 .page-content {
     position: relative;
     color: rgba(255, 255, 255, 0.9);
@@ -282,6 +305,7 @@
 }
 .chapter-text p {
     margin-bottom: 0.3em;
+    text-align: justify;
 }
 
 .chapter-purchase {
@@ -517,6 +541,7 @@
     .chapter-text p {
         margin-bottom: 0.7em !important;
         font-size: 0.95rem !important;
+        text-align: justify;
     }
     
     /* Fill available space */
