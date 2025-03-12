@@ -76,4 +76,12 @@ class Chapter extends Model
             ->withPivot('last_read_at', 'last_page')
             ->withTimestamps();
     }
+
+    /**
+     * Get the pages for the chapter.
+     */
+    public function pages()
+    {
+        return $this->hasMany(ChapterPage::class)->orderBy('page_number');
+    }
 }

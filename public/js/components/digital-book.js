@@ -18,272 +18,43 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (!digitalBook || !bookContainer) return;
 
+    // Global variables for server-side pagination
+    let chapterMetadata = null;
+    let loadedPages = {};
+    let currentSpread = 0;
+    let totalSpreads = 0;
+    let currentChapterId = null;
+    let isTurning = false;
+    let nextChapterInfo = null;
+    
+    // Function to find a chapter's page
     window.findChapterPage = function(chapterId) {
-        if (!window.pageToChapterMap) return null;
+        if (!chapterMetadata) return null;
         
         // Convert to number for consistent comparison
         chapterId = parseInt(chapterId);
         
-        for (let pageIndex in window.pageToChapterMap) {
-            if (parseInt(window.pageToChapterMap[pageIndex]) === chapterId) {
-                return parseInt(pageIndex);
-            }
+        // For now, just return the first page of the chapter
+        // This would need to be updated with real chapter mapping
+        if (chapterId === parseInt(chapterMetadata.id)) {
+            return 1;
         }
         
         return null;
     };
 
+    // Function to open a specific chapter
     window.openSpecificChapter = function(chapterId) {
         if (!bookInitialized) {
             console.error('Book not initialized yet');
             return false;
         }
-        // Safety check
-        if (!bookInitialized || !chapterId) return false;
-        // Find the page using our map
-        const pageIndex = window.findChapterPage(chapterId);
-
-        if (pageIndex !== null) {
-            if (isMobile()) {
-                // In mobile, just go to the page
-                currentSpread = pageIndex;
-            } else {
-                // In desktop, calculate the spread
-                currentSpread = Math.floor(pageIndex / 2);
-            }
-            
-            // Update the content
-            updatePageContent();
-            updateNavigationButtons();
-            return true;
-        }
         
-        // Convert to string for consistent matching
-        chapterId = String(chapterId);
-        
-        // Look through all pages to find the one containing this chapter
-        let targetSpread = null;
-        
-        if (isMobile()) {
-            // In mobile view, find the page directly
-            for (let i = 0; i < bookPages.length; i++) {
-                if (bookPages[i].includes(`Chapter ${chapterId}`) || 
-                    bookPages[i].includes(`Chapter ${chapterId}:`)) {
-                    targetSpread = i;
-                    break;
-                }
-            }
-        } else {
-            // In desktop view, find the spread
-            for (let i = 0; i < Math.ceil(bookPages.length / 2); i++) {
-                const leftPageIdx = i * 2;
-                const rightPageIdx = leftPageIdx + 1;
-                
-                // Check left page
-                if (leftPageIdx < bookPages.length && 
-                    (bookPages[leftPageIdx].includes(`Chapter ${chapterId}`) || 
-                     bookPages[leftPageIdx].includes(`Chapter ${chapterId}:`))) {
-                    targetSpread = i;
-                    break;
-                }
-                
-                // Check right page
-                if (rightPageIdx < bookPages.length && 
-                    (bookPages[rightPageIdx].includes(`Chapter ${chapterId}`) || 
-                     bookPages[rightPageIdx].includes(`Chapter ${chapterId}:`))) {
-                    targetSpread = i;
-                    break;
-                }
-            }
-        }
-        
-        // If we found the spread, navigate to it
-        if (targetSpread !== null) {
-            currentSpread = targetSpread;
-            updatePageContent();
-            updateNavigationButtons();
-            return true;
-        }
-        
-        return false;
+        // Load the chapter
+        loadChapter(chapterId);
+        return true;
     };
 
-    // Process content into pages based on available space
-    function processContentIntoPages() {
-        bookPages = [];
-        window.pageToChapterMap = {}; // Reset the mapping
-        
-        // Process introduction
-        const introTitle = `<h2 class='chapter-title'>${rawChapterContent.introduction.title}</h2>`;
-        const introParagraphs = rawChapterContent.introduction.content.split('\n\n');
-        
-        // Create introduction pages by measuring actual rendered height
-        let currentIntroContent = introTitle;
-        let remainingIntroParagraphs = [...introParagraphs];
-        
-        // Process intro paragraphs until they're all used
-        while (remainingIntroParagraphs.length > 0) {
-            let currentHeight = 0;
-            let paragraphsForThisPage = [];
-            
-            // Measure title height if this is the first page
-            if (currentIntroContent === introTitle) {
-                testElement.innerHTML = introTitle;
-                currentHeight += testElement.offsetHeight;
-            }
-
-            // Mobile - add more paragraphs per page
-            const heightLimit = getPageContentHeight();
-            
-            // Add paragraphs until we run out of space
-            while (remainingIntroParagraphs.length > 0) {
-                const nextParagraph = `<p>${remainingIntroParagraphs[0]}</p>`;
-                testElement.innerHTML = nextParagraph;
-                const paragraphHeight = testElement.offsetHeight;
-                
-                const fillRatio = isMobile() ? 0.95 : 0.9;
-                // Check if adding this paragraph would exceed page height
-                if (currentHeight + paragraphHeight < heightLimit * fillRatio) {
-                    paragraphsForThisPage.push(nextParagraph);
-                    currentHeight += paragraphHeight;
-                    remainingIntroParagraphs.shift(); // Remove this paragraph from remaining
-                } else {
-                    break; // Page is full
-                }
-            }
-            
-            // Create the page with collected paragraphs
-            bookPages.push(currentIntroContent + paragraphsForThisPage.join(''));
-            
-            // Reset for next page
-            currentIntroContent = '';
-        }
-        
-        // Process each chapter
-        Object.keys(rawChapterContent).forEach(key => {
-            if (key === 'introduction') return; // Skip intro, already processed
-            
-            const chapter = rawChapterContent[key];
-            
-            if (chapter.isPurchased) {
-                // For purchased chapters, format the content and split into pages
-                const chapterTitle = `<h2 class='chapter-title'>Chapter ${chapter.id}</h2>`;
-                const chapterDescription = `<h3 class='chapter-description'>${chapter.title}</h3>`;
-                const header = chapterTitle + chapterDescription;
-                
-                // Split the content into paragraphs
-                const paragraphs = chapter.content.split('\n\n').map(p => `<p>${p}</p>`);
-                
-                // Create first chapter page
-                let currentContent = header;
-                let remainingParagraphs = [...paragraphs];
-                let pageCount = 0;
-                
-                // Process paragraphs until they're all used
-                while (remainingParagraphs.length > 0) {
-                    let currentHeight = 0;
-                    let paragraphsForThisPage = [];
-                    
-                    // Measure header height if this is the first page
-                    if (pageCount === 0) {
-                        testElement.innerHTML = header;
-                        currentHeight += testElement.offsetHeight;
-                    } else {
-                        // For continuation pages, add a subtitle
-                        const continueHeader = ``;
-                        testElement.innerHTML = continueHeader;
-                        currentHeight += testElement.offsetHeight;
-                        currentContent = continueHeader;
-                    }
-                    
-                    // Add paragraphs until we run out of space
-                    while (remainingParagraphs.length > 0) {
-                        testElement.innerHTML = remainingParagraphs[0];
-                        const paragraphHeight = testElement.offsetHeight;
-                        
-                        // Check if adding this paragraph would exceed page height
-                        if (currentHeight + paragraphHeight < getPageContentHeight()) {
-                            paragraphsForThisPage.push(remainingParagraphs[0]);
-                            currentHeight += paragraphHeight;
-                            remainingParagraphs.shift(); // Remove this paragraph from remaining
-                        } else {
-                            break; // Page is full
-                        }
-                    }
-                    
-                    // Wrap the content in a container div
-                    const pageContent = `
-                        <div class="chapter-content ${pageCount > 0 ? 'chapter-content-continued' : ''}">
-                            ${currentContent}
-                            <div class="chapter-text">
-                                ${paragraphsForThisPage.join('')}
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Add the page
-                    bookPages.push(pageContent);
-                    
-                    // Store the first page of this chapter in our mapping
-                    if (pageCount === 0) {
-                        window.pageToChapterMap[bookPages.length - 1] = chapter.id;
-                    }
-                    
-                    pageCount++;
-                }
-            } else {
-                // For locked chapters, create a single page with purchase option
-                const lockedPageContent = `
-                    <div class="chapter-content">
-                        <h2 class="chapter-title">Chapter ${chapter.id}</h2>
-                        <h3 class="chapter-description">${chapter.title}</h3>
-                        <div class="chapter-purchase">
-                            <p>${chapter.content || 'This chapter contains sacred wisdom about the universe and your connection to it.'}</p>
-                            <p class="chapter-price">$${parseFloat(chapter.price).toFixed(2)} AUD</p>
-                            <a href="${chapter.purchaseUrl}" class="btn btn-portal">Purchase Chapter</a>
-                        </div>
-                    </div>
-                `;
-                
-                bookPages.push(lockedPageContent);
-                
-                // Store this chapter in our mapping
-                window.pageToChapterMap[bookPages.length - 1] = chapter.id;
-            }
-        });
-        
-        // Add "coming soon" page at the end
-        bookPages.push(`
-            <div class="coming-soon">
-                <h2 class="chapter-title">More Chapters Coming Soon</h2>
-                <div class="coming-soon-icon">
-                    <i class="fas fa-hourglass-half"></i>
-                </div>
-                <p>The journey continues with new chapters being prepared for your enlightenment.</p>
-                <p>Return soon to discover more cosmic wisdom and revelations.</p>
-            </div>
-        `);
-    }
-    
-    // Book content
-    let bookPages = [];
-    let rawChapterContent = {};
-    
-    // Introduction pages
-    const introductionContent = [
-        "<h2 class='chapter-title'>The Master Magical Key to the Universe</h2>" +
-        "<p>Welcome to an extraordinary journey of cosmic wisdom and enlightenment.</p>" +
-        "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl.</p>",
-        
-        "<p>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>" +
-        "<p>Begin your journey by turning the page to explore the chapters...</p>"
-    ];
-    
-    // Current state
-    let currentSpread = 0; // The current opened spread (pair of pages)
-    let totalSpreads = 0;  // Total number of spreads in the book
-    let isTurning = false; // Flag to prevent multiple turning animations
-    
     // Create a test element to measure text dimensions
     const testElement = document.createElement('div');
     testElement.style.position = 'absolute';
@@ -296,32 +67,70 @@ document.addEventListener('DOMContentLoaded', function() {
     testElement.style.lineHeight = '1.6';
     document.body.appendChild(testElement);
     
-    // Store raw chapter content first
-    function storeRawContent() {
-        // Store introduction
-        rawChapterContent.introduction = {
-            title: "The Master Magical Key to the Universe",
-            content: "Welcome to an extraordinary journey of cosmic wisdom and enlightenment.\n\n" +
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies tincidunt, nisl nisl aliquam nisl.\n\n" +
-                    "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n\n"
-        };
+    // Load a chapter from the server
+    function loadChapter(chapterId) {
+        showLoading();
+        currentChapterId = chapterId;
         
-        // Store chapters
-        if (window.bookChapters && window.bookChapters.length > 0) {
-            window.bookChapters.forEach(chapter => {
-                rawChapterContent[`chapter_${chapter.id}`] = {
-                    id: chapter.id,
-                    title: chapter.title,
-                    description: chapter.description || 'Journey through cosmic wisdom',
-                    content: chapter.isPurchased ? (chapter.fullContent || chapter.previewContent) : chapter.previewContent,
-                    isPurchased: chapter.isPurchased,
-                    price: chapter.price,
-                    purchaseUrl: chapter.purchaseUrl,
-                    readUrl: chapter.readUrl
-                };
+        // Reset loaded pages
+        loadedPages = {};
+        
+        // Fetch initial pages
+        fetchChapterPages(chapterId, 1, function() {
+            // Calculate total spreads based on total pages
+            totalSpreads = Math.ceil(chapterMetadata.totalPages / (isMobile() ? 1 : 2));
+            
+            // Default to first spread
+            currentSpread = 0;
+            
+            // Update the display
+            updatePageContent();
+            updateNavigationButtons();
+            
+            hideLoading();
+        });
+    }
+
+    // Fetch pages from the API
+    function fetchChapterPages(chapterId, startPage, callback) {
+        const perPage = 5; // Number of pages to fetch at once
+        
+        fetch(`/api/chapters/${chapterId}/pages?page=${startPage}&per_page=${perPage}`)
+            .then(response => response.json())
+            .then(data => {
+                // Store chapter metadata if not already set
+                if (!chapterMetadata || chapterMetadata.id !== data.chapter_id) {
+                    chapterMetadata = {
+                        id: data.chapter_id,
+                        title: data.title,
+                        totalPages: data.total_pages
+                    };
+                }
+                
+                // Store next chapter info
+                nextChapterInfo = data.next_chapter;
+                
+                // Store the loaded pages
+                data.pages.forEach(page => {
+                    loadedPages[page.page_number] = page.content;
+                });
+                
+                // Call the callback function if provided
+                if (typeof callback === 'function') {
+                    callback();
+                }
+                
+                // Preload next batch if needed
+                if (startPage + perPage < data.total_pages) {
+                    setTimeout(() => {
+                        fetchChapterPages(chapterId, startPage + perPage);
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching chapter pages:', error);
+                hideLoading();
             });
-        }
-        window.pageToChapterMap = {};
     }
 
     // Add this function to detect mobile devices
@@ -329,151 +138,14 @@ document.addEventListener('DOMContentLoaded', function() {
         return window.innerWidth <= 767;
     }
     
-    // Process content into pages based on available space
-    function processContentIntoPages() {
-        bookPages = [];
-        
-        // Process introduction
-        const introTitle = `<h2 class='chapter-title'>${rawChapterContent.introduction.title}</h2>`;
-        const introParagraphs = rawChapterContent.introduction.content.split('\n\n');
-        
-        // Create introduction pages by measuring actual rendered height
-        let currentIntroContent = introTitle;
-        let remainingIntroParagraphs = [...introParagraphs];
-        
-        // Process intro paragraphs until they're all used
-        while (remainingIntroParagraphs.length > 0) {
-            let currentHeight = 0;
-            let paragraphsForThisPage = [];
-            
-            // Measure title height if this is the first page
-            if (currentIntroContent === introTitle) {
-                testElement.innerHTML = introTitle;
-                currentHeight += testElement.offsetHeight;
-            }
-
-            // Mobile - add more paragraphs per page
-            const heightLimit = getPageContentHeight();
-            
-            // Add paragraphs until we run out of space
-            while (remainingIntroParagraphs.length > 0) {
-                const nextParagraph = `<p>${remainingIntroParagraphs[0]}</p>`;
-                testElement.innerHTML = nextParagraph;
-                const paragraphHeight = testElement.offsetHeight;
-                
-                const fillRatio = isMobile() ? 0.95 : 0.9;
-                // Check if adding this paragraph would exceed page height
-                if (currentHeight + paragraphHeight < heightLimit * fillRatio) {
-                    paragraphsForThisPage.push(nextParagraph);
-                    currentHeight += paragraphHeight;
-                    remainingIntroParagraphs.shift(); // Remove this paragraph from remaining
-                } else {
-                    break; // Page is full
-                }
-            }
-            
-            // Create the page with collected paragraphs
-            bookPages.push(currentIntroContent + paragraphsForThisPage.join(''));
-            
-            // Reset for next page
-            currentIntroContent = '';
+    // Create decorative page lines
+    function createPageLines() {
+        let lines = '<div class="page-lines">';
+        for (let i = 1; i <= 9; i++) {
+            lines += '<div class="page-line"></div>';
         }
-        
-        // Process each chapter
-        Object.keys(rawChapterContent).forEach(key => {
-            if (key === 'introduction') return; // Skip intro, already processed
-            
-            const chapter = rawChapterContent[key];
-            
-            if (chapter.isPurchased) {
-                // For purchased chapters, format the content and split into pages
-                const chapterTitle = `<h2 class='chapter-title'>Chapter ${chapter.id}</h2>`;
-                const chapterDescription = `<h3 class='chapter-description'>${chapter.title}</h3>`;
-                const header = chapterTitle + chapterDescription;
-                
-                // Split the content into paragraphs
-                const paragraphs = chapter.content.split('\n\n').map(p => `<p>${p}</p>`);
-                
-                // Create first chapter page
-                let currentContent = header;
-                let remainingParagraphs = [...paragraphs];
-                let pageCount = 0;
-                
-                // Process paragraphs until they're all used
-                while (remainingParagraphs.length > 0) {
-                    let currentHeight = 0;
-                    let paragraphsForThisPage = [];
-                    
-                    // Measure header height if this is the first page
-                    if (pageCount === 0) {
-                        testElement.innerHTML = header;
-                        currentHeight += testElement.offsetHeight;
-                    } else {
-                        // For continuation pages, add a subtitle
-                        const continueHeader = ``;
-                        testElement.innerHTML = continueHeader;
-                        currentHeight += testElement.offsetHeight;
-                        currentContent = continueHeader;
-                    }
-                    
-                    // Add paragraphs until we run out of space
-                    while (remainingParagraphs.length > 0) {
-                        testElement.innerHTML = remainingParagraphs[0];
-                        const paragraphHeight = testElement.offsetHeight;
-                        
-                        // Check if adding this paragraph would exceed page height
-                        if (currentHeight + paragraphHeight < getPageContentHeight()) {
-                            paragraphsForThisPage.push(remainingParagraphs[0]);
-                            currentHeight += paragraphHeight;
-                            remainingParagraphs.shift(); // Remove this paragraph from remaining
-                        } else {
-                            break; // Page is full
-                        }
-                    }
-                    
-                    // Wrap the content in a container div
-                    const pageContent = `
-                        <div class="chapter-content ${pageCount > 0 ? 'chapter-content-continued' : ''}">
-                            ${currentContent}
-                            <div class="chapter-text">
-                                ${paragraphsForThisPage.join('')}
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Add the page
-                    bookPages.push(pageContent);
-                    pageCount++;
-                }
-            } else {
-                // For locked chapters, create a single page with purchase option
-                const lockedPageContent = `
-                    <div class="chapter-content">
-                        <h2 class="chapter-title">Chapter ${chapter.id}</h2>
-                        <h3 class="chapter-description">${chapter.title}</h3>
-                        <div class="chapter-purchase">
-                            <p>${chapter.content || 'This chapter contains sacred wisdom about the universe and your connection to it.'}</p>
-                            <p class="chapter-price">$${parseFloat(chapter.price).toFixed(2)} AUD</p>
-                            <a href="${chapter.purchaseUrl}" class="btn btn-portal">Purchase Chapter</a>
-                        </div>
-                    </div>
-                `;
-                
-                bookPages.push(lockedPageContent);
-            }
-        });
-        
-        // Add "coming soon" page at the end
-        bookPages.push(`
-            <div class="coming-soon">
-                <h2 class="chapter-title">More Chapters Coming Soon</h2>
-                <div class="coming-soon-icon">
-                    <i class="fas fa-hourglass-half"></i>
-                </div>
-                <p>The journey continues with new chapters being prepared for your enlightenment.</p>
-                <p>Return soon to discover more cosmic wisdom and revelations.</p>
-            </div>
-        `);
+        lines += '</div>';
+        return lines;
     }
     
     // Get available height for page content based on current dimensions
@@ -496,31 +168,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Create decorative page lines
-    function createPageLines() {
-        let lines = '<div class="page-lines">';
-        for (let i = 1; i <= 9; i++) {
-            lines += '<div class="page-line"></div>';
-        }
-        lines += '</div>';
-        return lines;
-    }
-    
     // Initialize book
     function initBook() {
-        // Store raw content first
-        storeRawContent();
+        // Check for chapter ID from URL parameter
+        const chapterId = getChapterIdFromUrl();
         
-        // Process content into pages
-        processContentIntoPages();
+        if (chapterId) {
+            // Load the chapter
+            loadChapter(chapterId);
+        } else {
+            // Load a default chapter or introduction
+            showIntroduction();
+        }
         
-        // Calculate total spreads (pairs of pages)
-        totalSpreads = Math.ceil(bookPages.length / 2);
-        
-        // Set initial content
-        updatePageContent();
-        updateNavigationButtons();
-
         // Check if we need to switch to mobile layout
         toggleMobileLayout();
 
@@ -558,30 +218,79 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         }
-        // Make bookPages accessible
-        window.bookPagesContent = bookPages;
+        
+        // Make book state accessible to window
         bookInitialized = true;
         window.bookInitialized = bookInitialized;
     }
     
+    // Show introduction or default content if no chapter is selected
+    function showIntroduction() {
+        // You could load a specific introduction chapter here
+        // For now, we'll just display a message
+        leftPage.innerHTML = `
+            <div class="chapter-content">
+                <h2 class="chapter-title">Welcome to the Digital Book</h2>
+                <div class="chapter-text">
+                    <p>Please select a chapter to begin reading.</p>
+                </div>
+            </div>
+        ` + createPageLines();
+        
+        rightPage.innerHTML = `
+            <div class="chapter-content">
+                <h2 class="chapter-title">Available Chapters</h2>
+                <div class="chapter-text">
+                    <p>Explore our chapters from the chapters page.</p>
+                </div>
+            </div>
+        ` + createPageLines();
+        
+        // Set dummy values for navigation
+        chapterMetadata = {
+            id: 0,
+            title: "Introduction",
+            totalPages: 2
+        };
+        
+        totalSpreads = 1;
+        currentSpread = 0;
+        
+        updateNavigationButtons();
+    }
+    
     // Update page content based on current spread
     function updatePageContent() {
+        if (!chapterMetadata) {
+            showIntroduction();
+            return;
+        }
+        
         if (isMobile()) {
             // Mobile - show only the current page
             const pageNum = currentSpread + 1;
             
             // Update content in left page only
-            if (pageNum <= bookPages.length) {
-                leftPage.innerHTML = bookPages[pageNum - 1] + 
-                    createPageLines();
+            if (pageNum <= chapterMetadata.totalPages) {
+                // Check if page is loaded
+                if (loadedPages[pageNum]) {
+                    leftPage.innerHTML = loadedPages[pageNum] + createPageLines();
+                } else {
+                    leftPage.innerHTML = '<div class="loading-page">Loading...</div>' + createPageLines();
+                    // Fetch the missing page
+                    fetchChapterPages(currentChapterId, pageNum);
+                }
+            } else if (nextChapterInfo) {
+                // Show next chapter info instead
+                leftPage.innerHTML = createNextChapterPage() + createPageLines();
             } else {
-                leftPage.innerHTML = createPageLines();
+                leftPage.innerHTML = createComingSoonPage() + createPageLines();
             }
             
             // Update mobile page indicator
             const pageIndicator = document.getElementById('mobilePageIndicator');
             if (pageIndicator) {
-                pageIndicator.textContent = `Page ${pageNum}/${bookPages.length}`;
+                pageIndicator.textContent = `Page ${pageNum}/${chapterMetadata.totalPages}`;
             }
         } else {
             // Desktop - show spread of two pages
@@ -589,25 +298,93 @@ document.addEventListener('DOMContentLoaded', function() {
             const rightPageNum = leftPageNum + 1;
             
             // Left page content
-            if (leftPageNum <= bookPages.length) {
-                leftPage.innerHTML = bookPages[leftPageNum - 1] + 
+            if (leftPageNum <= chapterMetadata.totalPages) {
+                if (loadedPages[leftPageNum]) {
+                    leftPage.innerHTML = loadedPages[leftPageNum] + 
+                        `<div class="page-number page-number-left">${leftPageNum}</div>` +
+                        createPageLines();
+                } else {
+                    leftPage.innerHTML = '<div class="loading-page">Loading...</div>' +
+                        `<div class="page-number page-number-left">${leftPageNum}</div>` +
+                        createPageLines();
+                    // Fetch the missing page
+                    fetchChapterPages(currentChapterId, leftPageNum);
+                }
+            } else if (nextChapterInfo) {
+                // Show next chapter info on the left page
+                leftPage.innerHTML = createNextChapterPage() +
                     `<div class="page-number page-number-left">${leftPageNum}</div>` +
                     createPageLines();
             } else {
-                leftPage.innerHTML = createPageLines() + 
-                    `<div class="page-number page-number-left">${leftPageNum}</div>`;
+                leftPage.innerHTML = createComingSoonPage() + 
+                    `<div class="page-number page-number-left">${leftPageNum}</div>` +
+                    createPageLines();
             }
             
             // Right page content
-            if (rightPageNum <= bookPages.length) {
-                rightPage.innerHTML = bookPages[rightPageNum - 1] + 
+            if (rightPageNum <= chapterMetadata.totalPages) {
+                if (loadedPages[rightPageNum]) {
+                    rightPage.innerHTML = loadedPages[rightPageNum] + 
+                        `<div class="page-number page-number-right">${rightPageNum}</div>` +
+                        createPageLines();
+                } else {
+                    rightPage.innerHTML = '<div class="loading-page">Loading...</div>' +
+                        `<div class="page-number page-number-right">${rightPageNum}</div>` +
+                        createPageLines();
+                    // Fetch the missing page
+                    fetchChapterPages(currentChapterId, rightPageNum);
+                }
+            } else if (nextChapterInfo && leftPageNum <= chapterMetadata.totalPages) {
+                // Show next chapter info only on right page if left page has content
+                rightPage.innerHTML = createNextChapterPage() +
                     `<div class="page-number page-number-right">${rightPageNum}</div>` +
                     createPageLines();
             } else {
-                rightPage.innerHTML = createPageLines() + 
-                    `<div class="page-number page-number-right">${rightPageNum}</div>`;
+                rightPage.innerHTML = createComingSoonPage() + 
+                    `<div class="page-number page-number-right">${rightPageNum}</div>` +
+                    createPageLines();
             }
         }
+    }
+
+    // Function to create the "Purchase Next Chapter" page
+    function createNextChapterPage() {
+        if (!nextChapterInfo) return createComingSoonPage();
+        
+        let purchaseButton = '';
+        if (nextChapterInfo.is_free || nextChapterInfo.is_purchased) {
+            purchaseButton = `<a href="/read/${nextChapterInfo.id}" class="btn btn-portal">Read Now</a>`;
+        } else {
+            purchaseButton = `<a href="${nextChapterInfo.purchase_url}" class="btn btn-portal">Purchase Chapter</a>`;
+        }
+        
+        return `
+            <div class="chapter-content">
+                <h2 class="chapter-title">Continue Your Journey</h2>
+                <h3 class="chapter-description">Chapter ${nextChapterInfo.id}: ${nextChapterInfo.title}</h3>
+                <div class="chapter-purchase">
+                    <p>${nextChapterInfo.description}</p>
+                    <p class="chapter-price">${nextChapterInfo.is_free ? 
+                        '<span class="free-badge">Free</span>' : 
+                        '$' + parseFloat(nextChapterInfo.price).toFixed(2) + ' ' + nextChapterInfo.currency}</p>
+                    ${purchaseButton}
+                </div>
+            </div>
+        `;
+    }
+
+    // Function to create the "Coming Soon" page
+    function createComingSoonPage() {
+        return `
+            <div class="coming-soon">
+                <h2 class="chapter-title">More Chapters Coming Soon</h2>
+                <div class="coming-soon-icon">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <p>The journey continues with new chapters being prepared for your enlightenment.</p>
+                <p>Return soon to discover more cosmic wisdom and revelations.</p>
+            </div>
+        `;
     }
     
     // Update navigation buttons state
@@ -615,7 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // In mobile view, adjust based on total pages rather than spreads
         if (isMobile()) {
             const currentPage = currentSpread + 1;
-            const totalPages = bookPages.length;
+            const totalPages = chapterMetadata ? chapterMetadata.totalPages : 0;
             
             if (prevBtn) {
                 prevBtn.style.opacity = currentPage > 1 ? "1" : "0.3";
@@ -648,14 +425,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (nextBtn) {
-                const maxSpread = Math.ceil(bookPages.length / 2) - 1;
+                const maxSpread = totalSpreads - 1;
                 nextBtn.style.opacity = currentSpread < maxSpread ? "1" : "0.3";
                 nextBtn.style.pointerEvents = currentSpread < maxSpread ? "auto" : "none";
             }
         }
     }
 
-    //function to toggle between desktop and mobile layouts
+    // Function to toggle between desktop and mobile layouts
     function toggleMobileLayout() {
         const bookContainer = document.getElementById('bookContainer');
         const digitalBook = document.getElementById('digitalBook');
@@ -669,8 +446,10 @@ document.addEventListener('DOMContentLoaded', function() {
             bookContainer.classList.add('mobile-view');
             bookContentWrapper.classList.add('mobile-view');
             
-            // Adjust the book pages array for single page view
-            reorganizeContentForMobile();
+            // Recalculate spreads for mobile
+            if (chapterMetadata) {
+                totalSpreads = chapterMetadata.totalPages;
+            }
             
             // Update navigation display
             updateMobilePageIndicator();
@@ -680,36 +459,22 @@ document.addEventListener('DOMContentLoaded', function() {
             bookContainer.classList.remove('mobile-view');
             bookContentWrapper.classList.remove('mobile-view');
             
-            // Reset to original desktop pages
-            processContentIntoPages();
+            // Recalculate spreads for desktop
+            if (chapterMetadata) {
+                totalSpreads = Math.ceil(chapterMetadata.totalPages / 2);
+            }
         }
         
         // Update the visible content
         updatePageContent();
     }
 
-    // Reorganize content for mobile view (single page instead of spread)
-    function reorganizeContentForMobile() {
-        // Store original pages
-        const originalPages = [...bookPages];
-        bookPages = [];
-        
-        // Just use each page individually for mobile
-        originalPages.forEach(page => {
-            bookPages.push(page);
-        });
-        
-        // Recalculate total spreads for mobile (each spread is just 1 page)
-        totalSpreads = bookPages.length;
-    }
-
     // Update mobile page indicator
     function updateMobilePageIndicator() {
         const pageIndicator = document.getElementById('mobilePageIndicator');
-        if (pageIndicator) {
+        if (pageIndicator && chapterMetadata) {
             const currentPage = currentSpread + 1;
-            const totalPages = totalSpreads;
-            pageIndicator.textContent = `Page ${currentPage}/${totalPages}`;
+            pageIndicator.textContent = `Page ${currentPage}/${chapterMetadata.totalPages}`;
         }
     }
     
@@ -797,31 +562,68 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Handle window resize
+    // Handle window resize - now simplified
     function handleResize() {
-        // Reprocess pages based on new size
-        processContentIntoPages();
+        // Check if mobile state changed
+        const wasMobile = isMobile();
         
         // Remember current page
-        const currentPage = currentSpread * 2 + 1;
+        const currentPage = wasMobile ? (currentSpread + 1) : (currentSpread * 2 + 1);
+        
+        // If changing between mobile and desktop, adjust current spread
+        if (wasMobile !== isMobile()) {
+            // Convert current page to appropriate spread
+            currentSpread = isMobile() ? (currentPage - 1) : Math.floor((currentPage - 1) / 2);
+            
+            // Reset layout
+            toggleMobileLayout();
+        }
         
         // Recalculate total spreads
-        totalSpreads = Math.ceil(bookPages.length / 2);
-        
-        // Try to go to same content (approximately)
-        currentSpread = Math.floor((currentPage - 1) / 2);
+        if (chapterMetadata) {
+            totalSpreads = Math.ceil(chapterMetadata.totalPages / (isMobile() ? 1 : 2));
+        }
         
         // Make sure we're not beyond the last spread
         if (currentSpread >= totalSpreads) {
             currentSpread = totalSpreads - 1;
         }
-
-        // Toggle between mobile and desktop layouts
-        toggleMobileLayout();
         
-        // Update page content
+        // Update the display
         updatePageContent();
         updateNavigationButtons();
+    }
+    
+    // Helper functions
+    function getChapterIdFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const chapterId = urlParams.get('open_chapter');
+        
+        // Debug the chapter ID
+        console.log('Chapter ID from URL:', chapterId);
+        
+        // Make sure we return a valid ID or a default
+        return chapterId || (window.bookChapters && window.bookChapters.length > 0 ? window.bookChapters[0].id : null);
+    }
+    
+    function showLoading() {
+        // Add a loading indicator
+        const loadingEl = document.createElement('div');
+        loadingEl.className = 'book-loading';
+        loadingEl.innerHTML = '<div class="loading-spinner"></div>';
+        
+        // Find where to append it
+        const wrapper = document.querySelector('.book-content-wrapper');
+        if (wrapper) {
+            wrapper.appendChild(loadingEl);
+        }
+    }
+    
+    function hideLoading() {
+        const loadingEl = document.querySelector('.book-loading');
+        if (loadingEl) {
+            loadingEl.remove();
+        }
     }
     
     // Event listeners
@@ -887,6 +689,46 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // Add CSS for loading state
+    const style = document.createElement('style');
+    style.textContent = `
+        .book-loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 30, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(138, 43, 226, 0.3);
+            border-radius: 50%;
+            border-top-color: rgba(138, 43, 226, 0.8);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        .loading-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: rgba(138, 43, 226, 0.7);
+            font-style: italic;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(style);
     
     // Initialize the book
     initBook();
