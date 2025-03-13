@@ -63,7 +63,7 @@
     }
     
     .btn-portal, .btn-add-cart {
-        width: 100%;
+        width: 70%;
     }
     
     .related-chapters {
@@ -78,6 +78,7 @@
         text-align: center;
     }
     
+    /* New grid layout for chapters */
     .chapters-list {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -171,6 +172,16 @@
         margin-right: 5px;
     }
     
+    .chapter-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    .chapter-actions form {
+        flex: 1;
+    }
+    
     @media (max-width: 767px) {
         .spell-title {
             font-size: 1.6rem;
@@ -191,6 +202,10 @@
         
         .chapters-list {
             grid-template-columns: 1fr;
+        }
+        
+        .chapter-actions {
+            flex-direction: column;
         }
     }
 </style>
@@ -261,6 +276,15 @@
             <h2 class="related-chapters-title">Chapters Containing This Spell</h2>
             <div class="chapters-list">
                 @foreach($relatedChapters as $chapter)
+                    @php
+                        // Check if the user has purchased this chapter
+                        $chapterPurchased = false;
+                        if (Auth::check()) {
+                            $chapterPurchased = Auth::user()->chapters()
+                                ->where('chapter_id', $chapter->id)
+                                ->exists();
+                        }
+                    @endphp
                     <div class="chapter-card">
                         <h3 class="chapter-title">Chapter {{ $chapter->id }}: {{ $chapter->title }}</h3>
                         <p class="chapter-brief">{{ \Illuminate\Support\Str::limit($chapter->description, 120) }}</p>
@@ -272,10 +296,33 @@
                                 <i class="fas fa-gift"></i> Spell included free with this chapter
                             </div>
                         @endif
+
+                        @if($chapterPurchased)
+                            <div style="text-align: center; margin-top: 15px;">
+                                <p>You already own this chapter.</p>
+                                <a href="{{ route('home') }}" class="btn btn-portal" style="margin-top: 10px;">
+                                    Open Digital Book
+                                </a>
+                            </div>
+                        @else
+                            <div class="chapter-actions">
+                                <form action="{{ route('cart.add') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
+                                    <button type="submit" class="btn btn-add-cart btn-sm">Add to Cart</button>
+                                </form>
+                            </div>
+                            
+                            <div class="chapter-actions" style="margin-top: 5px;">
+                                <form action="{{ route('cart.add') }}" method="POST" style="width: 100%;">
+                                    @csrf
+                                    <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
+                                    <input type="hidden" name="buy_now" value="1">
+                                    <button type="submit" class="btn btn-portal btn-sm">Buy Now</button>
+                                </form>
+                            </div>
+                        @endif
                         
-                        <div style="text-align: center; margin-top: 15px;">
-                            <a href="{{ route('chapters.show', $chapter->id) }}" class="btn btn-portal btn-sm">View Chapter</a>
-                        </div>
                     </div>
                 @endforeach
             </div>
