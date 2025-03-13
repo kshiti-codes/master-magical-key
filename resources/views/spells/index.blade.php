@@ -64,6 +64,35 @@
         font-weight: bold;
         z-index: 5;
     }
+    
+    .spell-status-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .free-with-chapter {
+        background: rgba(0, 128, 0, 0.5);
+        color: white;
+    }
+    
+    .locked-spell {
+        background: rgba(255, 0, 0, 0.5);
+        color: white;
+    }
+    
+    .unlocked-spell {
+        background: rgba(0, 128, 0, 0.7);
+        color: white;
+    }
 </style>
 @endpush
 
@@ -87,9 +116,31 @@
     <div class="spells-grid desktop-only">
         @foreach($spells as $spell)
             <div class="spell-card">
+                @php
+                    // Check if the spell is part of any chapter
+                    $freeWithChapter = $spell->chapters()->where('is_free_with_chapter', true)->exists();
+                    
+                    // Check if user has unlocked via chapter purchase
+                    $unlockedViaChapter = $spell->isAvailableThroughChapter();
+                @endphp
+                
                 @if(in_array($spell->id, $userSpells ?? []))
                     <span class="spell-owned-badge">
                         <i class="fas fa-check-circle"></i> Owned
+                    </span>
+                @elseif($unlockedViaChapter)
+                    <span class="spell-status-badge unlocked-spell">
+                        <i class="fas fa-unlock"></i> Unlocked
+                    </span>
+                @elseif($freeWithChapter)
+                    <span class="spell-status-badge locked-spell">
+                        <i class="fas fa-lock"></i> Locked
+                    </span>
+                @endif
+                
+                @if($freeWithChapter && !$unlockedViaChapter && !in_array($spell->id, $userSpells ?? []))
+                    <span class="spell-status-badge free-with-chapter" style="top: 45px;">
+                        <i class="fas fa-gift"></i> Free with Chapter
                     </span>
                 @endif
                 
@@ -97,9 +148,13 @@
                 <p class="spell-description">{{ $spell->description }}</p>
                 <p class="spell-price">${{ number_format($spell->price, 2) }} AUD</p>
                 
-                @if(in_array($spell->id, $userSpells ?? []))
-                    <a href="{{ route('spells.download', $spell->id) }}" class="btn btn-portal">Download Spell</a>
+                @if(in_array($spell->id, $userSpells ?? []) || $unlockedViaChapter)
+                    <!-- User has access - show download button -->
+                    <a href="{{ route('spells.download', $spell->id) }}" class="btn btn-portal">
+                        <i class="fas fa-download"></i> Download Spell
+                    </a>
                 @else
+                    <!-- User doesn't have access - show purchase options -->
                     <div class="spell-actions">
                         <form action="{{ route('cart.addSpell') }}" method="POST">
                             @csrf
@@ -134,13 +189,34 @@
     <!-- Mobile View - List Layout -->
     <div class="spells-list mobile-only">
         @foreach($spells as $spell)
+            @php
+                // Check if the spell is part of any chapter
+                $freeWithChapter = $spell->chapters()->where('is_free_with_chapter', true)->exists();
+                
+                // Check if user has unlocked via chapter purchase
+                $unlockedViaChapter = $spell->isAvailableThroughChapter();
+            @endphp
+            
             <div class="spell-list-item">
                 <div class="spell-info">
-                    <h2 class="spell-title">{{ $spell->title }}</h2>
+                    <h2 class="spell-title">
+                        {{ $spell->title }}
+                        @if(in_array($spell->id, $userSpells ?? []))
+                            <span class="badge bg-success" style="font-size: 0.6rem; vertical-align: middle;">Owned</span>
+                        @elseif($unlockedViaChapter)
+                            <span class="badge bg-success" style="font-size: 0.6rem; vertical-align: middle;">Unlocked</span>
+                        @elseif($freeWithChapter)
+                            <span class="badge bg-danger" style="font-size: 0.6rem; vertical-align: middle;">Locked</span>
+                        @endif
+                        
+                        @if($freeWithChapter && !$unlockedViaChapter && !in_array($spell->id, $userSpells ?? []))
+                            <span class="badge bg-info" style="font-size: 0.6rem; vertical-align: middle;">Free with Chapter</span>
+                        @endif
+                    </h2>
                     <p class="spell-price">${{ number_format($spell->price, 2) }} AUD</p>
                 </div>
                 
-                @if(in_array($spell->id, $userSpells ?? []))
+                @if(in_array($spell->id, $userSpells ?? []) || $unlockedViaChapter)
                     <a href="{{ route('spells.download', $spell->id) }}" class="btn-portal btn-sm">Download</a>
                 @else
                     <div class="spell-actions-mobile">
