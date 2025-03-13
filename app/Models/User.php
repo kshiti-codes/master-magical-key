@@ -68,4 +68,49 @@ class User extends Authenticatable
         
         return $cart;
     }
+
+    /**
+     * Get the spells owned by the user.
+     */
+    public function spells()
+    {
+        return $this->belongsToMany(Spell::class, 'user_spells')
+            ->withPivot('purchased_at', 'last_downloaded_at', 'download_count')
+            ->withTimestamps();
+    }
+
+    /**
+     * Check if user has access to a specific spell
+     */
+    public function hasSpell(Spell $spell)
+    {
+        // Direct purchase check
+        $directPurchase = $this->spells()->where('spell_id', $spell->id)->exists();
+        
+        if ($directPurchase) {
+            return true;
+        }
+        
+        // Check if user has a chapter that includes this spell for free
+        $chapterIds = $spell->chapters()
+            ->where('is_free_with_chapter', true)
+            ->pluck('chapters.id');
+        
+        return $this->chapters()->whereIn('chapter_id', $chapterIds)->exists();
+    }
+
+    /**
+     * Grant access to a spell for this user
+     */
+    public function grantSpellAccess(Spell $spell)
+    {
+        // Only add if not already owned
+        if (!$this->hasSpell($spell)) {
+            $this->spells()->attach($spell->id, [
+                'purchased_at' => now()
+            ]);
+        }
+        
+        return $this;
+    }
 }

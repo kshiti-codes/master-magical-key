@@ -99,6 +99,47 @@
         font-family: 'Courier New', monospace;
         letter-spacing: 1px;
     }
+    
+    .item-type-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+    
+    .item-type-chapter {
+        background: rgba(138, 43, 226, 0.3);
+        color: #d8b5ff;
+    }
+    
+    .item-type-spell {
+        background: rgba(0, 128, 128, 0.3);
+        color: #a0ffd8;
+    }
+    
+    .free-badge {
+        background: rgba(0, 128, 0, 0.3);
+        color: #a0ffa0;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        margin-left: 5px;
+    }
+    
+    .order-section {
+        margin-bottom: 30px;
+    }
+    
+    .order-section-title {
+        font-family: 'Cinzel', serif;
+        color: #d8b5ff;
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+    }
 </style>
 @endpush
 
@@ -117,36 +158,79 @@
         </div>
         
         <!-- Purchased Items -->
-        <h3>Purchased Items</h3>
-        <table class="purchase-items-table">
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th class="text-right">Price</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if(isset($purchasedItems) && count($purchasedItems) > 0)
-                    @foreach($purchasedItems as $item)
+        @php
+            $chapterItems = collect($purchasedItems)->where('type', 'chapter');
+            $spellItems = collect($purchasedItems)->where('type', 'spell');
+        @endphp
+        
+        @if($chapterItems->count() > 0)
+            <div class="order-section">
+                <h3 class="order-section-title">Purchased Chapters</h3>
+                <table class="purchase-items-table">
+                    <thead>
                         <tr>
-                            <td>
-                                <div class="item-title">Chapter {{ $item['chapter_id'] }}: {{ $item['title'] }}</div>
-                                @if(isset($item['quantity']) && $item['quantity'] > 1)
-                                    <div class="item-quantity">Qty: {{ $item['quantity'] }}</div>
-                                @endif
-                            </td>
-                            <td class="text-right">${{ number_format($item['price'] * ($item['quantity'] ?? 1), 2) }}</td>
+                            <th>Chapter</th>
+                            <th class="text-right">Price</th>
                         </tr>
-                    @endforeach
-                @else
-                    <tr>
-                        <td colspan="2" class="text-center">
-                            Thank you for your purchase. Your items will be available in your digital book.
-                        </td>
-                    </tr>
-                @endif
-            </tbody>
-        </table>
+                    </thead>
+                    <tbody>
+                        @foreach($chapterItems as $item)
+                            <tr>
+                                <td>
+                                    <div class="item-title">
+                                        <span class="item-type-badge item-type-chapter">Chapter</span>
+                                        Chapter {{ $item['chapter_id'] }}: {{ $item['title'] }}
+                                    </div>
+                                    @if(isset($item['quantity']) && $item['quantity'] > 1)
+                                        <div class="item-quantity">Qty: {{ $item['quantity'] }}</div>
+                                    @endif
+                                </td>
+                                <td class="text-right">${{ number_format($item['price'] * ($item['quantity'] ?? 1), 2) }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+        
+        @if($spellItems->count() > 0)
+            <div class="order-section">
+                <h3 class="order-section-title">Purchased Spells</h3>
+                <table class="purchase-items-table">
+                    <thead>
+                        <tr>
+                            <th>Spell</th>
+                            <th class="text-right">Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($spellItems as $item)
+                            <tr>
+                                <td>
+                                    <div class="item-title">
+                                        <span class="item-type-badge item-type-spell">Spell</span>
+                                        {{ $item['title'] }}
+                                        @if(isset($item['free_with_chapter']) && $item['free_with_chapter'])
+                                            <span class="free-badge">Free with Chapter</span>
+                                        @endif
+                                    </div>
+                                    @if(isset($item['quantity']) && $item['quantity'] > 1)
+                                        <div class="item-quantity">Qty: {{ $item['quantity'] }}</div>
+                                    @endif
+                                </td>
+                                <td class="text-right">
+                                    @if(isset($item['free_with_chapter']) && $item['free_with_chapter'])
+                                        <span style="color: #a0ffa0;">Free</span>
+                                    @else
+                                        ${{ number_format($item['price'] * ($item['quantity'] ?? 1), 2) }}
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
         
         <!-- Purchase Summary -->
         <div class="purchase-summary">
@@ -167,13 +251,29 @@
         </div>
         
         <div class="success-actions">
-            <a href="{{ route('home') }}" class="btn-read">
-                Open Digital Book
-            </a>
+            @if($chapterItems->count() > 0)
+                <a href="{{ route('home') }}" class="btn-read">
+                    Open Digital Book
+                </a>
+            @endif
+            
+            @if($spellItems->count() > 0)
+                <a href="{{ route('spells.index') }}" class="btn-read">
+                    View My Spells
+                </a>
+            @endif
             
             <a href="{{ route('chapters.index') }}" class="btn-chapters">
-                Back to Chapters
+                Browse More Chapters
             </a>
+            
+            <a href="{{ route('spells.index') }}" class="btn-chapters">
+                Browse More Spells
+            </a>
+        </div>
+        
+        <div style="margin-top: 20px; text-align: center;">
+            <p>An invoice has been sent to your email address.</p>
         </div>
     </div>
 </div>
@@ -219,17 +319,20 @@
             particlesContainer.appendChild(particle);
         }
         
-        // Add keyframes
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeInOut {
-                0% { transform: translateY(0) scale(1); opacity: 0; }
-                20% { opacity: 0.7; }
-                80% { opacity: 0.7; }
-                100% { transform: translateY(-50px) scale(0.5); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
+        // Add keyframes if not already in stylesheet
+        if (!document.getElementById('success-animation-style')) {
+            const style = document.createElement('style');
+            style.id = 'success-animation-style';
+            style.textContent = `
+                @keyframes fadeInOut {
+                    0% { transform: translateY(0) scale(1); opacity: 0; }
+                    20% { opacity: 0.7; }
+                    80% { opacity: 0.7; }
+                    100% { transform: translateY(-50px) scale(0.5); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
     });
 </script>
 @endpush

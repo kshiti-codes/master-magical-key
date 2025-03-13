@@ -30,6 +30,69 @@ class Cart extends Model
     }
 
     /**
+     * Add a spell to the cart.
+     */
+    public function addSpell(Spell $spell, $quantity = 1)
+    {
+        // Check if spell already in cart
+        $existingItem = $this->items()->where('spell_id', $spell->id)
+                            ->where('item_type', 'spell')  // Make sure we're checking for spell type
+                            ->first();
+
+        if ($existingItem) {
+            // Update quantity
+            $existingItem->update([
+                'quantity' => $existingItem->quantity + $quantity
+            ]);
+            return $existingItem;
+        }
+
+        // Add new item - MAKE SURE item_type is set to 'spell' here!
+        return $this->items()->create([
+            'spell_id' => $spell->id,
+            'item_type' => 'spell',  // This MUST be 'spell'
+            'quantity' => $quantity,
+            'price' => $spell->price
+        ]);
+    }
+
+    /**
+     * Get the subtotal for chapters.
+     */
+    public function getChaptersSubtotalAttribute()
+    {
+        return $this->items->where('item_type', 'chapter')->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
+    }
+
+    /**
+     * Get the subtotal for spells.
+     */
+    public function getSpellsSubtotalAttribute()
+    {
+        return $this->items->where('item_type', 'spell')->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
+    }
+
+    /**
+     * Get the count of spells in the cart.
+     */
+    public function getSpellsCountAttribute()
+    {
+        return $this->items->where('item_type', 'spell')->sum('quantity');
+    }
+
+    /**
+     * Get the count of chapters in the cart.
+     */
+    public function getChaptersCountAttribute()
+    {
+        return $this->items->where('item_type', 'chapter')->sum('quantity');
+    }
+
+    /**
      * Get the total price of all items in the cart (before tax).
      */
     public function getSubtotalAttribute()

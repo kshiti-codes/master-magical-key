@@ -14,6 +14,7 @@
             <a href="{{ route('home') }}" class="menu-link">Home</a>
             <a href="{{ route('about') }}" class="menu-link">About</a>
             <a href="{{ route('chapters.index') }}" class="menu-link">Chapters</a>
+            <a href="{{ route('spells.index') }}" class="menu-link">Spells</a>
             @guest
                 <a href="{{ route('login') }}" class="menu-link">Login</a>
                 <a href="{{ route('register') }}" class="menu-link">Register</a>

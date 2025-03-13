@@ -71,6 +71,38 @@
         border-radius: 5px;
         cursor: pointer;
     }
+    
+    .item-type-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+    
+    .item-type-chapter {
+        background: rgba(138, 43, 226, 0.3);
+        color: #d8b5ff;
+    }
+    
+    .item-type-spell {
+        background: rgba(0, 128, 128, 0.3);
+        color: #a0ffd8;
+    }
+    
+    .cart-section-divider {
+        border-top: 1px dashed rgba(138, 43, 226, 0.3);
+        margin: 20px 0;
+        padding-top: 15px;
+    }
+    
+    .cart-section-title {
+        color: #d8b5ff;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
 </style>
 @endpush
 
@@ -96,43 +128,119 @@
                 <i class="fas fa-shopping-cart"></i>
             </div>
             <h2>Your cart is empty</h2>
-            <p>Explore the mystical chapters and embark on your cosmic journey.</p>
-            <a href="{{ route('chapters.index') }}" class="btn-checkout mt-4">Browse Chapters</a>
+            <p>Explore the mystical chapters and spells to begin your cosmic journey.</p>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+                <a href="{{ route('chapters.index') }}" class="btn-checkout">Browse Chapters</a>
+                <a href="{{ route('spells.index') }}" class="btn-checkout">Browse Spells</a>
+            </div>
         </div>
     @else
         <div class="cart-items">
-            @foreach($cart->items as $item)
-                <div class="cart-item" id="cart-item-{{ $item->id }}">
-                    <div class="item-details">
-                        <h3 class="item-title">Chapter {{ $item->chapter->id }}: {{ $item->chapter->title }}</h3>
-                        <p class="item-description">{{ Str::limit($item->chapter->description, 100) }}</p>
-                    </div>
-                    
-                    <div class="item-price">${{ number_format($item->total, 2) }}</div>
-                    
-                    <div class="item-remove">
-                        <button type="button" class="remove-btn" onclick="showRemoveConfirmation('{{ $item->id }}')">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </div>
-                    
-                    <!-- Remove Confirmation Overlay -->
-                    <div class="remove-confirmation" id="remove-confirmation-{{ $item->id }}">
-                        <div class="confirm-content">
-                            <p>Remove this chapter from your cart?</p>
-                            <div class="confirmation-buttons">
-                                <form action="{{ route('cart.remove') }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <input type="hidden" name="cart_item_id" value="{{ $item->id }}">
-                                    <button type="submit" class="btn-confirm-remove">Remove</button>
-                                </form>
-                                <button type="button" class="btn-cancel-remove" onclick="hideRemoveConfirmation('{{ $item->id }}')">Cancel</button>
+            <!-- Chapter Items -->
+            @php
+                $chapterItems = $cart->items->where('item_type', 'chapter');
+                $spellItems = $cart->items->where('item_type', 'spell');
+            @endphp
+            
+            @if($chapterItems->count() > 0)
+                <h3 class="cart-section-title">Chapters</h3>
+                
+                @foreach($chapterItems as $item)
+                    <div class="cart-item" id="cart-item-{{ $item->id }}">
+                        <div class="item-details">
+                            <h3 class="item-title">
+                                @if($item->item_type == 'chapter' && $item->chapter)
+                                    <span class="item-type-badge item-type-chapter">Chapter</span>
+                                    Chapter {{ $item->chapter->id }}: {{ $item->chapter->title }}
+                                @elseif($item->item_type == 'spell' && $item->spell)
+                                    <span class="item-type-badge item-type-spell">Spell</span>
+                                    {{ $item->spell->title }}
+                                @else
+                                    <span class="item-type-badge">Unknown Item</span>
+                                @endif
+                            </h3>
+                            <p class="item-description">
+                                @if($item->item_type == 'chapter' && $item->chapter)
+                                    {{ Str::limit($item->chapter->description, 100) }}
+                                @elseif($item->item_type == 'spell' && $item->spell)
+                                    {{ Str::limit($item->spell->description, 100) }}
+                                @else
+                                    No description available
+                                @endif
+                            </p>
+                        </div>
+                        
+                        <div class="item-price">${{ number_format($item->total, 2) }}</div>
+                        
+                        <div class="item-remove">
+                            <button type="button" class="remove-btn" onclick="showRemoveConfirmation('{{ $item->id }}')">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Remove Confirmation Overlay -->
+                        <div class="remove-confirmation" id="remove-confirmation-{{ $item->id }}">
+                            <div class="confirm-content">
+                                <p>Remove this chapter from your cart?</p>
+                                <div class="confirmation-buttons">
+                                    <form action="{{ route('cart.remove') }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <input type="hidden" name="cart_item_id" value="{{ $item->id }}">
+                                        <button type="submit" class="btn-confirm-remove">Remove</button>
+                                    </form>
+                                    <button type="button" class="btn-cancel-remove" onclick="hideRemoveConfirmation('{{ $item->id }}')">Cancel</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
+            @endif
+            
+            <!-- Spell Items -->
+            @if($spellItems->count() > 0)
+                @if($chapterItems->count() > 0)
+                    <div class="cart-section-divider"></div>
+                @endif
+                
+                <h3 class="cart-section-title">Spells</h3>
+                
+                @foreach($spellItems as $item)
+                    <div class="cart-item" id="cart-item-{{ $item->id }}">
+                        <div class="item-details">
+                            <h3 class="item-title">
+                                <span class="item-type-badge item-type-spell">Spell</span>
+                                {{ $item->spell->title }}
+                            </h3>
+                            <p class="item-description">{{ Str::limit($item->spell->description, 100) }}</p>
+                        </div>
+                        
+                        <div class="item-price">${{ number_format($item->total, 2) }}</div>
+                        
+                        <div class="item-remove">
+                            <button type="button" class="remove-btn" onclick="showRemoveConfirmation('{{ $item->id }}')">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Remove Confirmation Overlay -->
+                        <div class="remove-confirmation" id="remove-confirmation-{{ $item->id }}">
+                            <div class="confirm-content">
+                                <p>Remove this spell from your cart?</p>
+                                <div class="confirmation-buttons">
+                                    <form action="{{ route('cart.remove') }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <input type="hidden" name="cart_item_id" value="{{ $item->id }}">
+                                        <button type="submit" class="btn-confirm-remove">Remove</button>
+                                    </form>
+                                    <button type="button" class="btn-cancel-remove" onclick="hideRemoveConfirmation('{{ $item->id }}')">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @endif
         </div>
         
         <div class="cart-summary">
@@ -154,9 +262,14 @@
             </div>
             
             <div class="cart-actions">
-                <a href="{{ route('chapters.index') }}" class="continue-shopping">
-                    <i class="fas fa-arrow-left"></i> Continue Shopping
-                </a>
+                <div style="display: flex; gap: 10px;">
+                    <a href="{{ route('chapters.index') }}" class="continue-shopping">
+                        <i class="fas fa-arrow-left"></i> Chapters
+                    </a>
+                    <a href="{{ route('spells.index') }}" class="continue-shopping">
+                        <i class="fas fa-magic"></i> Spells
+                    </a>
+                </div>
                 
                 <a href="{{ route('cart.checkout') }}" class="btn-checkout">
                     Proceed to Checkout
@@ -177,34 +290,6 @@
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Quantity buttons functionality
-        const minusBtns = document.querySelectorAll('.quantity-minus');
-        const plusBtns = document.querySelectorAll('.quantity-plus');
-        
-        minusBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const input = this.parentNode.querySelector('.quantity-input');
-                let value = parseInt(input.value);
-                if (value > 1) {
-                    input.value = value - 1;
-                    this.closest('form').submit();
-                }
-            });
-        });
-        
-        plusBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const input = this.parentNode.querySelector('.quantity-input');
-                let value = parseInt(input.value);
-                if (value < 10) {
-                    input.value = value + 1;
-                    this.closest('form').submit();
-                }
-            });
-        });
-    });
-    
     // Remove confirmation functions
     function showRemoveConfirmation(itemId) {
         const confirmation = document.getElementById(`remove-confirmation-${itemId}`);

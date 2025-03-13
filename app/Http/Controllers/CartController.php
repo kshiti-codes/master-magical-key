@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Chapter;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Spell;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,6 +17,10 @@ class CartController extends Controller
     public function index()
     {
         $cart = Auth::user()->getCart();
+
+        // Eager load relationships
+        // $cart->load(['items.chapter', 'items.spell']);
+
         return view('cart.index', compact('cart'));
     }
 
@@ -50,6 +55,38 @@ class CartController extends Controller
         
         return back()->with('success', 'Chapter added to your cart!');
     }
+
+    public function addSpell(Request $request)
+    {
+        $request->validate([
+            'spell_id' => 'required|exists:spells,id',
+            'quantity' => 'integer|min:1|max:10',
+        ]);
+
+        $spell = Spell::findOrFail($request->spell_id);
+        $cart = Auth::user()->getCart();
+        
+        // Check if the user already owns this spell
+        if (Auth::user()->hasSpell($spell)) {
+            return back()->with('info', 'You already own this spell.');
+        }
+
+        // Add to cart - make sure this is calling the correct addSpell method
+        $cart->addSpell($spell, $request->quantity ?? 1);
+
+        // Find all cart items with spell_id but incorrect item_type
+        $itemsToFix = \App\Models\CartItem::whereNotNull('spell_id')
+        ->where('item_type', '!=', 'spell')
+        ->update(['item_type' => 'spell']);
+
+        // Determine if we should redirect to cart or checkout
+        if ($request->buy_now) {
+            return redirect()->route('cart.checkout');
+        }
+        
+        return back()->with('success', 'Spell added to your cart!');
+    }
+
 
     /**
      * Update cart item quantity.
@@ -109,7 +146,11 @@ class CartController extends Controller
             return redirect()->route('cart.index')
                 ->with('error', 'Your cart is empty. Please add chapters before checkout.');
         }
+
+        // Group items by type for display
+        $chapterItems = $cart->items->where('item_type', 'chapter');
+        $spellItems = $cart->items->where('item_type', 'spell');
         
-        return view('cart.checkout', compact('cart'));
+        return view('cart.checkout', compact('cart', 'chapterItems', 'spellItems'));
     }
 }

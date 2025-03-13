@@ -84,4 +84,36 @@ class Chapter extends Model
     {
         return $this->hasMany(ChapterPage::class)->orderBy('page_number');
     }
+
+    /**
+     * Get the spells associated with this chapter.
+     */
+    public function spells()
+    {
+        return $this->belongsToMany(Spell::class)
+            ->withPivot('is_free_with_chapter')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the free spells associated with this chapter.
+     */
+    public function freeSpells()
+    {
+        return $this->belongsToMany(Spell::class)
+            ->withPivot('is_free_with_chapter')
+            ->wherePivot('is_free_with_chapter', true)
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the premium spells associated with this chapter.
+     */
+    public function premiumSpells()
+    {
+        return $this->belongsToMany(Spell::class)
+            ->withPivot('is_free_with_chapter')
+            ->wherePivot('is_free_with_chapter', false)
+            ->withTimestamps();
+    }
 }

@@ -165,6 +165,38 @@
         margin: 0 auto;
     }
     
+    .order-section {
+        margin-bottom: 30px;
+    }
+    
+    .order-section-title {
+        font-family: 'Cinzel', serif;
+        color: #d8b5ff;
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+    }
+    
+    .item-type-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+    
+    .item-type-chapter {
+        background: rgba(138, 43, 226, 0.3);
+        color: #d8b5ff;
+    }
+    
+    .item-type-spell {
+        background: rgba(0, 128, 128, 0.3);
+        color: #a0ffd8;
+    }
+    
     @media (max-width: 767px) {
         .steps-line {
             left: 30px;
@@ -211,31 +243,76 @@
         </div>
         
         <!-- Order Items -->
-        <h3 class="section-title">Order Items</h3>
+        @php
+            $chapterItems = $cart->items->where('item_type', 'chapter');
+            $spellItems = $cart->items->where('item_type', 'spell');
+        @endphp
         
-        <table class="order-table">
-            <thead>
-                <tr>
-                    <th>Chapter</th>
-                    <th class="text-center">Qty</th>
-                    <th>Price</th>
-                    <th class="text-right">Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($cart->items as $item)
-                <tr>
-                    <td>
-                        <div class="item-title">Chapter {{ $item->chapter->id }}: {{ $item->chapter->title }}</div>
-                        <div class="item-description">{{ Str::limit($item->chapter->description, 80) }}</div>
-                    </td>
-                    <td class="text-center">{{ $item->quantity }}</td>
-                    <td>${{ number_format($item->price, 2) }}</td>
-                    <td class="text-right">${{ number_format($item->total, 2) }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+        @if($chapterItems->count() > 0)
+            <div class="order-section">
+                <h3 class="order-section-title">Chapters</h3>
+                
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>Chapter</th>
+                            <th class="text-center">Qty</th>
+                            <th>Price</th>
+                            <th class="text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($chapterItems as $item)
+                        <tr>
+                            <td>
+                                <div class="item-title">
+                                    <span class="item-type-badge item-type-chapter">Chapter</span>
+                                    Chapter {{ $item->chapter->id }}: {{ $item->chapter->title }}
+                                </div>
+                                <div class="item-description">{{ Str::limit($item->chapter->description, 80) }}</div>
+                            </td>
+                            <td class="text-center">{{ $item->quantity }}</td>
+                            <td>${{ number_format($item->price, 2) }}</td>
+                            <td class="text-right">${{ number_format($item->total, 2) }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+        
+        @if($spellItems->count() > 0)
+            <div class="order-section">
+                <h3 class="order-section-title">Spells</h3>
+                
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>Spell</th>
+                            <th class="text-center">Qty</th>
+                            <th>Price</th>
+                            <th class="text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($spellItems as $item)
+                        <tr>
+                            <td>
+                                <div class="item-title">
+                                    <span class="item-type-badge item-type-spell">Spell</span>
+                                    {{ $item->spell->title }}
+                                </div>
+                                <div class="item-description">{{ Str::limit($item->spell->description, 80) }}</div>
+                            </td>
+                            <td class="text-center">{{ $item->quantity }}</td>
+                            <td>${{ number_format($item->price, 2) }}</td>
+                            <td class="text-right">${{ number_format($item->total, 2) }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
         
         <!-- Price Summary -->
         <table class="price-summary-table">
@@ -270,7 +347,7 @@
             
             <div class="payment-note text-center mt-4">
                 <p>You will be redirected to PayPal to complete your payment.</p>
-                <p>After payment, you'll have immediate access to all purchased chapters.</p>
+                <p>After payment, you'll have immediate access to all purchased items.</p>
             </div>
         </div>
         
