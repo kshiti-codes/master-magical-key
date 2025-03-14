@@ -146,19 +146,66 @@ class ChapterController extends Controller
             ];
         }
         
+        // Format response
+        $response = [
+            'chapter_id' => $chapter->id,
+            'title' => $chapter->title,
+            'total_pages' => $totalPages,
+            'current_page' => (int)$page,
+            'pages' => $pages->map(function($page) {
+                return [
+                    'page_number' => $page->page_number,
+                    'content' => $page->formatted_content
+                ];
+            }),
+            'next_chapter' => $nextChapterInfo,
+            'audio' => null
+        ];
+        
+        // Add audio information if available
+        if ($chapter->has_audio && $chapter->audio_path) {
+            $response['audio'] = [
+                'available' => true,
+                'path' => asset($chapter->audio_path),
+                'format' => $chapter->audio_format,
+                'duration' => $chapter->audio_duration
+            ];
+        }
+        
+        return response()->json($response);
+    }
+
+    /**
+     * Get audio for a chapter
+     *
+     * @param Chapter $chapter
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAudio(Chapter $chapter)
+    {
+        // Check if user has purchased this chapter if it's not free
+        if ($chapter->price > 0 && !$chapter->isPurchased()) {
+            return response()->json([
+                'error' => 'Unauthorized access'
+            ], 403);
+        }
+        
+        // Check if chapter has audio
+        if (!$chapter->has_audio || !$chapter->audio_path) {
+            return response()->json([
+                'error' => 'No audio available for this chapter'
+            ], 404);
+        }
+        
+        // Return audio information
         return response()->json([
             'chapter_id' => $chapter->id,
             'title' => $chapter->title,
-            'current_page' => (int)$page,
-            'per_page' => $perPage,
-            'total_pages' => $totalPages,
-            'next_chapter' => $nextChapterInfo,
-            'pages' => $pages->map(function($p) {
-                return [
-                    'page_number' => $p->page_number,
-                    'content' => $p->formatted_content
-                ];
-            })
+            'audio' => [
+                'path' => asset($chapter->audio_path),
+                'format' => $chapter->audio_format,
+                'duration' => $chapter->audio_duration
+            ]
         ]);
     }
 

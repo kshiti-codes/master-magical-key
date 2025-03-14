@@ -5,12 +5,14 @@
 <link href="{{ asset('css/components/home.css') }}" rel="stylesheet">
 <link href="{{ asset('css/components/digital-book.css') }}" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('css/components/disclaimer.css') }}">
+<link href="{{ asset('css/components/audio-player.css') }}" rel="stylesheet">
 @endpush
 
 @push('scripts')
 <script src="{{ asset('js/components/magical-door.js') }}" defer></script>
 <script src="{{ asset('js/components/digital-book.js') }}" defer></script>
 <script src="{{ asset('js/components/disclaimer.js') }}"></script>
+<script src="{{ asset('js/components/audio-player.js') }}" defer></script>
 <script>
     // Pass chapters data to JavaScript
     window.bookChapters = [

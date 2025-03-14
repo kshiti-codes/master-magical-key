@@ -39,6 +39,10 @@ Route::middleware(['auth'])->group(function () {
     // User dashboard
     // Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
 
+    // Audio API endpoint
+    Route::get('/api/chapters/{chapter}/audio', [ChapterController::class, 'getAudio'])
+    ->name('api.chapters.audio');
+
     // Spell download
     Route::get('/spells/{spell}/download', [SpellController::class, 'download'])->name('spells.download');
     

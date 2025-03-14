@@ -15,6 +15,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const mobilePrevBtn = document.getElementById('mobilePrevBtn');
     const mobileNextBtn = document.getElementById('mobileNextBtn');
     const mobileCloseBtn = document.getElementById('mobileCloseBtn');
+
+    // Audio player integration
+    let chapterHasAudio = false;
+    let chapterAudioInfo = null;
     
     if (!digitalBook || !bookContainer) return;
 
@@ -114,6 +118,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 data.pages.forEach(page => {
                     loadedPages[page.page_number] = page.content;
                 });
+
+                // Handle audio if available
+                if (data.audio) {
+                    handleChapterAudio(data.audio);
+                } else {
+                    chapterHasAudio = false;
+                    const floatingAudioBtn = document.getElementById('floatingAudioBtn');
+                    if (floatingAudioBtn) {
+                        floatingAudioBtn.classList.add('hidden');
+                    }
+                }
                 
                 // Call the callback function if provided
                 if (typeof callback === 'function') {
@@ -132,6 +147,98 @@ document.addEventListener('DOMContentLoaded', function() {
                 hideLoading();
             });
     }
+
+    // Function to handle chapter audio
+    function handleChapterAudio(audioInfo) {
+        if (!audioInfo || !window.ChapterAudio) {
+            chapterHasAudio = false;
+            return;
+        }
+        
+        // Make sure the book is actually open before showing audio controls
+        const doorContent = document.getElementById('doorContent');
+        const isBookOpen = doorContent && doorContent.classList.contains('visible');
+        
+        if (!isBookOpen) {
+            chapterHasAudio = false;
+            return;
+        }
+        
+        // Initialize audio player if not already initialized
+        if (window.ChapterAudio && !window.ChapterAudio.isAvailable()) {
+            window.ChapterAudio.initialize();
+        }
+        
+        chapterHasAudio = true;
+        chapterAudioInfo = audioInfo;
+        
+        // Check if floating audio play button exists already
+        let floatingAudioBtn = document.getElementById('floatingAudioBtn');
+        if (!floatingAudioBtn) {
+            floatingAudioBtn = document.createElement('div');
+            floatingAudioBtn.id = 'floatingAudioBtn';
+            floatingAudioBtn.className = 'floating-audio-play';
+            floatingAudioBtn.innerHTML = '<i class="fas fa-headphones"></i>';
+            floatingAudioBtn.setAttribute('title', 'Listen to chapter narration');
+            document.body.appendChild(floatingAudioBtn);
+            
+            // Add click event
+            floatingAudioBtn.addEventListener('click', function() {
+                toggleChapterAudio();
+            });
+        } else {
+            floatingAudioBtn.classList.remove('hidden');
+        }
+    }
+
+    // Toggle chapter audio playback
+    function toggleChapterAudio() {
+        if (!chapterHasAudio || !chapterAudioInfo || !window.ChapterAudio) return;
+        
+        // If audio is already playing this chapter
+        if (window.ChapterAudio.isAvailable() && 
+            window.ChapterAudio.getCurrentChapterId() === currentChapterId) {
+            // Just toggle play/pause
+            window.ChapterAudio.togglePlay();
+        } else {
+            // Load and play the chapter audio
+            window.ChapterAudio.loadChapterAudio(
+                currentChapterId,
+                chapterAudioInfo.path,
+                chapterMetadata ? chapterMetadata.title : `Chapter ${currentChapterId}`
+            );
+            
+            // Start playing after a short delay to ensure loading
+            setTimeout(() => {
+                window.ChapterAudio.play();
+            }, 300);
+        }
+    }
+
+    // Hide audio controls when closing the book
+    function hideAudioControls() {
+        // Find the floating audio button
+        const floatingAudioBtn = document.getElementById('floatingAudioBtn');
+        if (floatingAudioBtn) {
+            floatingAudioBtn.classList.add('hidden');
+        }
+        
+        // If audio is playing, pause it
+        if (window.ChapterAudio && window.ChapterAudio.isCurrentlyPlaying()) {
+            window.ChapterAudio.pause();
+        }
+    }
+
+    // Show audio controls when opening the book (if chapter has audio)
+    function showAudioControls() {
+        if (!chapterHasAudio) return;
+        
+        const floatingAudioBtn = document.getElementById('floatingAudioBtn');
+        if (floatingAudioBtn) {
+            floatingAudioBtn.classList.remove('hidden');
+        }
+    }
+
 
     // Add this function to detect mobile devices
     function isMobile() {
@@ -642,6 +749,9 @@ document.addEventListener('DOMContentLoaded', function() {
         closeBookBtn.addEventListener('click', function() {
             const doorContent = document.getElementById('doorContent');
             const magicalDoor = document.getElementById('magicalDoor');
+
+            // Hide audio controls
+            hideAudioControls();
             
             if (doorContent) {
                 doorContent.classList.remove('visible');

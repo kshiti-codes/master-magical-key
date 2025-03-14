@@ -13,6 +13,22 @@ document.addEventListener('DOMContentLoaded', function() {
             if (this.classList.contains('open')) {
                 // Close door
                 doorContent.classList.remove('visible');
+
+                // Hide any audio elements
+                const floatingAudioBtn = document.getElementById('floatingAudioBtn');
+                if (floatingAudioBtn) {
+                    floatingAudioBtn.classList.add('hidden');
+                }
+                
+                const audioPlayer = document.getElementById('chapterAudioPlayer');
+                if (audioPlayer) {
+                    audioPlayer.classList.add('hidden');
+                }
+                
+                // Pause any playing audio
+                if (window.ChapterAudio && window.ChapterAudio.isCurrentlyPlaying()) {
+                    window.ChapterAudio.pause();
+                }
                 if (titleContainer) {
                     titleContainer.classList.remove('title-exit');
                 }
@@ -31,6 +47,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 setTimeout(() => {
                     doorContent.classList.add('visible');
+                    // Explicitly check for any audio elements that should now be visible
+                    if (window.ChapterAudio && typeof window.fetchChapterPages === 'function') {
+                        // The book is now open, audio can be initialized if needed
+                        if (chapterHasAudio && chapterAudioInfo) {
+                            const floatingAudioBtn = document.getElementById('floatingAudioBtn');
+                            if (floatingAudioBtn) {
+                                floatingAudioBtn.classList.remove('hidden');
+                            }
+                        }
+                    }
                 }, 800);
             }
         });
