@@ -1,0 +1,293 @@
+/* public/css/components/background-audio.css */
+
+.background-audio-toggle {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(10, 10, 30, 0.7);
+    border: 1px solid rgba(138, 43, 226, 0.5);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 100;
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+    transition: all 0.3s ease;
+}
+
+.background-audio-toggle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+}
+
+.background-audio-toggle.active {
+    background: rgba(138, 43, 226, 0.6);
+}
+
+.background-audio-pulse {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(138, 43, 226, 0.3);
+    animation: pulse-ring 2s infinite;
+    pointer-events: none;
+}
+
+.background-audio-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+}
+
+.background-audio-toggle .equalizer {
+    display: none;
+    height: 20px;
+    width: 20px;
+    position: relative;
+}
+
+.background-audio-toggle.active .equalizer {
+    display: flex;
+}
+
+.background-audio-toggle.active .fa-music {
+    display: none;
+}
+
+.background-audio-toggle .equalizer span {
+    width: 3px;
+    margin: 0 1px;
+    background: white;
+    animation: equalize 1s ease-in-out infinite;
+}
+
+.background-audio-toggle .equalizer span:nth-child(1) {
+    animation-delay: 0.1s;
+    height: 15px;
+}
+
+.background-audio-toggle .equalizer span:nth-child(2) {
+    animation-delay: 0.3s;
+    height: 10px;
+}
+
+.background-audio-toggle .equalizer span:nth-child(3) {
+    animation-delay: 0.5s;
+    height: 18px;
+}
+
+.background-audio-toggle .equalizer span:nth-child(4) {
+    animation-delay: 0.2s;
+    height: 12px;
+}
+
+/* Settings panel */
+.background-audio-settings {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 220px;
+    background: rgba(10, 10, 30, 0.9);
+    border: 1px solid rgba(138, 43, 226, 0.5);
+    border-radius: 10px;
+    color: white;
+    padding: 15px;
+    z-index: 99;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.background-audio-settings.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+}
+
+.background-audio-settings h4 {
+    font-family: 'Cinzel', serif;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1rem;
+    text-align: center;
+    color: #d8b5ff;
+}
+
+.audio-settings-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.audio-setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    gap: 5px;
+}
+
+.audio-volume-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.audio-bg-volume {
+    flex: 1;
+    height: 4px;
+    -webkit-appearance: none;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    outline: none;
+}
+
+.audio-bg-volume::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #d8b5ff;
+    cursor: pointer;
+}
+
+.audio-bg-volume::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border: none;
+    border-radius: 50%;
+    background: #d8b5ff;
+    cursor: pointer;
+}
+
+.audio-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 21px;
+}
+
+.audio-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.audio-toggle-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 34px;
+    transition: .3s;
+    cursor: pointer;
+}
+
+.audio-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 15px;
+    width: 15px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: .3s;
+}
+
+input:checked + .audio-toggle-slider {
+    background-color: rgba(138, 43, 226, 0.6);
+}
+
+input:checked + .audio-toggle-slider:before {
+    transform: translateX(19px);
+}
+
+.audio-select-track {
+    width: 100%;
+    padding: 5px;
+    background: rgba(30, 30, 60, 0.5);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    border-radius: 4px;
+    color: white;
+    font-size: 0.85rem;
+    cursor: pointer;
+    outline: none;
+}
+
+.audio-select-track option {
+    background: rgb(30, 30, 60);
+}
+
+@keyframes pulse-ring {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 0.1;
+    }
+    100% {
+        transform: scale(1.2);
+        opacity: 0;
+    }
+}
+
+@keyframes equalize {
+    0% {
+        height: 5px;
+    }
+    50% {
+        height: 15px;
+    }
+    100% {
+        height: 5px;
+    }
+}
+
+/* Mobile styles */
+@media (max-width: 767px) {
+    .background-audio-toggle {
+        width: 40px;
+        height: 40px;
+        top: auto;
+        bottom: 10px;
+        left: auto;
+        right: 20px;
+        transform: translateX(10px);
+    }
+    
+    .background-audio-settings {
+        width: 180px;
+        bottom: 65px;
+        right: 15px;
+        padding: 10px;
+    }
+    
+    .background-audio-settings h4 {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    
+    .audio-settings-controls {
+        gap: 10px;
+    }
+    
+    .audio-setting-row {
+        font-size: 0.8rem;
+    }
+}

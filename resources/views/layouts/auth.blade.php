@@ -15,11 +15,12 @@
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/mystical.css') }}" rel="stylesheet">
-
+    <link href="{{ asset('css/components/background-audio.css') }}" rel="stylesheet">
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
     <script src="{{ asset('js/stars.js') }}" defer></script>
     <script src="{{ asset('js/mystical-transitions.js') }}"></script>
+    <script src="{{ asset('js/components/background-audio.js') }}" defer></script>
 </head>
 <body>
     <div id="app">
