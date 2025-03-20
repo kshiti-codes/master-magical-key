@@ -149,15 +149,46 @@
     }
 }
 
-.spell-actions {
+.spell-actions-show {
     display: flex;
     gap: 10px;
     width: 100%;
     margin-top: 10px;
 }
+.spell-actions-show form {
+    flex: 1;
+}
+
+.spell-actions {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-top: 10px;
+    position: absolute;
+    bottom: 1rem;
+}
 
 .spell-actions form {
     flex: 1;
+}
+
+.btn-buy-now {
+    background: rgba(138, 43, 226, 0.3);
+    border: 1px solid rgba(138, 43, 226, 0.6);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+}
+.btn-buy-now:hover {
+    background: rgba(138, 43, 226, 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 7px 14px rgba(75, 0, 130, 0.4);
+    color: white;
 }
 
 .btn-add-cart {

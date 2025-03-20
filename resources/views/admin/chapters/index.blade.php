@@ -57,22 +57,22 @@
                                 @endif
                             </td>
                             <td class="actions-cell">
-                                <a href="{{ route('admin.chapters.edit', $chapter) }}" class="btn btn-sm btn-admin-secondary">
-                                    <i class="fas fa-edit"></i> Edit
+                                <a href="{{ route('admin.chapters.edit', $chapter) }}" class="btn btn-sm btn-admin-secondary" title="Edit">
+                                    <i class="fas fa-edit"></i>
                                 </a>
                                 
                                 <form action="{{ route('admin.chapters.paginate', $chapter) }}" method="POST" class="d-inline">
                                     @csrf
-                                    <button type="submit" class="btn btn-sm btn-admin-secondary">
-                                        <i class="fas fa-file-alt"></i> Paginate
+                                    <button type="submit" class="btn btn-sm btn-admin-secondary" title="Paginate">
+                                        <i class="fas fa-file-alt"></i>
                                     </button>
                                 </form>
                                 
                                 <form action="{{ route('admin.chapters.destroy', $chapter) }}" method="POST" class="d-inline delete-form">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-admin-secondary" style="background-color: #dc3545; border-color: #dc3545;">
-                                        <i class="fas fa-trash-alt"></i> Delete
+                                    <button type="submit" class="btn btn-sm btn-admin-secondary" style="background-color: #dc3545; border-color: #dc3545;" title="Delete">
+                                        <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </form>
                             </td>

@@ -93,9 +93,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/chapters/{chapter}', [ChapterAdminController::class, 'destroy'])->name('chapters.destroy');
     
     
-    // Spells management 
-    // Route::post('/spells/upload-pdf', [SpellAdminController::class, 'uploadPdf'])->name('spells.upload-pdf');
-    // Route::resource('spells', SpellAdminController::class);
+    // New spell routes
+    Route::resource('spells', App\Http\Controllers\Admin\SpellAdminController::class);
+    Route::get('/spells/{spell}/preview', [App\Http\Controllers\Admin\SpellAdminController::class, 'preview'])->name('spells.preview');
     
     // Users management
     // Route::resource('users', UserAdminController::class);

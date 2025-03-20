@@ -358,9 +358,9 @@
                 </a>
             </li>
             <li>
-                <!-- <a href="#" class="{{ request()->routeIs('admin.spells*') ? 'active' : '' }}">
+                <a href="{{ route('admin.spells.index') }}" class="{{ request()->routeIs('admin.spells*') ? 'active' : '' }}">
                     <i class="fas fa-magic"></i> Spells
-                </a> -->
+                </a>
             </li>
             
             <div class="admin-menu-divider"></div>

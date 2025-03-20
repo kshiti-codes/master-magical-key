@@ -247,12 +247,12 @@
         @else
             <div class="spell-price-section">
                 <p class="spell-price">${{ number_format($spell->price, 2) }} AUD</p>
-                <div class="spell-actions">
+                <div class="spell-actions-show">
                     <form action="{{ route('cart.addSpell') }}" method="POST">
                         @csrf
                         <input type="hidden" name="spell_id" value="{{ $spell->id }}">
                         <input type="hidden" name="buy_now" value="1">
-                        <button type="submit" class="btn btn-portal">Buy Now</button>
+                        <button type="submit" class="btn btn-buy-now">Buy Now</button>
                     </form>
                     
                     <form action="{{ route('cart.addSpell') }}" method="POST">
@@ -309,7 +309,7 @@
                                 <form action="{{ route('cart.add') }}" method="POST">
                                     @csrf
                                     <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
-                                    <button type="submit" class="btn btn-add-cart btn-sm">Add to Cart</button>
+                                    <button type="submit" class="btn btn-add-cart btn-sm" style="width: 100%">Add to Cart</button>
                                 </form>
                             </div>
                             
@@ -318,7 +318,7 @@
                                     @csrf
                                     <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
                                     <input type="hidden" name="buy_now" value="1">
-                                    <button type="submit" class="btn btn-portal btn-sm">Buy Now</button>
+                                    <button type="submit" class="btn btn-buy-now btn-sm">Buy Now</button>
                                 </form>
                             </div>
                         @endif

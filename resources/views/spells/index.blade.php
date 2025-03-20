@@ -128,24 +128,15 @@
                     <span class="spell-owned-badge">
                         <i class="fas fa-check-circle"></i> Owned
                     </span>
-                @elseif($unlockedViaChapter)
-                    <span class="spell-status-badge unlocked-spell">
-                        <i class="fas fa-unlock"></i> Unlocked
-                    </span>
-                @elseif($freeWithChapter)
-                    <span class="spell-status-badge locked-spell">
-                        <i class="fas fa-lock"></i> Locked
-                    </span>
                 @endif
                 
                 @if($freeWithChapter && !$unlockedViaChapter && !in_array($spell->id, $userSpells ?? []))
-                    <span class="spell-status-badge free-with-chapter" style="top: 45px;">
+                    <span class="spell-status-badge free-with-chapter">
                         <i class="fas fa-gift"></i> Free with Chapter
                     </span>
                 @endif
                 
                 <h2 class="spell-title">{{ $spell->title }}</h2>
-                <p class="spell-description">{{ $spell->description }}</p>
                 <p class="spell-price">${{ number_format($spell->price, 2) }} AUD</p>
                 
                 @if(in_array($spell->id, $userSpells ?? []) || $unlockedViaChapter)
@@ -160,14 +151,14 @@
                             @csrf
                             <input type="hidden" name="spell_id" value="{{ $spell->id }}">
                             <input type="hidden" name="buy_now" value="1">
-                            <button type="submit" class="btn btn-portal btn-buy-now btn-sm">Buy Now</button>
+                            <button type="submit" class="btn btn-buy-now btn-sm" style="width: 90%;">Buy Now</button>
                         </form>
                         
                         <form action="{{ route('cart.addSpell') }}" method="POST" class="add-to-cart-form">
                             @csrf
                             <input type="hidden" name="spell_id" value="{{ $spell->id }}">
                             <button type="submit" class="btn btn-add-cart btn-sm {{ in_array($spell->id, $spellsInCart ?? []) ? 'btn-disabled' : '' }}" 
-                                    {{ in_array($spell->id, $spellsInCart ?? []) ? 'disabled' : '' }}>
+                                    {{ in_array($spell->id, $spellsInCart ?? []) ? 'disabled' : '' }}  style="width: 90%;">
                                 <i class="fas {{ in_array($spell->id, $spellsInCart ?? []) ? 'fa-check' : 'fa-cart-plus' }}"></i> 
                                 {{ in_array($spell->id, $spellsInCart ?? []) ? 'Added' : 'Add to Cart' }}
                             </button>
