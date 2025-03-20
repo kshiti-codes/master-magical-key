@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>@yield('title', 'Admin') - {{ config('app.name', 'Master Magical Key') }}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Rajdhani:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Styles -->
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to bottom, #1a1a3a, #0d0d1d);
+            min-height: 100vh;
+            font-family: 'Rajdhani', sans-serif;
+            color: #fff;
+        }
+        
+        /* Admin Sidebar */
+        .admin-sidebar {
+            position: fixed;
+            width: 250px;
+            height: 100%;
+            background: rgba(15, 15, 35, 0.9);
+            border-right: 1px solid rgba(138, 43, 226, 0.3);
+            padding: 20px 0;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-logo {
+            text-align: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+            margin-bottom: 20px;
+        }
+        
+        .admin-logo h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            color: #d8b5ff;
+            margin: 0;
+        }
+        
+        .admin-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .admin-menu li {
+            margin-bottom: 5px;
+        }
+        
+        .admin-menu a {
+            display: block;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .admin-menu a:hover, .admin-menu a.active {
+            background: rgba(138, 43, 226, 0.1);
+            color: #d8b5ff;
+            border-left-color: #d8b5ff;
+        }
+        
+        .admin-menu a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .admin-menu-divider {
+            height: 1px;
+            background: rgba(138, 43, 226, 0.2);
+            margin: 15px 0;
+        }
+        
+        .admin-menu-category {
+            padding: 10px 20px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Content area */
+        .admin-content {
+            margin-left: 250px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        /* Top navbar */
+        .admin-navbar {
+            background: rgba(15, 15, 35, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .admin-navbar .navbar-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: none;
+        }
+        
+        .admin-navbar .navbar-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .admin-navbar .navbar-right a {
+            color: rgba(255, 255, 255, 0.7);
+            margin-left: 20px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-navbar .navbar-right a:hover {
+            color: #d8b5ff;
+        }
+        
+        /* Page title */
+        .admin-page-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+        }
+        
+        /* Cards & Panels */
+        .admin-card {
+            background: rgba(30, 30, 60, 0.7);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            margin-top: 1rem;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+        }
+        
+        .admin-card-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #d8b5ff;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+            padding-bottom: 10px;
+        }
+        
+        /* Buttons */
+        .btn-admin-primary {
+            background: linear-gradient(to right, #4b0082, #9400d3);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-admin-primary:hover {
+            background: linear-gradient(to right, #9400d3, #4b0082);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(148, 0, 211, 0.3);
+            color: white;
+        }
+        
+        .btn-admin-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 5px 5px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-admin-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        /* Form Elements */
+        .admin-form label {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .admin-form .form-control {
+            background: rgba(10, 10, 30, 0.4);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            color: white;
+            padding: 12px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            width: 95%;
+        }
+        
+        .admin-form .form-control:focus {
+            border-color: rgba(138, 43, 226, 0.7);
+            background: rgba(10, 10, 30, 0.6);
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.3);
+        }
+        
+        .admin-form .form-check-input {
+            background-color: rgba(138, 43, 226, 0.2);
+            border-color: rgba(138, 43, 226, 0.5);
+            display: flex;
+            flex-direction: column;
+            float: left;
+        }
+        
+        .admin-form .form-check-input:checked {
+            background-color: #9400d3;
+            border-color: #9400d3;
+        }
+        
+        /* Tables */
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        
+        .admin-table th {
+            background: rgba(30, 30, 70, 0.6);
+            color: #d8b5ff;
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid rgba(138, 43, 226, 0.5);
+            font-family: 'Cinzel', serif;
+            font-weight: normal;
+        }
+        
+        .admin-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+            vertical-align: middle;
+        }
+        
+        .admin-table tbody tr {
+            transition: all 0.3s ease;
+        }
+        
+        .admin-table tbody tr:hover {
+            background: rgba(138, 43, 226, 0.1);
+        }
+        
+        .admin-table .actions-cell {
+            display: flex;
+            gap: 5px;
+        }
+        
+        /* Alerts */
+        .admin-alert {
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid transparent;
+        }
+        
+        .admin-alert-success {
+            background: rgba(40, 167, 69, 0.2);
+            border-left-color: #28a745;
+            color: #a0ffa0;
+        }
+        
+        .admin-alert-danger {
+            background: rgba(220, 53, 69, 0.2);
+            border-left-color: #dc3545;
+            color: #ffa0a0;
+        }
+        
+        .admin-alert-warning {
+            background: rgba(255, 193, 7, 0.2);
+            border-left-color: #ffc107;
+            color: #ffe0a0;
+        }
+        
+        .admin-alert-info {
+            background: rgba(23, 162, 184, 0.2);
+            border-left-color: #17a2b8;
+            color: #a0e0ff;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                transform: translateX(-250px);
+            }
+            
+            .admin-content {
+                margin-left: 0;
+            }
+            
+            .admin-navbar .navbar-toggle {
+                display: block;
+            }
+            
+            body.sidebar-open .admin-sidebar {
+                transform: translateX(0);
+            }
+            
+            body.sidebar-open .admin-content {
+                margin-left: 0;
+            }
+            
+            .admin-page-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+    
+    @stack('styles')
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+        <div class="admin-logo">
+            <h1>MASTER MAGICAL KEY</h1>
+            <p>Admin Panel</p>
+        </div>
+        
+        <ul class="admin-menu">
+            <li>
+                <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            
+            <div class="admin-menu-divider"></div>
+            <div class="admin-menu-category">Content Management</div>
+            
+            <li>
+                <a href="{{ route('admin.chapters.index') }}" class="{{ request()->routeIs('admin.chapters*') ? 'active' : '' }}">
+                    <i class="fas fa-book"></i> Chapters
+                </a>
+            </li>
+            <li>
+                <!-- <a href="#" class="{{ request()->routeIs('admin.spells*') ? 'active' : '' }}">
+                    <i class="fas fa-magic"></i> Spells
+                </a> -->
+            </li>
+            
+            <div class="admin-menu-divider"></div>
+            <div class="admin-menu-category">User Management</div>
+            
+            <li>
+                <!-- <a href="#" class="{{ request()->routeIs('admin.users*') ? 'active' : '' }}">
+                    <i class="fas fa-users"></i> Users
+                </a> -->
+            </li>
+            
+            <div class="admin-menu-divider"></div>
+            <div class="admin-menu-category">Financials</div>
+            
+            <li>
+                <!-- <a href="#" class="{{ request()->routeIs('admin.purchases*') ? 'active' : '' }}">
+                    <i class="fas fa-shopping-cart"></i> Purchases
+                </a> -->
+            </li>
+            
+            <div class="admin-menu-divider"></div>
+            <div class="admin-menu-category">Reports</div>
+            
+            <li>
+                <a href="#" class="{{ request()->routeIs('admin.reports.sales') ? 'active' : '' }}">
+                    <i class="fas fa-chart-bar"></i> Sales Report
+                </a>
+            </li>
+            <li>
+                <a href="#" class="{{ request()->routeIs('admin.reports.users') ? 'active' : '' }}">
+                    <i class="fas fa-user-chart"></i> User Analytics
+                </a>
+            </li>
+            <li>
+                <a href="#" class="{{ request()->routeIs('admin.reports.content') ? 'active' : '' }}">
+                    <i class="fas fa-file-alt"></i> Content Report
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="admin-content">
+        <!-- Top Navbar -->
+        <div class="admin-navbar">
+            <button class="navbar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="navbar-right">
+                <a href="{{ route('home') }}" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> View Site
+                </a>
+                <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                    @csrf
+                </form>
+            </div>
+        </div>
+        
+        <!-- Flash Messages -->
+        @if(session('success'))
+            <div class="admin-alert admin-alert-success">
+                <i class="fas fa-check-circle"></i> {{ session('success') }}
+            </div>
+        @endif
+        
+        @if(session('error'))
+            <div class="admin-alert admin-alert-danger">
+                <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+            </div>
+        @endif
+        
+        @if(session('warning'))
+            <div class="admin-alert admin-alert-warning">
+                <i class="fas fa-exclamation-triangle"></i> {{ session('warning') }}
+            </div>
+        @endif
+        
+        @if(session('info'))
+            <div class="admin-alert admin-alert-info">
+                <i class="fas fa-info-circle"></i> {{ session('info') }}
+            </div>
+        @endif
+        
+        <!-- Page Content -->
+        @yield('content')
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ asset('js/app.js') }}"></script>
+    <script>
+        // Sidebar toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    document.body.classList.toggle('sidebar-open');
+                });
+            }
+            
+            // Close alerts with animation
+            const alerts = document.querySelectorAll('.admin-alert');
+            alerts.forEach(alert => {
+                const closeBtn = document.createElement('button');
+                closeBtn.innerHTML = '&times;';
+                closeBtn.className = 'close-alert';
+                closeBtn.style.position = 'absolute';
+                closeBtn.style.right = '10px';
+                closeBtn.style.top = '10px';
+                closeBtn.style.background = 'none';
+                closeBtn.style.border = 'none';
+                closeBtn.style.color = 'inherit';
+                closeBtn.style.fontSize = '1.3rem';
+                closeBtn.style.cursor = 'pointer';
+                
+                alert.style.position = 'relative';
+                alert.appendChild(closeBtn);
+                
+                closeBtn.addEventListener('click', function() {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    alert.style.transition = 'all 0.3s ease';
+                    
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 300);
+                });
+            });
+        });
+    </script>
+    
+    @stack('scripts')
+</body>
+</html>

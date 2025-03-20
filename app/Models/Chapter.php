@@ -20,6 +20,19 @@ class Chapter extends Model
         'order',
         'is_published',
         'is_free',
+        // Audio fields
+        'audio_path',
+        'audio_format',
+        'audio_duration',
+        'has_audio',
+        'audio_timestamps'
+    ];
+
+    protected $casts = [
+        'is_published' => 'boolean',
+        'is_free' => 'boolean',
+        'has_audio' => 'boolean',
+        'audio_timestamps' => 'array',
     ];
 
     /**
@@ -115,5 +128,17 @@ class Chapter extends Model
             ->withPivot('is_free_with_chapter')
             ->wherePivot('is_free_with_chapter', false)
             ->withTimestamps();
+    }
+
+    /**
+     * Get the formatted audio path for the player
+     */
+    public function getAudioUrlAttribute()
+    {
+        if (!$this->has_audio || !$this->audio_path) {
+            return null;
+        }
+        
+        return asset('storage/' . $this->audio_path);
     }
 }

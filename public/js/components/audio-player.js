@@ -433,6 +433,13 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
+        // Log the audio path for debugging
+        console.log("Loading audio:", {
+            chapterId: chapterId,
+            audioPath: audioPath,
+            chapterTitle: chapterTitle
+        });
+        
         // If another chapter is playing, pause it
         if (isPlaying) {
             audioPlayer.pause();
@@ -451,6 +458,34 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Set audio source
         audioPlayer.src = audioPath;
+        
+        // Add error handler to log issues with audio loading
+        audioPlayer.onerror = function(e) {
+            console.error("Audio error:", e);
+            console.error("Audio error details:", {
+                error: audioPlayer.error,
+                src: audioPlayer.src,
+                readyState: audioPlayer.readyState
+            });
+            
+            // Show error message to user
+            if (audioContainer && !audioContainer.classList.contains('hidden')) {
+                let errorMsg = document.createElement('div');
+                errorMsg.className = 'audio-error-message';
+                errorMsg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error loading audio. Please try again later.';
+                errorMsg.style.color = '#ff6b6b';
+                errorMsg.style.padding = '10px';
+                errorMsg.style.textAlign = 'center';
+                
+                // Insert error before controls
+                const controls = audioContainer.querySelector('.audio-controls');
+                if (controls) {
+                    audioContainer.insertBefore(errorMsg, controls);
+                } else {
+                    audioContainer.appendChild(errorMsg);
+                }
+            }
+        };
         
         // Load audio
         audioPlayer.load();
