@@ -116,7 +116,7 @@
                     @endforeach
                 @else
                     <tr>
-                        <td>Chapter {{ $purchase->chapter->id }}: {{ $purchase->chapter->title }}</td>
+                        <td>Chapter {{ $purchase->chapter->order }}: {{ $purchase->chapter->title }}</td>
                         <td>${{ number_format($purchase->amount / 1.1, 2) }}</td>
                     </tr>
                 @endif

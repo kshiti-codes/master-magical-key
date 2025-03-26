@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="admin-page-title">Spells Management</h1>
+    <h1 class="admin-page-title">Manage Spells</h1>
     <a href="{{ route('admin.spells.create') }}" class="btn btn-admin-primary">
         <i class="fas fa-plus"></i> Create New Spell
     </a>

@@ -54,7 +54,7 @@
             <i class="fas fa-arrow-left"></i> Chapters
         </a>
         <div class="chapter-info">
-            <h1 class="reading-chapter-title">Chapter {{ $chapter->id }}: {{ $chapter->title }}</h1>
+            <h1 class="reading-chapter-title">Chapter {{ $chapter->order }}: {{ $chapter->title }}</h1>
         </div>
     </div>
     

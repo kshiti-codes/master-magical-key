@@ -17,7 +17,7 @@
             
             <div class="payment-details">
                 <p class="payment-to">Payment to: Master Magical Key to the Universe</p>
-                <p class="payment-for">Chapter {{ $chapter->id }}: {{ $chapter->title }}</p>
+                <p class="payment-for">Chapter {{ $chapter->order }}: {{ $chapter->title }}</p>
                 <p class="payment-amount">${{ number_format($paymentIntent['amount'], 2) }} {{ $paymentIntent['currency'] }}</p>
             </div>
             

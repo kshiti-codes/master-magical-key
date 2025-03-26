@@ -151,7 +151,7 @@
                             <h3 class="item-title">
                                 @if($item->item_type == 'chapter' && $item->chapter)
                                     <span class="item-type-badge item-type-chapter">Chapter</span>
-                                    Chapter {{ $item->chapter->id }}: {{ $item->chapter->title }}
+                                    Chapter {{ $item->chapter->order }}: {{ $item->chapter->title }}
                                 @elseif($item->item_type == 'spell' && $item->spell)
                                     <span class="item-type-badge item-type-spell">Spell</span>
                                     {{ $item->spell->title }}

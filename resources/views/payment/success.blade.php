@@ -6,7 +6,7 @@
     .success-icon {
         font-size: 5rem;
         color: #4BB543;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
         animation: pulse 2s ease-in-out;
     }
     
@@ -20,25 +20,23 @@
         font-family: 'Cinzel', serif;
         color: #fff;
         font-size: 2rem;
-        margin-bottom: 30px;
         text-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
     }
     
     .purchase-items-table {
         width: 100%;
-        margin-bottom: 20px;
         border-collapse: collapse;
     }
     
     .purchase-items-table th {
         text-align: left;
-        padding: 12px 15px;
+        padding: 5px 15px;
         border-bottom: 1px solid rgba(138, 43, 226, 0.3);
         color: #d8b5ff;
     }
     
     .purchase-items-table td {
-        padding: 12px 15px;
+        padding: 5px 15px;
         border-bottom: 1px solid rgba(138, 43, 226, 0.2);
     }
     
@@ -58,7 +56,6 @@
     }
     
     .purchase-summary {
-        margin: 25px 0;
         background: rgba(10, 10, 30, 0.5);
         border-radius: 8px;
         padding: 20px;
@@ -88,8 +85,6 @@
     .transaction-details {
         background: rgba(10, 10, 30, 0.5);
         border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 25px;
         border: 1px solid rgba(138, 43, 226, 0.3);
         text-align: center;
     }
@@ -128,16 +123,11 @@
         margin-left: 5px;
     }
     
-    .order-section {
-        margin-bottom: 30px;
-    }
-    
     .order-section-title {
         font-family: 'Cinzel', serif;
         color: #d8b5ff;
         font-size: 1.3rem;
         margin-bottom: 15px;
-        padding-bottom: 10px;
         border-bottom: 1px solid rgba(138, 43, 226, 0.3);
     }
 </style>

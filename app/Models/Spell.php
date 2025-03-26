@@ -13,7 +13,7 @@ class Spell extends Model
     protected $fillable = [
         'title',
         'description',
-        'pdf',
+        'pdf_path',
         'price',
         'currency',
         'is_published',
@@ -101,5 +101,20 @@ class Spell extends Model
         return Auth::user()->chapters()
             ->whereIn('chapter_id', $chapterIds)
             ->exists();
+    }
+
+    // Add accessor methods
+    public function getPdfAttribute()
+    {
+        if (!$this->pdf_path) {
+            return null;
+        }
+        
+        $path = public_path($this->pdf_path);
+        if (file_exists($path)) {
+            return file_get_contents($path);
+        }
+        
+        return null;
     }
 }

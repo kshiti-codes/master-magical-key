@@ -8,6 +8,8 @@ use App\Models\UserSpell;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SpellController extends Controller
 {
@@ -99,11 +101,18 @@ class SpellController extends Controller
             }
         }
         
-        // Return PDF as download
-        return Response::make($spell->pdf, 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="' . $this->sanitizeFilename($spell->title) . '.pdf"'
-        ]);
+        // Check if pdf_path exists and the file exists
+        if (empty($spell->pdf_path) || !file_exists(public_path($spell->pdf_path))) {
+            return redirect()->route('spells.show', $spell)
+                ->with('error', 'The spell PDF file is not available. Please contact support.');
+        }
+        
+        // Return PDF as download - using the file path now
+        return Response::download(
+            public_path($spell->pdf_path),
+            $this->sanitizeFilename($spell->title) . '.pdf',
+            ['Content-Type' => 'application/pdf']
+        );
     }
     
     /**
@@ -116,11 +125,17 @@ class SpellController extends Controller
             abort(404);
         }
         
-        // Return PDF for display in browser
-        return Response::make($spell->pdf, 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . $this->sanitizeFilename($spell->title) . '.pdf"'
-        ]);
+        // Check if pdf_path exists and the file exists
+        if (empty($spell->pdf_path) || !file_exists(public_path($spell->pdf_path))) {
+            return redirect()->route('spells.index')
+                ->with('error', 'The spell preview is not available.');
+        }
+        
+        // Return PDF for display in browser - using the file path now
+        return Response::file(
+            public_path($spell->pdf_path),
+            ['Content-Type' => 'application/pdf']
+        );
     }
     
     /**
@@ -140,5 +155,43 @@ class SpellController extends Controller
         }
         
         return $filename;
+    }
+    
+    /**
+     * Upload a spell PDF file.
+     */
+    public function uploadPdf(Request $request, Spell $spell)
+    {
+        $request->validate([
+            'pdf_file' => 'required|file|mimes:pdf|max:10240', // max 10MB
+        ]);
+        
+        // Check if file was uploaded properly
+        if ($request->file('pdf_file')->isValid()) {
+            // Generate a filename based on the spell title
+            $fileName = Str::slug($spell->title) . '-' . time() . '.pdf';
+            $path = 'spell-pdf/' . $fileName;
+            
+            // Create directory if it doesn't exist
+            $directory = public_path('spell-pdf');
+            if (!file_exists($directory)) {
+                mkdir($directory, 0755, true);
+            }
+            
+            // Move the uploaded file
+            $request->file('pdf_file')->move($directory, $fileName);
+            
+            // Delete the old file if it exists
+            if ($spell->pdf_path && file_exists(public_path($spell->pdf_path))) {
+                unlink(public_path($spell->pdf_path));
+            }
+            
+            // Update the spell record
+            $spell->update(['pdf_path' => $path]);
+            
+            return redirect()->back()->with('success', 'Spell PDF uploaded successfully.');
+        }
+        
+        return redirect()->back()->with('error', 'Failed to upload PDF file.');
     }
 }

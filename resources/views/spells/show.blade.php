@@ -286,7 +286,7 @@
                         }
                     @endphp
                     <div class="chapter-card">
-                        <h3 class="chapter-title">Chapter {{ $chapter->id }}: {{ $chapter->title }}</h3>
+                        <h3 class="chapter-title">Chapter {{ $chapter->order }}: {{ $chapter->title }}</h3>
                         <p class="chapter-brief">{{ \Illuminate\Support\Str::limit($chapter->description, 120) }}</p>
                         
                         <p class="chapter-price">${{ number_format($chapter->price, 2) }} AUD</p>

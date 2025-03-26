@@ -179,9 +179,11 @@
                     @foreach($spells as $spell)
                         <div class="col-md-4 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="free_spells[]" value="{{ $spell->id }}" id="spell_{{ $spell->id }}" 
-                                    {{ (is_array(old('free_spells')) && in_array($spell->id, old('free_spells'))) || 
-                                       (old('free_spells') === null && in_array($spell->id, $freeSpellIds)) ? 'checked' : '' }}>
+                                @if((is_array(old('free_spells')) && in_array($spell->id, old('free_spells'))) || (old('free_spells') === null && in_array($spell->id, $freeSpellIds)))
+                                    <input class="form-check-input" type="checkbox" name="free_spells[]" value="{{ $spell->id }}" id="spell_{{ $spell->id }}" checked>
+                                @else
+                                    <input class="form-check-input" type="checkbox" name="free_spells[]" value="{{ $spell->id }}" id="spell_{{ $spell->id }}">
+                                @endif
                                 <label class="form-check-label" for="spell_{{ $spell->id }}">
                                     {{ $spell->title }}
                                 </label>

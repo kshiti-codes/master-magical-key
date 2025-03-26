@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Purchase;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 
 class InvoiceService
 {
@@ -15,23 +16,48 @@ class InvoiceService
      */
     public function generateInvoice(Purchase $purchase)
     {
-        // Make sure all relations are loaded
-        if (!$purchase->relationLoaded('user')) {
-            $purchase->load('user');
+        try {
+            // Make sure all relations are loaded
+            if (!$purchase->relationLoaded('user')) {
+                $purchase->load('user');
+            }
+            
+            if (!$purchase->relationLoaded('items')) {
+                $purchase->load(['items']);
+            }
+            
+            // Prepare items for the invoice
+            $items = $this->prepareInvoiceItems($purchase);
+            
+            // Generate the PDF
+            $pdf = PDF::loadView('invoices.template', [
+                'purchase' => $purchase,
+                'user' => $purchase->user,
+                'items' => $items
+            ]);
+            
+            // Set paper size and orientation
+            $pdf->setPaper('a4', 'portrait');
+            
+            // Return the PDF as binary content
+            $pdfContent = $pdf->output();
+            
+            Log::info('Invoice generated successfully', [
+                'invoice_number' => $purchase->invoice_number,
+                'user_id' => $purchase->user_id,
+                'pdf_size' => strlen($pdfContent)
+            ]);
+            
+            return $pdfContent;
+        } catch (\Exception $e) {
+            Log::error('Failed to generate invoice', [
+                'invoice_number' => $purchase->invoice_number,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            throw $e;
         }
-        
-        // Prepare items for the invoice
-        $items = $this->prepareInvoiceItems($purchase);
-        
-        // Generate the PDF
-        $pdf = PDF::loadView('invoices.template', [
-            'purchase' => $purchase,
-            'user' => $purchase->user,
-            'items' => $items
-        ]);
-        
-        // Return the PDF as binary content
-        return $pdf->output();
     }
     
     /**
@@ -44,23 +70,30 @@ class InvoiceService
     {
         $items = [];
     
-        // Case 1: Purchase has related items (cart purchase)
-        if (method_exists($purchase, 'items') && $purchase->items()->exists()) {
-            // Load items with their chapters if not already loaded
-            if (!$purchase->relationLoaded('items')) {
-                $purchase->load('items.chapter');
-            }
-            
+        // Process purchased items
+        if ($purchase->items->isNotEmpty()) {
             foreach ($purchase->items as $item) {
-                if ($item->chapter) {
-                    $items[] = [
-                        'title' => "Chapter {$item->chapter->id}: {$item->chapter->title}",
-                        'quantity' => $item->quantity,
-                        'price' => $item->price
-                    ];
+                $itemData = [
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'total' => $item->price * $item->quantity
+                ];
+                
+                if ($item->item_type === 'chapter' && $item->chapter) {
+                    $itemData['title'] = "Chapter {$item->chapter->id}: {$item->chapter->title}";
+                    $itemData['type'] = 'chapter';
+                } elseif ($item->item_type === 'spell' && $item->spell) {
+                    $itemData['title'] = "Spell: {$item->spell->title}";
+                    $itemData['type'] = 'spell';
+                } else {
+                    $itemData['title'] = "Unknown Item";
+                    $itemData['type'] = 'unknown';
                 }
+                
+                $items[] = $itemData;
             }
         }
+        
         return $items;
     }
 }

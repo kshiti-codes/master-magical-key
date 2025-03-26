@@ -13,11 +13,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Rajdhani:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
+    
+    <script src="{{ asset('js/stars.js') }}" defer></script>
+    
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(to bottom, #1a1a3a, #0d0d1d);
+            background: radial-gradient(ellipse at bottom,rgb(33, 4, 43) 0%, #090A0F 100%);
             min-height: 100vh;
             font-family: 'Rajdhani', sans-serif;
             color: #fff;
@@ -38,7 +41,7 @@
         
         .admin-logo {
             text-align: center;
-            padding: 15px 0;
+            padding: 5px 0;
             border-bottom: 1px solid rgba(138, 43, 226, 0.3);
             margin-bottom: 20px;
         }
@@ -57,13 +60,9 @@
             margin: 0;
         }
         
-        .admin-menu li {
-            margin-bottom: 5px;
-        }
-        
         .admin-menu a {
             display: block;
-            padding: 12px 20px;
+            padding: 5px 20px;
             color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
             transition: all 0.3s ease;
@@ -85,7 +84,7 @@
         .admin-menu-divider {
             height: 1px;
             background: rgba(138, 43, 226, 0.2);
-            margin: 15px 0;
+            margin: 5px 0;
         }
         
         .admin-menu-category {
@@ -330,6 +329,31 @@
                 font-size: 1.5rem;
             }
         }
+
+        /* Stars Animation */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 5s infinite;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0; transform: translateY(0); }
+            10% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
     </style>
     
     @stack('styles')
@@ -376,21 +400,21 @@
             <div class="admin-menu-category">Financials</div>
             
             <li>
-                <!-- <a href="#" class="{{ request()->routeIs('admin.purchases*') ? 'active' : '' }}">
+                <a href="{{ route('admin.purchases.index') }}" class="{{ request()->routeIs('admin.purchases*') ? 'active' : '' }}">
                     <i class="fas fa-shopping-cart"></i> Purchases
-                </a> -->
+                </a>
             </li>
             
             <div class="admin-menu-divider"></div>
             <div class="admin-menu-category">Reports</div>
             
             <li>
-                <a href="#" class="{{ request()->routeIs('admin.reports.sales') ? 'active' : '' }}">
+                <a href="{{ route('admin.reports.sales') }}" class="{{ request()->routeIs('admin.reports.sales') ? 'active' : '' }}">
                     <i class="fas fa-chart-bar"></i> Sales Report
                 </a>
             </li>
             <li>
-                <a href="#" class="{{ request()->routeIs('admin.reports.users') ? 'active' : '' }}">
+                <a href="{{ route('admin.reports.user_analysis') }}" class="{{ request()->routeIs('admin.reports.user_analysis') ? 'active' : '' }}">
                     <i class="fas fa-user-chart"></i> User Analytics
                 </a>
             </li>

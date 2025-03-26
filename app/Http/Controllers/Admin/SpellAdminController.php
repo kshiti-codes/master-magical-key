@@ -64,20 +64,37 @@ class SpellAdminController extends Controller
                 'price' => $validated['price']
             ]);
 
-            // Handle PDF upload
-            $pdfFile = $request->file('pdf_file');
-            $pdfContent = file_get_contents($pdfFile->getRealPath());
-
             // Create the spell with PDF content stored directly in the database
             $spell = Spell::create([
                 'title' => $validated['title'],
                 'description' => $validated['description'],
-                'pdf' => $pdfContent,
                 'price' => $validated['price'],
                 'currency' => $validated['currency'],
                 'order' => $validated['order'],
                 'is_published' => $request->has('is_published') ? true : false,
+                'pdf_path' => null,
             ]);
+
+            // Handle PDF file upload
+            if ($request->hasFile('pdf_file') && $request->file('pdf_file')->isValid()) {
+                $pdfFile = $request->file('pdf_file');
+                
+                // Generate a filename
+                $fileName = Str::slug($spell->title) . '-' . time() . '.' . $pdfFile->getClientOriginalExtension();
+                $path = 'spell-pdf/' . $fileName;
+                
+                // Create directory if it doesn't exist
+                $directory = public_path('spell-pdf');
+                if (!file_exists($directory)) {
+                    mkdir($directory, 0755, true);
+                }
+                
+                // Move the uploaded file
+                $pdfFile->move($directory, $fileName);
+                
+                // Update the spell with the PDF path
+                $spell->update(['pdf_path' => $path]);
+            }
 
             // Process chapter relationships
             if (!empty($validated['related_chapters'])) {
@@ -156,26 +173,42 @@ class SpellAdminController extends Controller
         try {
             \DB::beginTransaction();
             
-            // Update basic spell information
-            $spell->title = $validated['title'];
-            $spell->description = $validated['description'];
-            $spell->price = $validated['price'];
-            $spell->currency = $validated['currency'];
-            $spell->order = $validated['order'];
-            $spell->is_published = $request->has('is_published') ? true : false;
-            
-            // Handle PDF upload if a new file is provided
-            if ($request->hasFile('pdf_file')) {
+            // Update the spell
+            $spell->update([
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'price' => $validated['price'],
+                'currency' => $validated['currency'],
+                'order' => $validated['order'],
+                'is_published' => $request->has('is_published') ? true : false,
+                // pdf_path is updated separately if a new file is uploaded
+            ]);
+
+            // Handle PDF file upload if provided
+            if ($request->hasFile('pdf_file') && $request->file('pdf_file')->isValid()) {
                 $pdfFile = $request->file('pdf_file');
-                $pdfContent = file_get_contents($pdfFile->getRealPath());
-                $spell->pdf = $pdfContent;
                 
-                Log::info('Updated PDF for spell', [
-                    'spell_id' => $spell->id
-                ]);
+                // Generate a filename
+                $fileName = Str::slug($spell->title) . '-' . time() . '.' . $pdfFile->getClientOriginalExtension();
+                $path = 'spell-pdf/' . $fileName;
+                
+                // Create directory if it doesn't exist
+                $directory = public_path('spell-pdf');
+                if (!file_exists($directory)) {
+                    mkdir($directory, 0755, true);
+                }
+                
+                // Delete old file if it exists
+                if ($spell->pdf_path && file_exists(public_path($spell->pdf_path))) {
+                    unlink(public_path($spell->pdf_path));
+                }
+                
+                // Move the uploaded file
+                $pdfFile->move($directory, $fileName);
+                
+                // Update the spell with the new PDF path
+                $spell->update(['pdf_path' => $path]);
             }
-            
-            $spell->save();
             
             // Update chapter relationships
             $spell->chapters()->detach(); // Remove all existing relationships
@@ -227,17 +260,30 @@ class SpellAdminController extends Controller
                 ->with('error', "Cannot delete spell '{$spell->title}' because it has been purchased by users.");
         }
         
-        // If no purchases, it's safe to delete
-        $spellTitle = $spell->title;
-        
-        // Remove chapter associations
-        $spell->chapters()->detach();
-        
-        // Delete the spell
-        $spell->delete();
-        
-        return redirect()->route('admin.spells.index')
-            ->with('success', "Spell '{$spellTitle}' deleted successfully.");
+        try {
+            // Delete PDF file if it exists
+            if ($spell->pdf_path && file_exists(public_path($spell->pdf_path))) {
+                unlink(public_path($spell->pdf_path));
+            }
+            
+            // Remove chapter associations
+            $spell->chapters()->detach();
+            
+            // Delete the spell
+            $spell->delete();
+            
+            return redirect()->route('admin.spells.index')
+                ->with('success', "Spell '{$spell->title}' deleted successfully.");
+                
+        } catch (\Exception $e) {
+            Log::error('Spell deletion failed', [
+                'error' => $e->getMessage(),
+                'spell_id' => $spell->id
+            ]);
+            
+            return redirect()->route('admin.spells.index')
+                ->with('error', 'Failed to delete spell: ' . $e->getMessage());
+        }
     }
 
     /**

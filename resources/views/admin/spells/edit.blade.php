@@ -123,31 +123,28 @@
                     <div class="form-text text-muted">Provide a detailed description of the spell and its benefits.</div>
                 </div>
                 
-                <div class="mb-3">
-                    <label for="pdf_file">Spell PDF</label>
+                <div class="admin-form-group">
+                    <label for="pdf_file">Spell PDF File</label>
+                    <input type="file" class="admin-form-control" id="pdf_file" name="pdf_file" accept=".pdf" @if(!isset($spell)) required @endif>
                     
-                    @if($spell->pdf)
-                        <div class="current-pdf-info">
-                            <div style="margin-bottom: 1rem;" ><i class="fas fa-file-pdf"></i> Current PDF is uploaded and ready</div>
-                            <div class="mt-2">
-                                <a href="{{ route('admin.spells.preview', $spell) }}" class="btn btn-admin-secondary btn-sm" target="_blank">
-                                    <i class="fas fa-eye"></i> Preview Current PDF
-                                </a>
-                            </div>
+                    @if(isset($spell) && $spell->pdf_path)
+                        <div class="mt-2" style="margin-top:1rem;">
+                            <span class="text-success">
+                                <i class="fas fa-check-circle"></i> Current PDF file: {{ basename($spell->pdf_path) }}
+                            </span>
+                            <a href="{{ asset($spell->pdf_path) }}" target="_blank" class="btn btn-admin-secondary btn-sm ml-2">
+                                <i class="fas fa-eye"></i>
+                            </a>
                         </div>
                     @endif
                     
-                    <div class="file-upload-box" id="pdfUploadBox">
-                        <div class="file-upload-icon">
-                            <i class="fas fa-file-pdf"></i>
-                        </div>
-                        <div class="file-upload-text">
-                            Click to upload a new PDF spell document<br>
-                            <span class="text-muted">(Leave empty to keep the current PDF)</span>
-                        </div>
-                        <div class="file-name-preview" id="pdfFileName"></div>
-                    </div>
-                    <input type="file" name="pdf_file" id="pdf_file" class="d-none" accept=".pdf">
+                    <small class="form-text text-muted">
+                        Upload a PDF file (max 10MB). @if(isset($spell)) Leave empty to keep the current file. @endif
+                    </small>
+                    
+                    @error('pdf_file')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
             
@@ -211,7 +208,7 @@
                                         </div>
                                         
                                         <div class="chapter-info">
-                                            <div class="chapter-title">Chapter {{ $chapter->id }}: {{ $chapter->title }}</div>
+                                            <div class="chapter-title">Chapter {{ $chapter->order }}: {{ $chapter->title }}</div>
                                         </div>
                                         
                                         <div class="chapter-free-option">

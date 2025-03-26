@@ -12,6 +12,8 @@ use App\Http\Controllers\SpellController;
 // Admin Controllers
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ChapterAdminController;
+use App\Http\Controllers\Admin\SpellAdminController;
+use App\Http\Controllers\Admin\PurchaseAdminController;
 
 Auth::routes();
 
@@ -96,14 +98,20 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // New spell routes
     Route::resource('spells', App\Http\Controllers\Admin\SpellAdminController::class);
     Route::get('/spells/{spell}/preview', [App\Http\Controllers\Admin\SpellAdminController::class, 'preview'])->name('spells.preview');
+    Route::post('spells/{spell}/upload-pdf', [SpellAdminController::class, 'uploadPdf'])
+        ->name('spells.upload-pdf');
     
     // Users management
     // Route::resource('users', UserAdminController::class);
     
-    // Purchases & Reports
-    // Route::get('/purchases', [PurchaseAdminController::class, 'index'])->name('purchases.index');
-    // Route::get('/purchases/{purchase}', [PurchaseAdminController::class, 'show'])->name('purchases.show');
-    // Route::get('/reports/sales', [PurchaseAdminController::class, 'salesReport'])->name('reports.sales');
-    // Route::get('/reports/users', [PurchaseAdminController::class, 'usersReport'])->name('reports.users');
-    // Route::get('/reports/content', [PurchaseAdminController::class, 'contentReport'])->name('reports.content');
+    // Purchase management
+    Route::get('/purchases/data', [PurchaseAdminController::class, 'getData'])->name('purchases.data');
+    Route::get('/purchases/export', [PurchaseAdminController::class, 'export'])->name('purchases.export');
+    Route::get('/purchases', [PurchaseAdminController::class, 'index'])->name('purchases.index');
+    Route::get('/purchases/{purchase}', [PurchaseAdminController::class, 'show'])->name('purchases.show');
+
+    // Reports
+    Route::get('/reports/sales', [PurchaseAdminController::class, 'salesReport'])->name('reports.sales');
+    Route::get('/reports/user-analysis', [PurchaseAdminController::class, 'userAnalysis'])->name('reports.user_analysis');
+                   
 });

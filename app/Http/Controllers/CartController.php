@@ -19,7 +19,7 @@ class CartController extends Controller
         $cart = Auth::user()->getCart();
 
         // Eager load relationships
-        // $cart->load(['items.chapter', 'items.spell']);
+        $cart->load(['items']);
 
         return view('cart.index', compact('cart'));
     }
