@@ -1,0 +1,55 @@
+.daterangepicker {
+    background-color: rgba(30, 30, 60, 0.95);
+    border: 1px solid rgba(138, 43, 226, 0.5);
+    color: white;
+}
+
+.daterangepicker:before, .daterangepicker:after {
+    border-bottom-color: rgba(138, 43, 226, 0.5);
+}
+
+.daterangepicker .calendar-table {
+    background-color: rgba(20, 20, 40, 0.95);
+    border: none;
+}
+
+.prev, .next {
+    background-color: white;
+    opacity: 30%;
+    color: white;
+}
+
+.daterangepicker .calendar-table th, 
+.daterangepicker .calendar-table td {
+    color: white;
+}
+
+.daterangepicker td.available:hover, 
+.daterangepicker th.available:hover {
+    background-color: rgba(138, 43, 226, 0.3);
+}
+
+.daterangepicker td.in-range {
+    background-color: rgba(138, 43, 226, 0.2);
+    color: white;
+}
+
+.daterangepicker td.active, 
+.daterangepicker td.active:hover {
+    background-color: rgba(138, 43, 226, 0.8);
+    color: white;
+}
+
+.daterangepicker .drp-buttons {
+    border-top: 1px solid rgba(138, 43, 226, 0.3);
+}
+
+.daterangepicker .btn {
+    background-color: rgba(138, 43, 226, 0.6);
+    color: white;
+    border: none;
+}
+
+.daterangepicker .btn:hover {
+    background-color: rgba(138, 43, 226, 0.8);
+}

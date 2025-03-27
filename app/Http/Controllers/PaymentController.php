@@ -355,109 +355,6 @@ class PaymentController extends Controller
                         ]
                     ];
                     
-                } else if ($purchaseType === 'single') {
-                    // Process single chapter purchase
-                    $chapterId = $request->session()->get('chapter_id');
-                    if (!$chapterId) {
-                        throw new \Exception('Chapter ID not found in session');
-                    }
-                    
-                    $chapter = Chapter::find($chapterId);
-                    if (!$chapter) {
-                        throw new \Exception('Chapter not found with ID: ' . $chapterId);
-                    }
-                    
-                    // Create purchase record
-                    $purchase = Purchase::create([
-                        'user_id' => Auth::id(),
-                        'transaction_id' => $captureId,
-                        'amount' => $amount,
-                        'currency' => $currency,
-                        'status' => 'completed',
-                        'subtotal' => $subtotal,
-                        'tax' => $tax,
-                        'tax_rate' => 10.00, // 10% GST
-                        'invoice_number' => $this->generateInvoiceNumber()
-                    ]);
-
-                    // Create purchase item for the chapter
-                    \App\Models\PurchaseItem::create([
-                        'purchase_id' => $purchase->id,
-                        'chapter_id' => $chapter->id,
-                        'item_type' => 'chapter',
-                        'quantity' => 1,
-                        'price' => $chapter->price
-                    ]);
-
-                    try {
-                        // Generate PDF invoice
-                        $invoiceService = new InvoiceService();
-                        $pdfData = $invoiceService->generateInvoice($purchase);
-                        
-                        // Store PDF data directly in the database
-                        \DB::statement('UPDATE purchases SET invoice_data = ?, emailed_at = NOW() WHERE id = ?', [
-                            $pdfData,
-                            $purchase->id
-                        ]);
-                        
-                        // Refresh the model to get the updated values
-                        $purchase->refresh();
-                        
-                        // Send email with invoice
-                        Mail::to($purchase->user->email)
-                            ->send(new InvoiceEmail($purchase, $pdfData));
-                        
-                        // Mark as emailed
-                        $purchase->emailed_at = now();
-                        $purchase->save();
-                    } catch (\Exception $e) {
-                        // Log error but continue with checkout process
-                        \Log::error("Failed to generate/send invoice for purchase #{$purchase->id}", [
-                            'error' => $e->getMessage(),
-                            'trace' => $e->getTraceAsString()
-                        ]);
-                    }
-                    
-                    // Grant access to the chapter
-                    Auth::user()->chapters()->syncWithoutDetaching([
-                        $chapter->id => [
-                            'last_read_at' => now(),
-                            'last_page' => 1,
-                        ]
-                    ]);
-                    
-                    // Also grant access to any free spells that come with this chapter
-                    $freeSpells = $chapter->freeSpells ?? collect();
-                    $freeSpellItems = [];
-                    
-                    foreach ($freeSpells as $spell) {
-                        Auth::user()->grantSpellAccess($spell);
-                        $freeSpellItems[] = [
-                            'spell_id' => $spell->id,
-                            'title' => $spell->title,
-                            'price' => 0, // Free with chapter
-                            'quantity' => 1,
-                            'type' => 'spell',
-                            'free_with_chapter' => true
-                        ];
-                    }
-
-                    // Set purchased items for view
-                    $purchasedItems = [
-                        [
-                            'chapter_id' => $chapter->id,
-                            'title' => $chapter->title,
-                            'price' => $chapter->price,
-                            'quantity' => 1,
-                            'type' => 'chapter'
-                        ]
-                    ];
-                    
-                    // Add free spells to the purchased items list for display
-                    if (!empty($freeSpellItems)) {
-                        $purchasedItems = array_merge($purchasedItems, $freeSpellItems);
-                    }
-                    
                 } else {
                     // Process cart purchase
                     $cartId = $request->session()->get('cart_id');
@@ -571,7 +468,9 @@ class PaymentController extends Controller
                             Auth::user()->grantSpellAccess($item->spell);
                         }
                     }
-                    
+                    \App\Models\PurchaseItem::whereNotNull('spell_id')
+                        ->where('item_type', '!=', 'spell')
+                        ->update(['item_type' => 'spell']);
                     // Generate a SINGLE invoice for the entire purchase
                     try {
                         // Generate PDF invoice

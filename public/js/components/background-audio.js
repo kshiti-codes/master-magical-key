@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const audioTracks = {
         'ambient1': {
             name: 'Cosmic Mystery',
-            path: '/chapter-audio/chapter2.mp3'
+            path: '/chapter-audio/universe.mp3'
         },
         'ambient2': {
             name: 'Enchanted Forest',

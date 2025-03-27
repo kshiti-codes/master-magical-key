@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Console\Commands\CreateStorageLinkCommand;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -16,6 +17,10 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         require_once app_path('Helpers/ContentFormatter.php');
+        // Register commands
+        $this->commands([
+            CreateStorageLinkCommand::class,
+        ]);
     }
 
     /**

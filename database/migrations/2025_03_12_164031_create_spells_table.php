@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description');
-            $table->binary('pdf')->nullable(); // Store PDF directly in the database
+            $table->string('pdf_path')->nullable();
             $table->decimal('price', 8, 2)->default(5.55);
             $table->string('currency')->default('AUD');
             $table->boolean('is_published')->default(false);

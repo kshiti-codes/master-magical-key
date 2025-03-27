@@ -51,8 +51,8 @@ class ContentFormatter
         $content = preg_replace('/__(.*?)__/s', '<strong>$1</strong>', $content);
         
         // Format italic text (handle both * and _ style)
-        $content = preg_replace('/\*(.*?)\*/s', '<em>$1</em>', $content);
-        $content = preg_replace('/_(.*?)_/s', '<em>$1</em>', $content);
+        $content = preg_replace('/(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)/s', '<em>$1</em>', $content);
+        $content = preg_replace('/(?<!_)_(?!_)(.*?)(?<!_)_(?!_)/s', '<em>$1</em>', $content);
         
         // Format quotes (> style)
         $content = preg_replace('/^&gt;\s*(.*?)$/m', '<blockquote>$1</blockquote>', $content);
@@ -65,6 +65,77 @@ class ContentFormatter
         $content = preg_replace('/^#{2}\s+(.*?)$/m', '<h2>$1</h2>', $content);
         $content = preg_replace('/^#{1}\s+(.*?)$/m', '<h1>$1</h1>', $content);
         
-        return $content;
+        // Format unordered lists
+        $content = preg_replace_callback('/(?:^|\n)(\*|\-|\+)\s+(.*?)(?=\n\n|\n(?:\*|\-|\+)|\z)/s', function($matches) {
+            $items = preg_split('/\n\s*(?:\*|\-|\+)\s+/', "\n" . $matches[0]);
+            array_shift($items); // Remove first empty item
+            
+            $html = '<ul>';
+            foreach ($items as $item) {
+                $html .= '<li>' . trim($item) . '</li>';
+            }
+            $html .= '</ul>';
+            
+            return $html;
+        }, $content);
+        
+        // Format ordered lists
+        $content = preg_replace_callback('/(?:^|\n)(\d+)\.\s+(.*?)(?=\n\n|\n\d+\.|\z)/s', function($matches) {
+            $items = preg_split('/\n\s*\d+\.\s+/', "\n" . $matches[0]);
+            array_shift($items); // Remove first empty item
+            
+            $html = '<ol>';
+            foreach ($items as $item) {
+                $html .= '<li>' . trim($item) . '</li>';
+            }
+            $html .= '</ol>';
+            
+            return $html;
+        }, $content);
+        
+        // Format code blocks
+        $content = preg_replace('/```(.*?)```/s', '<pre><code>$1</code></pre>', $content);
+        
+        // Format inline code
+        $content = preg_replace('/`(.*?)`/s', '<code>$1</code>', $content);
+        
+        // Format horizontal rules
+        $content = preg_replace('/^(\-{3,}|\*{3,}|_{3,})$/m', '<hr>', $content);
+        
+        // Ensure proper paragraph tags
+        // First, identify blocks that shouldn't be wrapped (headers, lists, etc.)
+        $nonParagraphBlocks = [
+            '<h1', '<h2', '<h3', '<h4', '<h5', '<h6',
+            '<ul', '<ol', '<li', '<blockquote', '<pre',
+            '<hr', '<p'
+        ];
+        
+        // Split content by double line breaks
+        $blocks = preg_split('/\n\s*\n/', $content);
+        
+        // Process each block
+        $processedContent = '';
+        foreach ($blocks as $block) {
+            $block = trim($block);
+            if (empty($block)) continue;
+            
+            // Check if this block starts with a tag that shouldn't be wrapped
+            $shouldWrap = true;
+            foreach ($nonParagraphBlocks as $tag) {
+                if (strpos($block, $tag) === 0) {
+                    $shouldWrap = false;
+                    break;
+                }
+            }
+            
+            // Wrap in paragraph tags if needed
+            if ($shouldWrap && !preg_match('/^<p/i', $block)) {
+                $block = '<p>' . $block . '</p>';
+            }
+            
+            $processedContent .= $block . "\n\n";
+        }
+        
+        return trim($processedContent);
     }
 }

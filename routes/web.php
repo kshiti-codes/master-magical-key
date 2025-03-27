@@ -9,6 +9,12 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\SpellController;
+// Admin Controllers
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\ChapterAdminController;
+use App\Http\Controllers\Admin\SpellAdminController;
+use App\Http\Controllers\Admin\PurchaseAdminController;
+use App\Http\Controllers\Admin\UserAdminController;
 
 Auth::routes();
 
@@ -68,4 +74,48 @@ Route::middleware(['auth'])->group(function () {
     // Invoice routes
     Route::get('/invoices/{purchase}', [InvoiceController::class, 'view'])->name('invoices.view');
     Route::get('/invoices/{purchase}/download', [InvoiceController::class, 'download'])->name('invoices.download');
+});
+
+// Admin routes - all are protected by the 'admin' middleware
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
+    Route::get('/', [AdminController::class, 'index'])->name('dashboard');
+    
+    // Chapters management
+    Route::get('/chapters/generate-sample', [ChapterAdminController::class, 'generateSampleContent'])->name('chapters.sample');
+    Route::post('/chapters/preview', [ChapterAdminController::class, 'preview'])->name('chapters.preview');
+    Route::post('/chapters/upload-image', [ChapterAdminController::class, 'uploadImage'])->name('chapters.upload-image');
+    Route::post('/chapters/{chapter}/paginate', [ChapterAdminController::class, 'paginate'])->name('chapters.paginate');
+    
+    // Add explicit route for chapter creation to ensure it's working
+    Route::get('/chapters/create', [ChapterAdminController::class, 'create'])->name('chapters.create');
+    Route::post('/chapters', [ChapterAdminController::class, 'store'])->name('chapters.store');
+    Route::get('/chapters', [ChapterAdminController::class, 'index'])->name('chapters.index');
+    Route::get('/chapters/{chapter}/edit', [ChapterAdminController::class, 'edit'])->name('chapters.edit');
+    Route::put('/chapters/{chapter}', [ChapterAdminController::class, 'update'])->name('chapters.update');
+    Route::delete('/chapters/{chapter}', [ChapterAdminController::class, 'destroy'])->name('chapters.destroy');
+    
+    
+    // New spell routes
+    Route::resource('spells', App\Http\Controllers\Admin\SpellAdminController::class);
+    Route::get('/spells/{spell}/preview', [App\Http\Controllers\Admin\SpellAdminController::class, 'preview'])->name('spells.preview');
+    Route::post('spells/{spell}/upload-pdf', [SpellAdminController::class, 'uploadPdf'])
+        ->name('spells.upload-pdf');
+    
+    // User management
+    Route::put('users/{user}/content', [UserAdminController::class, 'updateOwnedContent'])->name('users.update-content');
+    Route::resource('users', UserAdminController::class);
+    
+    // Purchase management
+    Route::get('/purchases/data', [PurchaseAdminController::class, 'getData'])->name('purchases.data');
+    Route::get('/purchases/export', [PurchaseAdminController::class, 'export'])->name('purchases.export');
+    Route::get('/purchases', [PurchaseAdminController::class, 'index'])->name('purchases.index');
+    Route::get('/purchases/{purchase}', [PurchaseAdminController::class, 'show'])->name('purchases.show');
+
+    // Reports
+    Route::get('/reports/sales', [PurchaseAdminController::class, 'salesReport'])->name('reports.sales');
+    Route::get('/reports/sales/data', [PurchaseAdminController::class, 'salesReportData'])->name('reports.sales.data');
+    Route::get('/reports/user-analysis', [PurchaseAdminController::class, 'userAnalysis'])->name('reports.user_analysis');
+    Route::get('/reports/user-analysis/data', [PurchaseAdminController::class, 'userAnalysisData'])->name('reports.user_analysis.data');
+                   
 });

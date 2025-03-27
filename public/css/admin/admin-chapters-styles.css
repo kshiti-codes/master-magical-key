@@ -1,0 +1,231 @@
+/* Admin Chapter Form Styles */
+
+/* Content textarea */
+#content {
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    line-height: 1.6;
+    background-color: rgba(20, 20, 40, 0.7);
+    color: #e0e0e0;
+    resize: vertical;
+}
+
+/* Preview container styling */
+#content-preview, #pages-preview {
+    background: rgba(25, 25, 45, 0.7) !important;
+    border: 1px solid rgba(138, 43, 226, 0.4) !important;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+#preview-content, .tab-pane {
+    padding: 20px;
+    background: rgba(15, 15, 35, 0.4);
+    border-radius: 5px;
+    color: #e0e0e0;
+}
+
+/* Preview content styling */
+#preview-content h1, #preview-content h2, 
+#preview-content h3, #preview-content h4, 
+#preview-content h5, #preview-content h6,
+.tab-pane h1, .tab-pane h2, 
+.tab-pane h3, .tab-pane h4, 
+.tab-pane h5, .tab-pane h6 {
+    color: #d8b5ff;
+    font-family: 'Cinzel', serif;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+#preview-content h1, .tab-pane h1 { font-size: 1.8rem; border-bottom: 1px solid rgba(138, 43, 226, 0.3); padding-bottom: 0.3em; }
+#preview-content h2, .tab-pane h2 { font-size: 1.5rem; }
+#preview-content h3, .tab-pane h3 { font-size: 1.3rem; }
+#preview-content h4, .tab-pane h4 { font-size: 1.1rem; }
+#preview-content h5, .tab-pane h5 { font-size: 1rem; }
+#preview-content h6, .tab-pane h6 { font-size: 0.9rem; }
+
+#preview-content p, .tab-pane p {
+    margin-bottom: 1em;
+    line-height: 1.6;
+}
+
+#preview-content blockquote, .tab-pane blockquote {
+    border-left: 4px solid #9400d3;
+    padding-left: 1em;
+    margin-left: 0;
+    color: #d8b5ff;
+    font-style: italic;
+}
+
+#preview-content img, .tab-pane img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+#preview-content img.center, .tab-pane img.center {
+    display: block;
+    margin: 1em auto;
+}
+
+#preview-content img.left, .tab-pane img.left {
+    float: left;
+    margin-right: 1em;
+    margin-bottom: 0.5em;
+}
+
+#preview-content img.right, .tab-pane img.right {
+    float: right;
+    margin-left: 1em;
+    margin-bottom: 0.5em;
+}
+
+#preview-content img.large, .tab-pane img.large {
+    width: 100%;
+    margin: 1em 0;
+}
+
+#preview-content ul, #preview-content ol,
+.tab-pane ul, .tab-pane ol {
+    margin-bottom: 1em;
+    padding-left: 2em;
+}
+
+#preview-content code, .tab-pane code {
+    background: rgba(138, 43, 226, 0.1);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: monospace;
+    color: #d8b5ff;
+}
+
+/* Pages navigation styling */
+.nav-pills .nav-link {
+    color: rgba(255, 255, 255, 0.7);
+    background: rgba(30, 30, 60, 0.4);
+    margin-bottom: 5px;
+    border: 1px solid rgba(138, 43, 226, 0.2);
+    transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link:hover {
+    color: white;
+    background: rgba(138, 43, 226, 0.3);
+}
+
+.nav-pills .nav-link.active {
+    background: rgba(138, 43, 226, 0.6);
+    color: white;
+}
+
+/* Button styling */
+#preview-btn, #insert-image-btn, #sample-content-btn, #view-pages-btn {
+    margin-right: 5px;
+    background: rgba(30, 30, 60, 0.6);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    color: rgba(255, 255, 255, 0.8);
+    transition: all 0.3s ease;
+}
+
+#preview-btn:hover, #insert-image-btn:hover, #sample-content-btn:hover, #view-pages-btn:hover {
+    background: rgba(138, 43, 226, 0.4);
+    color: white;
+}
+
+/* Modal styling */
+.modal-content.bg-dark {
+    background: rgba(20, 20, 40, 0.95) !important;
+    border: 1px solid rgba(138, 43, 226, 0.5);
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(138, 43, 226, 0.3);
+}
+
+/* Form elements */
+.form-control, .form-select {
+    background-color: rgba(15, 15, 35, 0.7);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: rgba(30, 30, 60, 0.8);
+    border-color: rgba(138, 43, 226, 0.7);
+    box-shadow: 0 0 0 0.25rem rgba(138, 43, 226, 0.25);
+    color: white;
+}
+
+.input-group-text {
+    background-color: rgba(30, 30, 60, 0.8);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Custom scrollbar for previews */
+#content-preview::-webkit-scrollbar,
+#pages-preview::-webkit-scrollbar,
+.tab-pane::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+#content-preview::-webkit-scrollbar-track,
+#pages-preview::-webkit-scrollbar-track,
+.tab-pane::-webkit-scrollbar-track {
+    background: rgba(10, 10, 30, 0.2);
+}
+
+#content-preview::-webkit-scrollbar-thumb,
+#pages-preview::-webkit-scrollbar-thumb,
+.tab-pane::-webkit-scrollbar-thumb {
+    background: rgba(138, 43, 226, 0.4);
+    border-radius: 4px;
+}
+
+#content-preview::-webkit-scrollbar-thumb:hover,
+#pages-preview::-webkit-scrollbar-thumb:hover,
+.tab-pane::-webkit-scrollbar-thumb:hover {
+    background: rgba(138, 43, 226, 0.6);
+}
+
+/* Audio player styling */
+audio {
+    background-color: rgba(10, 10, 30, 0.4);
+    border-radius: 25px;
+}
+
+audio::-webkit-media-controls-panel {
+    background-color: rgba(30, 30, 60, 0.6);
+}
+
+audio::-webkit-media-controls-current-time-display,
+audio::-webkit-media-controls-time-remaining-display {
+    color: white;
+}
+
+/* Checkbox styling */
+.form-check-input {
+    background-color: rgba(30, 30, 60, 0.6);
+    border: 1px solid rgba(138, 43, 226, 0.5);
+}
+
+.form-check-input:checked {
+    background-color: rgba(138, 43, 226, 0.8);
+    border-color: rgba(138, 43, 226, 0.8);
+}
+
+/* Help text styling */
+.form-text {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
+}

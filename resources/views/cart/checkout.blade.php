@@ -267,7 +267,7 @@
                             <td>
                                 <div class="item-title">
                                     <span class="item-type-badge item-type-chapter">Chapter</span>
-                                    Chapter {{ $item->chapter->id }}: {{ $item->chapter->title }}
+                                    Chapter {{ $item->chapter->order }}: {{ $item->chapter->title }}
                                 </div>
                                 <div class="item-description">{{ Str::limit($item->chapter->description, 80) }}</div>
                             </td>

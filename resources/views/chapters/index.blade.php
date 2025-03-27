@@ -74,7 +74,7 @@
     <div class="chapters-grid desktop-only">
         @foreach($chapters as $chapter)
             <div class="chapter-card">
-                <h2 class="chapter-title">Chapter {{ $chapter->id }}</h2>
+                <h2 class="chapter-title">Chapter {{ $chapter->order }}</h2>
                 <p class="chapter-description">{{ $chapter->description }}</p>
                 @if($chapter->isFree())
                     <p class="chapter-price"><span class="free-badge">Free</span></p>
@@ -113,7 +113,7 @@
         @foreach($chapters as $chapter)
             <div class="chapter-list-item">
                 <div class="chapter-info">
-                    <h2 class="chapter-title">Chapter {{ $chapter->id }}</h2>
+                    <h2 class="chapter-title">Chapter {{ $chapter->order }}</h2>
                     @if($chapter->isFree())
                         <p class="chapter-price"><span class="free-badge">Free</span></p>
                     @else
