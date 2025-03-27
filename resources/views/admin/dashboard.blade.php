@@ -40,9 +40,9 @@
     .stats-card .stat-icon {
         font-size: 2.5rem;
         opacity: 0.2;
-        position: absolute;
         top: 20px;
         right: 20px;
+        float: right;
         color: #d8b5ff;
     }
     
@@ -90,76 +90,80 @@
     
     <!-- Stats Row -->
     <div class="row">
-        <!-- Sales Stats -->
-        <div class="col-xl-3 col-md-6">
-            <div class="stats-card">
-                <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
-                <div class="stat-title">Total Sales</div>
-                <div class="stat-value">${{ number_format($totalSales, 2) }}</div>
-                <div class="stat-subtitle">Lifetime</div>
+        <div class="col-lg-8" style="display: flex; gap:1rem;">
+            <!-- Sales Stats -->
+            <div class="col-lg-2" style="width: 25%;">
+                <div class="stats-card">
+                    <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                    <div class="stat-title">Total Sales</div>
+                    <div class="stat-value">${{ number_format($totalSales, 2) }}</div>
+                    <div class="stat-subtitle">Lifetime</div>
+                </div>
             </div>
-        </div>
-        
-        <div class="col-xl-3 col-md-6">
-            <div class="stats-card">
-                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
-                <div class="stat-title">Monthly Sales</div>
-                <div class="stat-value">${{ number_format($monthSales, 2) }}</div>
-                <div class="stat-subtitle">This Month</div>
+            
+            <div class="col-lg-2" style="width: 25%;">
+                <div class="stats-card">
+                    <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="stat-title">Monthly Sales</div>
+                    <div class="stat-value">${{ number_format($monthSales, 2) }}</div>
+                    <div class="stat-subtitle">This Month</div>
+                </div>
             </div>
-        </div>
-        
-        <!-- Content Stats -->
-        <div class="col-xl-3 col-md-6">
-            <div class="stats-card">
-                <div class="stat-icon"><i class="fas fa-book"></i></div>
-                <div class="stat-title">Content Stats</div>
-                <div class="stat-value">{{ $publishedChaptersCount }}/{{ $chaptersCount }}</div>
-                <div class="stat-subtitle">Published Chapters</div>
+            
+            <!-- Content Stats -->
+            <div class="col-lg-2" style="width: 25%;">
+                <div class="stats-card">
+                    <div class="stat-icon"><i class="fas fa-book"></i></div>
+                    <div class="stat-title">Content Stats</div>
+                    <div class="stat-value">{{ $publishedChaptersCount }}/{{ $chaptersCount }}</div>
+                    <div class="stat-subtitle">Published Chapters</div>
+                </div>
             </div>
-        </div>
-        
-        <div class="col-xl-3 col-md-6">
-            <div class="stats-card">
-                <div class="stat-icon"><i class="fas fa-magic"></i></div>
-                <div class="stat-title">Spell Stats</div>
-                <div class="stat-value">{{ $publishedSpellsCount }}/{{ $spellsCount }}</div>
-                <div class="stat-subtitle">Published Spells</div>
+            
+            <div class="col-lg-2" style="width: 25%;">
+                <div class="stats-card">
+                    <div class="stat-icon"><i class="fas fa-magic"></i></div>
+                    <div class="stat-title">Spell Stats</div>
+                    <div class="stat-value">{{ $publishedSpellsCount }}/{{ $spellsCount }}</div>
+                    <div class="stat-subtitle">Published Spells</div>
+                </div>
             </div>
         </div>
     </div>
     
     <!-- User Stats Row -->
     <div class="row">
-        <div class="col-xl-3 col-md-6">
-            <div class="stats-card">
-                <div class="stat-icon"><i class="fas fa-users"></i></div>
-                <div class="stat-title">Total Users</div>
-                <div class="stat-value">{{ $usersCount }}</div>
-                <div class="stat-subtitle">Registered Users</div>
+        <div class="col-lg-8" style="display: flex; gap:1rem;">
+            <div class="col-lg-3" style="width: 50%;">
+                <div class="stats-card">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="stat-title">Total Users</div>
+                    <div class="stat-value">{{ $usersCount }}</div>
+                    <div class="stat-subtitle">Registered Users</div>
+                </div>
             </div>
-        </div>
-        
-        <div class="col-xl-3 col-md-6">
-            <div class="stats-card">
-                <div class="stat-icon"><i class="fas fa-user-plus"></i></div>
-                <div class="stat-title">New Users</div>
-                <div class="stat-value">{{ $newUsers }}</div>
-                <div class="stat-subtitle">This Month</div>
+            <div class="col-lg-3" style="width: 50%;">
+                <div class="stats-card">
+                    <div class="stat-icon"><i class="fas fa-user-plus"></i></div>
+                    <div class="stat-title">New Users</div>
+                    <div class="stat-value">{{ $newUsers }}</div>
+                    <div class="stat-subtitle">This Month</div>
+                </div>
             </div>
         </div>
     </div>
     
     <!-- Charts Row -->
     <div class="row">
-        <div class="col-lg-8">
-                            <div class="chart-container">
+        <div class="col-lg-8" style="display: flex; gap:1rem;">
+            <div class="col-lg-4" style="width: 50%;">
+                <div class="chart-container">
                     <h2 class="chart-title">Monthly Sales ({{ date('Y') }})</h2>
                     <canvas id="monthlySalesChart" height="300"></canvas>
                 </div>
             </div>
             
-            <div class="col-lg-4">
+            <div class="col-lg-4" style="width: 50%;">
                 <div class="chart-container">
                     <h2 class="chart-title">Content Distribution</h2>
                     <canvas id="contentDistributionChart" height="300"></canvas>

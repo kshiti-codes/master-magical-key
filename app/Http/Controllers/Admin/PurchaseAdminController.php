@@ -658,4 +658,240 @@ class PurchaseAdminController extends Controller
             ->limit(10)
             ->get();
     }
+
+    /**
+     * Get sales report data for AJAX requests.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function salesReportData(Request $request)
+    {
+        // Get report parameters
+        $period = $request->input('period', 'monthly');
+        $year = $request->input('year', Carbon::now()->year);
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        
+        // Define date formats based on period
+        $groupFormat = '%Y-%m';
+        $labelFormat = 'M Y';
+        
+        if ($period === 'daily') {
+            $groupFormat = '%Y-%m-%d';
+            $labelFormat = 'M d, Y';
+            
+            // Default to last 30 days if no dates specified
+            if (!$startDate) {
+                $startDate = Carbon::now()->subDays(30)->toDateString();
+                $endDate = Carbon::now()->toDateString();
+            }
+        } elseif ($period === 'weekly') {
+            $groupFormat = '%Y-%u'; // ISO week numbers
+            $labelFormat = 'Week %W, %Y';
+            
+            // Default to last 12 weeks if no dates specified
+            if (!$startDate) {
+                $startDate = Carbon::now()->subWeeks(12)->startOfWeek()->toDateString();
+                $endDate = Carbon::now()->toDateString();
+            }
+        } elseif ($period === 'monthly') {
+            $startDate = Carbon::createFromDate($year, 1, 1)->toDateString();
+            $endDate = Carbon::createFromDate($year, 12, 31)->toDateString();
+        } elseif ($period === 'yearly') {
+            $groupFormat = '%Y';
+            $labelFormat = 'Y';
+            
+            // Default to last 5 years if no dates specified
+            if (!$startDate) {
+                $startDate = Carbon::now()->subYears(5)->startOfYear()->toDateString();
+                $endDate = Carbon::now()->endOfYear()->toDateString();
+            }
+        }
+        
+        // Get sales data
+        $salesData = $this->getSalesData($period, $startDate, $endDate, $groupFormat, $labelFormat);
+        
+        // Get top selling chapters
+        $topChapters = $this->getTopSellingChapters($startDate, $endDate);
+        
+        // Get top selling spells
+        $topSpells = $this->getTopSellingSpells($startDate, $endDate);
+        
+        // Customer metrics
+        $newCustomers = User::whereBetween('created_at', [$startDate, $endDate])->count();
+        $returningCustomers = Purchase::where('status', 'completed')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->select('user_id')
+            ->groupBy('user_id')
+            ->havingRaw('COUNT(*) > 1')
+            ->count();
+        
+        // Return JSON response
+        return response()->json([
+            'chartData' => [
+                'labels' => $salesData['labels'],
+                'salesAmount' => $salesData['salesAmount'],
+                'salesCount' => $salesData['salesCount']
+            ],
+            'stats' => [
+                'totalAmount' => $salesData['totalAmount'],
+                'totalCount' => $salesData['totalCount'],
+                'newCustomers' => $newCustomers,
+                'returningCustomers' => $returningCustomers
+            ],
+            'topChapters' => $topChapters,
+            'topSpells' => $topSpells,
+            'period' => $period,
+            'startDate' => $startDate,
+            'endDate' => $endDate
+        ]);
+    }
+
+    /**
+     * Get user analysis data for AJAX requests.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function userAnalysisData(Request $request)
+    {
+        // Time period for analysis
+        $period = $request->input('period', '30days');
+        
+        // Determine date range based on period
+        $endDate = Carbon::now();
+        
+        if ($period === '30days') {
+            $startDate = Carbon::now()->subDays(30);
+        } elseif ($period === '90days') {
+            $startDate = Carbon::now()->subDays(90);
+        } elseif ($period === '6months') {
+            $startDate = Carbon::now()->subMonths(6);
+        } elseif ($period === '12months') {
+            $startDate = Carbon::now()->subMonths(12);
+        } else {
+            $startDate = Carbon::now()->subDays(30); // Default
+        }
+        
+        // New user registrations by day/week
+        $newUsers = User::whereBetween('created_at', [$startDate, $endDate])
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+        
+        // User purchase behavior
+        $userPurchases = Purchase::where('status', 'completed')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->selectRaw('user_id, COUNT(*) as purchase_count, SUM(amount) as total_spent')
+            ->groupBy('user_id')
+            ->orderBy('total_spent', 'desc')
+            ->limit(100)
+            ->get();
+        
+        // Calculate average metrics
+        $avgOrderValue = Purchase::where('status', 'completed')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->avg('amount');
+        
+        // Calculate purchase frequency
+        $purchaseFrequency = DB::table(function($query) use ($startDate, $endDate) {
+            $query->from('purchases')
+                ->select('user_id', DB::raw('COUNT(*) as purchase_count'))
+                ->where('status', 'completed')
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->groupBy('user_id');
+        }, 'purchase_counts')->avg('purchase_count');
+        
+        // Calculate time between purchases (for users with multiple purchases)
+        $repeatPurchaseDelay = DB::table(function($query) {
+            $query->from('purchases as p1')
+                ->join('purchases as p2', function($join) {
+                    $join->on('p1.user_id', '=', 'p2.user_id')
+                        ->whereRaw('p2.created_at > p1.created_at');
+                })
+                ->where('p1.status', 'completed')
+                ->where('p2.status', 'completed')
+                ->selectRaw('p1.id, MIN(DATEDIFF(p2.created_at, p1.created_at)) as days_between')
+                ->groupBy('p1.id');
+        }, 'purchase_delays')->avg('days_between');
+        
+        // Prepare top customers data
+        $topCustomers = [];
+        foreach ($userPurchases->take(10) as $purchase) {
+            $user = User::find($purchase->user_id);
+            if (!$user) continue;
+            
+            $topCustomers[] = [
+                'name' => $user->name,
+                'email' => $user->email,
+                'created_at' => $user->created_at->format('M d, Y'),
+                'purchase_count' => $purchase->purchase_count,
+                'total_spent' => $purchase->total_spent
+            ];
+        }
+        
+        // Calculate frequency distribution
+        $onetime = $userPurchases->where('purchase_count', 1)->count();
+        $occasional = $userPurchases->where('purchase_count', '>=', 2)
+            ->where('purchase_count', '<=', 3)->count();
+        $frequent = $userPurchases->where('purchase_count', '>=', 4)
+            ->where('purchase_count', '<=', 6)->count();
+        $loyal = $userPurchases->where('purchase_count', '>', 6)->count();
+        
+        $total = $onetime + $occasional + $frequent + $loyal;
+        $onetimePercent = $total > 0 ? ($onetime / $total) * 100 : 0;
+        $occasionalPercent = $total > 0 ? ($occasional / $total) * 100 : 0;
+        $frequentPercent = $total > 0 ? ($frequent / $total) * 100 : 0;
+        $loyalPercent = $total > 0 ? ($loyal / $total) * 100 : 0;
+        
+        // Calculate spending distribution
+        $low = $userPurchases->where('total_spent', '<', 50)->count();
+        $medium = $userPurchases->where('total_spent', '>=', 50)
+            ->where('total_spent', '<', 100)->count();
+        $high = $userPurchases->where('total_spent', '>=', 100)
+            ->where('total_spent', '<', 200)->count();
+        $vip = $userPurchases->where('total_spent', '>=', 200)->count();
+        
+        $totalSpenders = $low + $medium + $high + $vip;
+        $lowPercent = $totalSpenders > 0 ? ($low / $totalSpenders) * 100 : 0;
+        $mediumPercent = $totalSpenders > 0 ? ($medium / $totalSpenders) * 100 : 0;
+        $highPercent = $totalSpenders > 0 ? ($high / $totalSpenders) * 100 : 0;
+        $vipPercent = $totalSpenders > 0 ? ($vip / $totalSpenders) * 100 : 0;
+        
+        // Return JSON response
+        return response()->json([
+            'metrics' => [
+                'avgOrderValue' => $avgOrderValue ?? 0,
+                'purchaseFrequency' => $purchaseFrequency ?? 0,
+                'repeatPurchaseDelay' => $repeatPurchaseDelay
+            ],
+            'newUsers' => $newUsers,
+            'segments' => [
+                'frequency' => [
+                    'onetime' => $onetime,
+                    'occasional' => $occasional,
+                    'frequent' => $frequent,
+                    'loyal' => $loyal,
+                    'onetimePercent' => $onetimePercent,
+                    'occasionalPercent' => $occasionalPercent,
+                    'frequentPercent' => $frequentPercent,
+                    'loyalPercent' => $loyalPercent
+                ],
+                'spending' => [
+                    'low' => $low,
+                    'medium' => $medium,
+                    'high' => $high,
+                    'vip' => $vip,
+                    'lowPercent' => $lowPercent,
+                    'mediumPercent' => $mediumPercent,
+                    'highPercent' => $highPercent,
+                    'vipPercent' => $vipPercent
+                ]
+            ],
+            'topCustomers' => $topCustomers,
+            'period' => $period
+        ]);
+    }
 }

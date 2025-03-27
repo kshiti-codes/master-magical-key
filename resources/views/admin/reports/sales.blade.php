@@ -4,126 +4,8 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
-<style>
-    .report-controls {
-        display: flex;
-        gap: 15px;
-        margin-bottom: 20px;
-        align-items: flex-end;
-        flex-wrap: wrap;
-    }
-    
-    .filter-group {
-        flex: 1;
-        min-width: 200px;
-    }
-    
-    .summary-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-    }
-    
-    .stat-card {
-        background: rgba(30, 30, 60, 0.7);
-        border-radius: 10px;
-        padding: 20px;
-        border: 1px solid rgba(138, 43, 226, 0.3);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-    
-    .stat-value {
-        font-size: 1.8rem;
-        font-weight: bold;
-        color: #d8b5ff;
-        margin-bottom: 5px;
-    }
-    
-    .stat-label {
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 0.9rem;
-    }
-    
-    .chart-container {
-        height: 400px;
-        position: relative;
-        margin-bottom: 40px;
-    }
-    
-    .table-title {
-        font-family: 'Cinzel', serif;
-        color: #d8b5ff;
-        font-size: 1.2rem;
-        margin-bottom: 15px;
-        margin-top: 30px;
-    }
-    
-    .top-items-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        gap: 30px;
-        margin-bottom: 30px;
-    }
-    
-    .period-toggle {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    
-    .period-toggle .btn-group {
-        display: inline-flex;
-        border-radius: 5px;
-        overflow: hidden;
-    }
-    
-    .period-toggle .btn {
-        background: rgba(30, 30, 60, 0.5);
-        color: rgba(255, 255, 255, 0.7);
-        border: 1px solid rgba(138, 43, 226, 0.3);
-        padding: 8px 15px;
-        transition: all 0.3s ease;
-    }
-    
-    .period-toggle .btn:hover {
-        background: rgba(30, 30, 60, 0.8);
-    }
-    
-    .period-toggle .btn.active {
-        background: rgba(138, 43, 226, 0.5);
-        color: white;
-    }
-    
-    /* Table styles for top selling items */
-    .top-selling-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    .top-selling-table th {
-        background: rgba(30, 30, 70, 0.6);
-        padding: 12px 15px;
-        text-align: left;
-        color: #d8b5ff;
-        font-weight: normal;
-    }
-    
-    .top-selling-table td {
-        padding: 10px 15px;
-        border-bottom: 1px solid rgba(138, 43, 226, 0.2);
-    }
-    
-    .top-selling-table tr:last-child td {
-        border-bottom: none;
-    }
-    
-    .top-selling-table .text-right {
-        text-align: right;
-    }
-</style>
+<link href="{{ asset('css/components/date-range-picker.css') }}" rel="stylesheet">
+<link href="{{ asset('css/admin/admin-purchase-report.css') }}" rel="stylesheet">
 @endpush
 
 @section('content')
@@ -133,7 +15,7 @@
         <div class="admin-card-title">Sales Analysis</div>
         
         <!-- Report Filters -->
-        <form method="GET" action="{{ route('admin.reports.sales') }}" class="report-controls">
+        <form id="reportForm" method="GET" action="{{ route('admin.reports.sales') }}" class="report-controls">
             <div class="filter-group">
                 <label>Time Period</label>
                 <select name="period" class="admin-form form-control" id="period">
@@ -162,27 +44,35 @@
             </div>
             
             <div>
-                <button type="submit" class="btn-admin-primary">Generate Report</button>
+                <button type="button" id="generateReport" class="btn-admin-primary">Generate Report</button>
             </div>
         </form>
         
         <!-- Summary Statistics -->
         <div class="summary-stats">
             <div class="stat-card">
-                <div class="stat-value">${{ number_format($salesData['totalAmount'], 2) }}</div>
+                <div class="stat-value" id="totalRevenue">${{ number_format($salesData['totalAmount'], 2) }}</div>
                 <div class="stat-label">Total Revenue</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value">{{ $salesData['totalCount'] }}</div>
+                <div class="stat-value" id="totalOrders">{{ $salesData['totalCount'] }}</div>
                 <div class="stat-label">Total Orders</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value">{{ $newCustomers }}</div>
+                <div class="stat-value" id="newCustomers">{{ $newCustomers }}</div>
                 <div class="stat-label">New Customers</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value">{{ $returningCustomers }}</div>
+                <div class="stat-value" id="returningCustomers">{{ $returningCustomers }}</div>
                 <div class="stat-label">Returning Customers</div>
+            </div>
+        </div>
+
+        <!-- Add a loading overlay -->
+        <div id="reportLoadingOverlay" style="display: none !important; position: absolute; width: 75%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; display: flex; justify-content: center; align-items: center;">
+            <div style="text-align: center; color: white;">
+                <i class="fas fa-spinner fa-spin fa-3x"></i>
+                <p class="mt-3">Generating report...</p>
             </div>
         </div>
         
@@ -196,7 +86,7 @@
             <!-- Top Chapters -->
             <div>
                 <h3 class="table-title">Top Selling Chapters</h3>
-                <table class="top-selling-table">
+                <table class="top-selling-table" id="topChaptersTable">
                     <thead>
                         <tr>
                             <th>Chapter</th>
@@ -251,6 +141,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
@@ -293,145 +184,206 @@
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, checking chart element');
-    const chartCanvas = document.getElementById('salesChart');
+    document.getElementById('generateReport').addEventListener('click', function() {
+        generateReportAjax();
+    });
     
-    if (!chartCanvas) {
-        console.error('Chart canvas element not found!');
-        return;
+    function generateReportAjax() {
+        // Show loading overlay
+        const loadingOverlay = document.getElementById('reportLoadingOverlay');
+        loadingOverlay.style.display = 'flex';
+        
+        // Get form data
+        const formData = new FormData(document.getElementById('reportForm'));
+        const queryString = new URLSearchParams(formData).toString();
+        
+        // Make AJAX request
+        fetch('{{ route("admin.reports.sales.data") }}?' + queryString, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Hide loading overlay
+                loadingOverlay.style.display = 'none';
+                
+                // Update summary statistics
+                if (data.stats) {
+                    updateSummaryStats(data.stats);
+                }
+                
+                // Update chart
+                if (data.chartData) {
+                    updateSalesChart(data.chartData);
+                }
+                
+                // Update URL with filter parameters without reloading
+                updateUrlWithFilters(formData);
+            })
+            .catch(error => {
+                console.error('Error fetching report data:', error);
+                loadingOverlay.style.display = 'none';
+                alert('Error generating report. Please try again.');
+        });
     }
     
-    console.log('Canvas found, initializing chart');
-    const ctx = chartCanvas.getContext('2d');
-    
-    // Check if data exists and is properly formatted
-    const labels = @json($salesData['labels'] ?? []);
-    const salesAmounts = @json($salesData['salesAmount'] ?? []);
-    const salesCounts = @json($salesData['salesCount'] ?? []);
-    
-    console.log('Chart data:', { labels, salesAmounts, salesCounts });
-    
-    if (!labels.length) {
-        console.error('No data available for chart');
-        // Display a message in the chart area
-        const chartContainer = chartCanvas.parentNode;
-        const noDataMessage = document.createElement('div');
-        noDataMessage.textContent = 'No data available for the selected period';
-        noDataMessage.style.textAlign = 'center';
-        noDataMessage.style.padding = '40px';
-        noDataMessage.style.color = 'rgba(255, 255, 255, 0.7)';
-        chartContainer.appendChild(noDataMessage);
-        return;
+    // Update summary statistics
+    function updateSummaryStats(stats) {
+        document.getElementById('totalRevenue').textContent = '$' + parseFloat(stats.totalAmount).toFixed(2);
+        document.getElementById('totalOrders').textContent = stats.totalCount;
+        document.getElementById('newCustomers').textContent = stats.newCustomers;
+        document.getElementById('returningCustomers').textContent = stats.returningCustomers;
     }
     
-    try {
-        const salesChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Revenue ($)',
-                        data: salesAmounts,
-                        backgroundColor: 'rgba(138, 43, 226, 0.5)',
-                        borderColor: 'rgba(138, 43, 226, 1)',
-                        borderWidth: 1,
-                        yAxisID: 'y',
-                        order: 1
-                    },
-                    {
-                        label: 'Orders',
-                        data: salesCounts,
-                        type: 'line',
-                        fill: false,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 2,
-                        pointBackgroundColor: 'rgba(75, 192, 192, 1)',
-                        pointRadius: 4,
-                        tension: 0.1,
-                        yAxisID: 'y1',
-                        order: 0
-                    }
-                ]
+    // Update sales chart
+    function updateSalesChart(chartData) {
+        // Destroy existing chart if it exists
+        if (window.salesChart instanceof Chart) {
+            window.salesChart.destroy();
+        }
+        
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        window.salesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartData.labels,
+            datasets: [
+            {
+                label: 'Revenue ($)',
+                data: chartData.salesAmount,
+                backgroundColor: 'rgba(138, 43, 226, 0.5)',
+                borderColor: 'rgba(138, 43, 226, 1)',
+                borderWidth: 1,
+                yAxisID: 'y',
+                order: 1
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: 'Revenue ($)',
-                            color: 'rgba(138, 43, 226, 1)'
-                        },
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        },
-                        ticks: {
-                            color: 'rgba(255, 255, 255, 0.7)'
-                        }
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: 'Orders',
-                            color: 'rgba(75, 192, 192, 1)'
-                        },
-                        grid: {
-                            drawOnChartArea: false
-                        },
-                        ticks: {
-                            color: 'rgba(255, 255, 255, 0.7)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        },
-                        ticks: {
-                            color: 'rgba(255, 255, 255, 0.7)',
-                            maxRotation: 45,
-                            minRotation: 45
-                        }
-                    }
+            {
+                label: 'Orders',
+                data: chartData.salesCount,
+                type: 'line',
+                fill: false,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                pointRadius: 4,
+                tension: 0.1,
+                yAxisID: 'y1',
+                order: 0
+            }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+            y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: {
+                display: true,
+                text: 'Revenue ($)',
+                color: 'rgba(138, 43, 226, 1)'
                 },
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: 'rgba(255, 255, 255, 0.7)'
-                        }
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.dataset.yAxisID === 'y') {
-                                    label += '$' + context.raw.toFixed(2);
-                                } else {
-                                    label += context.raw;
-                                }
-                                return label;
-                            }
-                        }
-                    }
+                grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+                },
+                ticks: {
+                color: 'rgba(255, 255, 255, 0.7)'
+                }
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                title: {
+                display: true,
+                text: 'Orders',
+                color: 'rgba(75, 192, 192, 1)'
+                },
+                grid: {
+                drawOnChartArea: false
+                },
+                ticks: {
+                color: 'rgba(255, 255, 255, 0.7)'
+                }
+            },
+            x: {
+                grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+                },
+                ticks: {
+                color: 'rgba(255, 255, 255, 0.7)',
+                maxRotation: 45,
+                minRotation: 45
                 }
             }
+            },
+            plugins: {
+            legend: {
+                labels: {
+                color: 'rgba(255, 255, 255, 0.7)'
+                }
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false,
+                callbacks: {
+                label: function(context) {
+                    let label = context.dataset.label || '';
+                    if (label) {
+                    label += ': ';
+                    }
+                    if (context.dataset.yAxisID === 'y') {
+                    label += '$' + Number(context.raw).toFixed(2);
+                    } else {
+                    label += context.raw;
+                    }
+                    return label;
+                }
+                }
+            }
+            }
+        }
         });
-        console.log('Chart successfully initialized');
-    } catch (error) {
-        console.error('Error creating chart:', error);
     }
+    
+    // Update URL with filters
+    function updateUrlWithFilters(formData) {
+        const url = new URL(window.location);
+        
+        // Clear existing parameters
+        [...url.searchParams.keys()].forEach(key => {
+            url.searchParams.delete(key);
+        });
+        
+        // Add new parameters from form
+        for (let pair of formData.entries()) {
+            if (pair[1]) {
+                url.searchParams.set(pair[0], pair[1]);
+            }
+        }
+        
+        // Update URL without reloading
+        window.history.pushState({}, '', url);
+    }
+    
+    // Initialize chart on page load
+    const initialChartData = {
+        labels: @json($salesData['labels']),
+        salesAmount: @json($salesData['salesAmount']),
+        salesCount: @json($salesData['salesCount'])
+    };
+    
+    updateSalesChart(initialChartData);
 });
 </script>
 @endpush

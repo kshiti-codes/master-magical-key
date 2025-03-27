@@ -3,163 +3,7 @@
 @section('title', 'User Purchase Analysis')
 
 @push('styles')
-<style>
-    .period-buttons {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 20px;
-    }
-    
-    .period-btn {
-        background: rgba(30, 30, 60, 0.5);
-        color: rgba(255, 255, 255, 0.7);
-        border: 1px solid rgba(138, 43, 226, 0.3);
-        padding: 8px 15px;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-    
-    .period-btn:first-child {
-        border-radius: 5px 0 0 5px;
-    }
-    
-    .period-btn:last-child {
-        border-radius: 0 5px 5px 0;
-    }
-    
-    .period-btn:hover {
-        background: rgba(30, 30, 60, 0.8);
-    }
-    
-    .period-btn.active {
-        background: rgba(138, 43, 226, 0.5);
-        color: white;
-    }
-    
-    .metrics-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-    }
-    
-    .metric-card {
-        background: rgba(30, 30, 60, 0.7);
-        border-radius: 10px;
-        padding: 20px;
-        border: 1px solid rgba(138, 43, 226, 0.3);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-    
-    .metric-value {
-        font-size: 1.8rem;
-        font-weight: bold;
-        color: #d8b5ff;
-        margin-bottom: 5px;
-    }
-    
-    .metric-label {
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 0.9rem;
-        text-align: center;
-    }
-    
-    .chart-container {
-        height: 400px;
-        position: relative;
-        margin-bottom: 40px;
-    }
-    
-    .table-title {
-        font-family: 'Cinzel', serif;
-        color: #d8b5ff;
-        font-size: 1.2rem;
-        margin-bottom: 15px;
-        margin-top: 30px;
-    }
-    
-    .customer-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 30px;
-    }
-    
-    .customer-table th {
-        background: rgba(30, 30, 70, 0.6);
-        padding: 12px 15px;
-        text-align: left;
-        color: #d8b5ff;
-        font-weight: normal;
-        border-bottom: 1px solid rgba(138, 43, 226, 0.3);
-    }
-    
-    .customer-table td {
-        padding: 10px 15px;
-        border-bottom: 1px solid rgba(138, 43, 226, 0.2);
-    }
-    
-    .customer-table tr:last-child td {
-        border-bottom: none;
-    }
-    
-    .customer-table .text-right {
-        text-align: right;
-    }
-    
-    .segments-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 30px;
-        margin-bottom: 30px;
-    }
-    
-    .segment-card {
-        background: rgba(15, 15, 35, 0.6);
-        border-radius: 8px;
-        padding: 20px;
-        border: 1px solid rgba(138, 43, 226, 0.2);
-    }
-    
-    .segment-card h3 {
-        color: #d8b5ff;
-        font-size: 1.1rem;
-        margin-bottom: 15px;
-        border-bottom: 1px solid rgba(138, 43, 226, 0.3);
-        padding-bottom: 10px;
-    }
-    
-    .segment-stat {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 10px;
-    }
-    
-    .segment-label {
-        color: rgba(255, 255, 255, 0.7);
-    }
-    
-    .segment-value {
-        color: #d8b5ff;
-        font-weight: 500;
-    }
-    
-    .progress-container {
-        background: rgba(138, 43, 226, 0.1);
-        height: 10px;
-        border-radius: 5px;
-        margin-top: 5px;
-        overflow: hidden;
-    }
-    
-    .progress-bar {
-        height: 100%;
-        background: linear-gradient(to right, #4b0082, #9400d3);
-        border-radius: 5px;
-    }
-</style>
+<link href="{{ asset('css/admin/admin-purchase-report.css') }}" rel="stylesheet">
 @endpush
 
 @section('content')
@@ -170,25 +14,33 @@
         
         <!-- Period Selection -->
         <form method="GET" action="{{ route('admin.reports.user_analysis') }}" class="period-buttons">
-            <button type="submit" name="period" value="30days" class="period-btn {{ $period === '30days' ? 'active' : '' }}">Last 30 Days</button>
-            <button type="submit" name="period" value="90days" class="period-btn {{ $period === '90days' ? 'active' : '' }}">Last 90 Days</button>
-            <button type="submit" name="period" value="6months" class="period-btn {{ $period === '6months' ? 'active' : '' }}">Last 6 Months</button>
-            <button type="submit" name="period" value="12months" class="period-btn {{ $period === '12months' ? 'active' : '' }}">Last 12 Months</button>
+            <button type="button" data-period="30days" name="period" value="30days" class="period-btn {{ $period === '30days' ? 'active' : '' }}">Last 30 Days</button>
+            <button type="button" data-period="90days" name="period" value="90days" class="period-btn {{ $period === '90days' ? 'active' : '' }}">Last 90 Days</button>
+            <button type="button" data-period="6months" name="period" value="6months" class="period-btn {{ $period === '6months' ? 'active' : '' }}">Last 6 Months</button>
+            <button type="button" data-period="12months" name="period" value="12months" class="period-btn {{ $period === '12months' ? 'active' : '' }}">Last 12 Months</button>
         </form>
         
         <!-- Key Metrics -->
         <div class="metrics-container">
             <div class="metric-card">
-                <div class="metric-value">${{ number_format($avgOrderValue, 2) }}</div>
+                <div class="metric-value" id="avgOrderValue">${{ number_format($avgOrderValue, 2) }}</div>
                 <div class="metric-label">Average Order Value</div>
             </div>
             <div class="metric-card">
-                <div class="metric-value">{{ number_format($purchaseFrequency, 1) }}</div>
+                <div class="metric-value" id="purchaseFrequency">{{ number_format($purchaseFrequency, 1) }}</div>
                 <div class="metric-label">Average Purchases per Customer</div>
             </div>
             <div class="metric-card">
-                <div class="metric-value">{{ $repeatPurchaseDelay ? number_format($repeatPurchaseDelay, 0) : 'N/A' }}</div>
+                <div class="metric-value" id="repeatPurchaseDelay">{{ $repeatPurchaseDelay ? number_format($repeatPurchaseDelay, 0) : 'N/A' }}</div>
                 <div class="metric-label">Average Days Between Purchases</div>
+            </div>
+        </div>
+
+        <!-- Add a loading overlay -->
+        <div id="analysisLoadingOverlay" style="display: none !important; position: absolute; width: 75%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; display: flex; justify-content: center; align-items: center;">
+            <div style="text-align: center; color: white;">
+                <i class="fas fa-spinner fa-spin fa-3x"></i>
+                <p class="mt-3">Loading data...</p>
             </div>
         </div>
         
@@ -198,7 +50,7 @@
         </div>
         
         <!-- Customer Segments -->
-        <div class="segments-container">
+        <div id="segmentsContainer" class="segments-container">
             <!-- Purchase Frequency Segments -->
             <div class="segment-card">
                 <h3>Purchase Frequency</h3>
@@ -341,68 +193,286 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // New Users Registration Chart
-        const ctx = document.getElementById('newUsersChart').getContext('2d');
+        // Initialize user chart with initial data
+        initUserChart();
         
-        // Format the data for the chart
-        const userData = @json($newUsers);
-        const dates = userData.map(item => item.date);
-        const counts = userData.map(item => item.count);
+        // Add event listeners to period buttons
+        document.querySelectorAll('.period-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // Get the period value
+                const period = this.getAttribute('data-period');
+                
+                // Make the AJAX request to load data for this period
+                loadUserAnalysisData(period);
+                
+                // Update active button state
+                document.querySelectorAll('.period-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
         
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: dates,
-                datasets: [{
-                    label: 'New User Registrations',
-                    data: counts,
-                    backgroundColor: 'rgba(138, 43, 226, 0.2)',
-                    borderColor: 'rgba(138, 43, 226, 1)',
-                    borderWidth: 2,
-                    pointBackgroundColor: 'rgba(138, 43, 226, 1)',
-                    pointBorderColor: '#fff',
-                    pointRadius: 4,
-                    fill: true,
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        },
-                        ticks: {
-                            color: 'rgba(255, 255, 255, 0.7)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        },
-                        ticks: {
-                            color: 'rgba(255, 255, 255, 0.7)',
-                            maxRotation: 45,
-                            minRotation: 45
-                        }
-                    }
+        function loadUserAnalysisData(period) {
+            // Show loading overlay
+            const loadingOverlay = document.getElementById('analysisLoadingOverlay');
+            loadingOverlay.style.display = 'flex';
+            
+            // Make AJAX request
+            fetch(`{{ route('admin.reports.user_analysis.data') }}?period=${period}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('User analysis data received:', data);
+                
+                // Hide loading overlay
+                loadingOverlay.style.display = 'none';
+                
+                // Update metrics
+                if (data.metrics) {
+                    updateMetrics(data.metrics);
+                }
+                
+                // Update chart
+                if (data.newUsers) {
+                    updateUserChart(data.newUsers);
+                }
+                
+                // Update segments
+                if (data.segments) {
+                    updateSegments(data.segments);
+                }
+                
+                // Update URL without page reload
+                const url = new URL(window.location);
+                url.searchParams.set('period', period);
+                window.history.pushState({}, '', url);
+            })
+            .catch(error => {
+                console.error('Error fetching user analysis data:', error);
+                loadingOverlay.style.display = 'none';
+                alert('Error loading data. Please try again.');
+            });
+        }
+        
+        function updateMetrics(metrics) {
+            document.getElementById('avgOrderValue').textContent = '$' + parseFloat(metrics.avgOrderValue).toFixed(2);
+            document.getElementById('purchaseFrequency').textContent = parseFloat(metrics.purchaseFrequency).toFixed(1);
+            
+            if (metrics.repeatPurchaseDelay) {
+                document.getElementById('repeatPurchaseDelay').textContent = parseInt(metrics.repeatPurchaseDelay);
+            } else {
+                document.getElementById('repeatPurchaseDelay').textContent = 'N/A';
+            }
+        }
+        
+        function updateUserChart(userData) {
+            // Get chart data
+            const dates = userData.map(item => item.date);
+            const counts = userData.map(item => item.count);
+            
+            // Destroy previous chart if it exists
+            if (window.newUsersChart) {
+                window.newUsersChart.destroy();
+            }
+            
+            // Create new chart
+            const ctx = document.getElementById('newUsersChart').getContext('2d');
+            window.newUsersChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'New User Registrations',
+                        data: counts,
+                        backgroundColor: 'rgba(138, 43, 226, 0.2)',
+                        borderColor: 'rgba(138, 43, 226, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(138, 43, 226, 1)',
+                        pointBorderColor: '#fff',
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.1
+                    }]
                 },
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: 'rgba(255, 255, 255, 0.7)'
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
                         }
                     },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
                     }
                 }
+            });
+        }
+        
+        function updateSegments(segments) {
+            const container = document.getElementById('segmentsContainer');
+            container.innerHTML = '';
+            
+            // Purchase Frequency Segments
+            if (segments.frequency) {
+                const frequencyCard = document.createElement('div');
+                frequencyCard.className = 'segment-card';
+                
+                let frequencyHtml = '<h3>Purchase Frequency</h3>';
+                
+                const frequencyData = segments.frequency;
+                
+                // One-time buyers
+                frequencyHtml += createSegmentRow('One-time Buyers', frequencyData.onetime, frequencyData.onetimePercent);
+                
+                // Occasional buyers
+                frequencyHtml += createSegmentRow('Occasional (2-3 purchases)', frequencyData.occasional, frequencyData.occasionalPercent);
+                
+                // Frequent buyers
+                frequencyHtml += createSegmentRow('Frequent (4-6 purchases)', frequencyData.frequent, frequencyData.frequentPercent);
+                
+                // Loyal buyers
+                frequencyHtml += createSegmentRow('Loyal (7+ purchases)', frequencyData.loyal, frequencyData.loyalPercent);
+                
+                frequencyCard.innerHTML = frequencyHtml;
+                container.appendChild(frequencyCard);
             }
-        });
+            
+            // Spending Segments
+            if (segments.spending) {
+                const spendingCard = document.createElement('div');
+                spendingCard.className = 'segment-card';
+                
+                let spendingHtml = '<h3>Customer Spending</h3>';
+                
+                const spendingData = segments.spending;
+                
+                // Low spenders
+                spendingHtml += createSegmentRow('Low Spenders (<$50)', spendingData.low, spendingData.lowPercent);
+                
+                // Medium spenders
+                spendingHtml += createSegmentRow('Medium Spenders ($50-$99)', spendingData.medium, spendingData.mediumPercent);
+                
+                // High spenders
+                spendingHtml += createSegmentRow('High Spenders ($100-$199)', spendingData.high, spendingData.highPercent);
+                
+                // VIP customers
+                spendingHtml += createSegmentRow('VIP Customers ($200+)', spendingData.vip, spendingData.vipPercent);
+                
+                spendingCard.innerHTML = spendingHtml;
+                container.appendChild(spendingCard);
+            }
+        }
+        
+        function createSegmentRow(label, value, percent) {
+            return `
+                <div class="segment-stat">
+                    <div class="segment-label">${label}</div>
+                    <div class="segment-value">${value} (${percent.toFixed(1)}%)</div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: ${percent}%"></div>
+                </div>
+            `;
+        }
+        
+        // Initialize user chart on page load
+        function initUserChart() {
+            const userData = @json($newUsers);
+            const dates = userData.map(item => item.date);
+            const counts = userData.map(item => item.count);
+            
+            const ctx = document.getElementById('newUsersChart').getContext('2d');
+            window.newUsersChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'New User Registrations',
+                        data: counts,
+                        backgroundColor: 'rgba(138, 43, 226, 0.2)',
+                        borderColor: 'rgba(138, 43, 226, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(138, 43, 226, 1)',
+                        pointBorderColor: '#fff',
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    }
+                }
+            });
+        }
     });
 </script>
 @endpush

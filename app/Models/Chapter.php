@@ -63,8 +63,12 @@ class Chapter extends Model
                   ->where('status', 'completed');
         })
         ->exists();
+
+        $isUserChapter = \App\Models\UserChapter::where('chapter_id', $this->id)
+        ->where('user_id', Auth::id())
+        ->exists();
         
-        return $isPurchased;
+        return $isPurchased && $isUserChapter;
     }
     
     /**

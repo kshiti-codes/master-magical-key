@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ChapterAdminController;
 use App\Http\Controllers\Admin\SpellAdminController;
 use App\Http\Controllers\Admin\PurchaseAdminController;
+use App\Http\Controllers\Admin\UserAdminController;
 
 Auth::routes();
 
@@ -101,8 +102,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('spells/{spell}/upload-pdf', [SpellAdminController::class, 'uploadPdf'])
         ->name('spells.upload-pdf');
     
-    // Users management
-    // Route::resource('users', UserAdminController::class);
+    // User management
+    Route::put('users/{user}/content', [UserAdminController::class, 'updateOwnedContent'])->name('users.update-content');
+    Route::resource('users', UserAdminController::class);
     
     // Purchase management
     Route::get('/purchases/data', [PurchaseAdminController::class, 'getData'])->name('purchases.data');
@@ -112,6 +114,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Reports
     Route::get('/reports/sales', [PurchaseAdminController::class, 'salesReport'])->name('reports.sales');
+    Route::get('/reports/sales/data', [PurchaseAdminController::class, 'salesReportData'])->name('reports.sales.data');
     Route::get('/reports/user-analysis', [PurchaseAdminController::class, 'userAnalysis'])->name('reports.user_analysis');
+    Route::get('/reports/user-analysis/data', [PurchaseAdminController::class, 'userAnalysisData'])->name('reports.user_analysis.data');
                    
 });

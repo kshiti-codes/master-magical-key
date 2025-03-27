@@ -4,132 +4,8 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
-<style>
-    .status-badge {
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        display: inline-block;
-    }
-    
-    .status-completed {
-        background: rgba(40, 167, 69, 0.2);
-        color: #a0ffa0;
-    }
-    
-    .status-pending {
-        background: rgba(255, 193, 7, 0.2);
-        color: #ffe0a0;
-    }
-    
-    .status-failed {
-        background: rgba(220, 53, 69, 0.2);
-        color: #ffa0a0;
-    }
-    
-    .filter-section {
-        display: flex;
-        gap: 15px;
-        margin-bottom: 20px;
-        align-items: flex-end;
-        flex-wrap: wrap;
-    }
-    
-    .filter-group {
-        flex: 1;
-        min-width: 200px;
-    }
-    
-    .summary-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-    }
-    
-    .stat-card {
-        background: rgba(30, 30, 60, 0.7);
-        border-radius: 10px;
-        padding: 20px;
-        border: 1px solid rgba(138, 43, 226, 0.3);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-    
-    .stat-value {
-        font-size: 1.8rem;
-        font-weight: bold;
-        color: #d8b5ff;
-        margin-bottom: 5px;
-    }
-    
-    .stat-label {
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 0.9rem;
-    }
-    
-    .daterangepicker {
-        background-color: rgba(30, 30, 60, 0.95);
-        border: 1px solid rgba(138, 43, 226, 0.5);
-        color: white;
-    }
-    
-    .daterangepicker:before, .daterangepicker:after {
-        border-bottom-color: rgba(138, 43, 226, 0.5);
-    }
-    
-    .daterangepicker .calendar-table {
-        background-color: rgba(20, 20, 40, 0.95);
-        border: none;
-    }
-    
-    .daterangepicker .calendar-table th, 
-    .daterangepicker .calendar-table td {
-        color: white;
-    }
-    
-    .daterangepicker td.available:hover, 
-    .daterangepicker th.available:hover {
-        background-color: rgba(138, 43, 226, 0.3);
-    }
-    
-    .daterangepicker td.in-range {
-        background-color: rgba(138, 43, 226, 0.2);
-        color: white;
-    }
-    
-    .daterangepicker td.active, 
-    .daterangepicker td.active:hover {
-        background-color: rgba(138, 43, 226, 0.8);
-        color: white;
-    }
-    
-    .daterangepicker .drp-buttons {
-        border-top: 1px solid rgba(138, 43, 226, 0.3);
-    }
-    
-    .daterangepicker .btn {
-        background-color: rgba(138, 43, 226, 0.6);
-        color: white;
-        border: none;
-    }
-    
-    .daterangepicker .btn:hover {
-        background-color: rgba(138, 43, 226, 0.8);
-    }
-    
-    .export-btn {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-    
-    .export-btn i {
-        font-size: 1rem;
-    }
-</style>
+<link href="{{ asset('css/components/date-range-picker.css') }}" rel="stylesheet">
+<link href="{{ asset('css/admin/admin-purchase-report.css') }}" rel="stylesheet">
 @endpush
 
 @section('content')
@@ -261,8 +137,46 @@
 @endsection
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Initialize daterangepicker
+        $('#dateRangePicker').daterangepicker({
+            opens: 'left',
+            autoUpdateInput: false,
+            locale: {
+                format: 'YYYY-MM-DD',
+                applyLabel: 'Apply',
+                cancelLabel: 'Clear'
+            }
+        });
+        
+        $('#dateRangePicker').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+            $('#startDate').val(picker.startDate.format('YYYY-MM-DD'));
+            $('#endDate').val(picker.endDate.format('YYYY-MM-DD'));
+        });
+        
+        $('#dateRangePicker').on('cancel.daterangepicker', function(ev, picker) {
+            $(this).val('');
+            $('#startDate').val('');
+            $('#endDate').val('');
+        });
+        
+        // Toggle between year and date range based on period selection
+        $('#period').on('change', function() {
+            if ($(this).val() === 'monthly') {
+                $('#yearFilter').show();
+                $('#dateRangeFilter').hide();
+            } else {
+                $('#yearFilter').hide();
+                $('#dateRangeFilter').show();
+            }
+        });
+    });
+</script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize daterangepicker (requires jQuery anyway)
