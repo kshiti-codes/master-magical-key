@@ -8,8 +8,8 @@
         &copy; {{ date('Y') }} Master Magical Key to the Universe
     </div>
     <div class="social-icons-container">
-        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.facebook.com/share/1BWkN71JGK/" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+        <!-- <a href="https://www.instagram.com/pop_withlove_/" class="social-icon"><i class="fab fa-twitter"></i></a> -->
+        <a href="https://www.instagram.com/pop_withlove_/" class="social-icon"><i class="fab fa-instagram"></i></a>
     </div>
 </footer>
