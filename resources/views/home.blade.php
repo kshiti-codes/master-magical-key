@@ -151,9 +151,7 @@
                         
                         
                     </div>
-                    <!-- Navigation Buttons -->
-                    <button class="page-turn-btn prev-page" id="prevBtn">&lt;</button>
-                    <button class="page-turn-btn next-page" id="nextBtn">&gt;</button>
+                    
                     <!-- Mobile Navigation -->
                     <div class="mobile-navigation">
                         <button class="nav-button" id="mobilePrevBtn">&lt;</button>
@@ -162,6 +160,9 @@
                     </div>
                 </div>
             </div>
+            <!-- Navigation Buttons -->
+            <button class="page-turn-btn prev-page" id="prevBtn">&lt;</button>
+            <button class="page-turn-btn next-page" id="nextBtn">&gt;</button>
         </div>
     </div>
 </div>

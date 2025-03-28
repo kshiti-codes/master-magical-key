@@ -51,6 +51,24 @@
         transform: none !important;
         box-shadow: none !important;
     }
+
+    .chapter-status-badge {
+        top: 10px;
+        left: 10px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .free-chapter {
+        background: rgba(0, 128, 0, 0.5);
+        color: white;
+    }
 </style>
 @endpush
 
@@ -77,13 +95,21 @@
                 <h2 class="chapter-title">Chapter {{ $chapter->order }}</h2>
                 <p class="chapter-description">{{ $chapter->description }}</p>
                 @if($chapter->isFree())
-                    <p class="chapter-price"><span class="free-badge">Free</span></p>
+                    <span class="chapter-status-badge free-chapter">
+                        <i class="fas fa-gift"></i> Free
+                    </span>
                 @else
                     <p class="chapter-price">${{ number_format($chapter->price, 2) }} AUD</p>
                 @endif
                 
                 @if($chapter->isPurchased())
                     <a href="{{ route('chapters.read', $chapter->id) }}" class="btn btn-portal">Read Now</a>
+                    <!-- Audio download button (if available) -->
+                    @if($chapter->has_audio && $chapter->audio_path)
+                        <a href="{{ asset($chapter->audio_path) }}" download class="btn btn-audio">
+                            <i class="fas fa-download"></i> Download Audio
+                        </a>
+                    @endif            
                 @else
                     <div class="chapter-actions">
                         <form action="{{ route('cart.add') }}" method="POST">
@@ -113,16 +139,25 @@
         @foreach($chapters as $chapter)
             <div class="chapter-list-item">
                 <div class="chapter-info">
-                    <h2 class="chapter-title">Chapter {{ $chapter->order }}</h2>
+                    <h2 class="chapter-title">
+                        Chapter {{ $chapter->order }}
+                    </h2>
                     @if($chapter->isFree())
-                        <p class="chapter-price"><span class="free-badge">Free</span></p>
+                        <span class="chapter-status-badge free-chapter" style="width: 40%;">
+                            <i class="fas fa-gift"></i> Free
+                        </span>
                     @else
                         <p class="chapter-price">${{ number_format($chapter->price, 2) }} AUD</p>
                     @endif
                 </div>
                 
                 @if($chapter->isPurchased())
-                    <a href="{{ route('chapters.read', $chapter->id) }}" class="btn-portal btn-sm">Read Now</a>
+                    <a href="{{ route('chapters.read', $chapter->id) }}" class="btn-portal btn-sm" style="width: 30%;margin-right:0.5rem;">Read Now</a>
+                    @if($chapter->has_audio && $chapter->audio_path)
+                        <a href="{{ asset($chapter->audio_path) }}" download class="btn-audio-mobile" title="Download Audio">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    @endif
                 @else
                     <div class="chapter-actions-mobile">
                         <form action="{{ route('cart.add') }}" method="POST" class="add-to-cart-form">

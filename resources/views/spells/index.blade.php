@@ -208,7 +208,7 @@
                 </div>
                 
                 @if(in_array($spell->id, $userSpells ?? []) || $unlockedViaChapter)
-                    <a href="{{ route('spells.download', $spell->id) }}" class="btn-portal btn-sm">Download</a>
+                    <a href="{{ route('spells.download', $spell->id) }}" class="btn-portal btn-sm" style="width:30%;">Download</a>
                 @else
                     <div class="spell-actions-mobile">
                         <form action="{{ route('cart.addSpell') }}" method="POST" class="add-to-cart-form">
@@ -224,10 +224,11 @@
                             @csrf
                             <input type="hidden" name="spell_id" value="{{ $spell->id }}">
                             <input type="hidden" name="buy_now" value="1">
-                            <button type="submit" class="btn-portal btn-buy-now btn-sm">Buy</button>
+                            <button type="submit" class="btn-portal btn-buy-now btn-sm" style="width:30%;">Buy</button>
                         </form>
                     </div>
                 @endif
+                <a href="{{ route('spells.show', $spell->id) }}" class="spell-details-link" style="margin-left:0.5rem;"><i class="fas fa-eye"></i></a>
             </div>
         @endforeach
         
