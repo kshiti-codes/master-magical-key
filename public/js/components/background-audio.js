@@ -19,18 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
             name: 'Cosmic Mystery',
             path: '/chapter-audio/universe.mp3'
         },
-        'ambient2': {
-            name: 'Enchanted Forest',
-            path: '/audio/background/enchanted-forest.mp3'
-        },
-        'ambient3': {
-            name: 'Celestial Harmony',
-            path: '/audio/background/celestial-harmony.mp3'
-        },
-        'ambient4': {
-            name: 'Crystal Dreams',
-            path: '/audio/background/crystal-dreams.mp3'
-        }
     };
     
     // Initialize background audio
