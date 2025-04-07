@@ -301,8 +301,9 @@ class ChapterAdminController extends Controller
     {
         // First check if the chapter has any purchases
         $hasPurchases = $chapter->purchaseItems()->exists();
+        $userChapters = $chapter->users()->exists();
         
-        if ($hasPurchases) {
+        if ($hasPurchases && $userChapters) {
             return redirect()->route('admin.chapters.index')
                 ->with('error', "Cannot delete chapter '{$chapter->title}' because it has been purchased by users.");
         }

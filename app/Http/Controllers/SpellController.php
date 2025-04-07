@@ -25,6 +25,7 @@ class SpellController extends Controller
         $cartItemCount = 0;
         $spellsInCart = [];
         $userSpells = [];
+        $user = Auth::user();
         
         if (Auth::check()) {
             $cart = Auth::user()->getCart();
@@ -37,7 +38,7 @@ class SpellController extends Controller
             $userSpells = Auth::user()->spells()->pluck('spells.id')->toArray();
         }
         
-        return view('spells.index', compact('spells', 'cartItemCount', 'spellsInCart', 'userSpells'));
+        return view('spells.index', compact('spells', 'cartItemCount', 'spellsInCart', 'userSpells', 'user'));
     }
 
     /**

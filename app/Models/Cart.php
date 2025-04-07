@@ -142,6 +142,22 @@ class Cart extends Model
         ]);
     }
 
+    public function addFreeSpells($spells)
+    {
+        foreach ($spells as $spell) {
+            $this->items()->create([
+                'spell_id' => $spell->id,
+                'item_type' => 'spell',
+                'quantity' => 1,
+                'price' => 0
+            ]);
+        }
+        // Find all cart items with spell_id but incorrect item_type
+        $itemsToFix = \App\Models\CartItem::whereNotNull('spell_id')
+        ->where('item_type', '!=', 'spell')
+        ->update(['item_type' => 'spell']);
+    }
+
     /**
      * Remove a chapter from the cart.
      */
