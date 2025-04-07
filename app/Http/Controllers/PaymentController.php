@@ -91,12 +91,40 @@ class PaymentController extends Controller
             
             // Initialize PayPal with error handling
             try {
+                // Initialize PayPal with detailed error logging
                 $provider = new PayPalClient;
-                $provider->setApiCredentials(config('paypal'));
-                $paypalToken = $provider->getAccessToken();
                 
-                if (!$paypalToken) {
-                    throw new \Exception('Failed to get PayPal access token');
+                // Log the configuration being used (redact sensitive info)
+                \Log::info('PayPal configuration', [
+                    'mode' => config('paypal.mode'),
+                    'client_id_length' => strlen(config('paypal.live.client_id')),
+                    'client_secret_length' => strlen(config('paypal.live.client_secret'))
+                ]);
+                
+                $provider->setApiCredentials(config('paypal'));
+                
+                // Get token with extended error handling
+                try {
+                    $paypalToken = $provider->getAccessToken();
+                    if (!$paypalToken) {
+                        throw new \Exception('Empty token response from PayPal');
+                    }
+                    \Log::info('Successfully obtained PayPal access token');
+                } catch (\Exception $tokenEx) {
+                    \Log::error('PayPal token retrieval failed', [
+                        'error' => $tokenEx->getMessage(),
+                        'trace' => $tokenEx->getTraceAsString()
+                    ]);
+                    throw new \Exception('Failed to get PayPal access token: ' . $tokenEx->getMessage());
+                }
+
+                // Add merchant ID for identification
+                $merchantId = config('paypal.' . config('paypal.mode') . '.merchant_id');
+                if ($merchantId) {
+                    \Log::info('Using PayPal with merchant ID', [
+                        'merchant_id' => $merchantId,
+                        'mode' => config('paypal.mode')
+                    ]);
                 }
             } catch (\Exception $e) {
                 \Log::error('PayPal authentication error', [
@@ -106,10 +134,9 @@ class PaymentController extends Controller
                     ->with('error', 'We couldn\'t connect to PayPal. Please try again later.');
             }
             
-            // Rest of your payment processing code...
-            
             // Create PayPal order with proper error handling
             try {
+                // Create the order
                 $response = $provider->createOrder([
                     "intent" => "CAPTURE",
                     "application_context" => [
@@ -144,6 +171,31 @@ class PaymentController extends Controller
                     'order_id' => $response['id'] ?? 'No ID found',
                     'status' => $response['status'] ?? 'No status found'
                 ]);
+
+                // Validate the response structure
+                if (!isset($response['id']) || empty($response['id'])) {
+                    throw new \Exception('PayPal order ID not found in response: ' . json_encode($response));
+                }
+                
+                if (!isset($response['status']) || $response['status'] !== 'CREATED') {
+                    throw new \Exception('PayPal order not in CREATED status: ' . ($response['status'] ?? 'unknown'));
+                }
+                
+                // Find the approval URL
+                $approvalUrl = null;
+                if (isset($response['links']) && is_array($response['links'])) {
+                    foreach ($response['links'] as $link) {
+                        if ($link['rel'] === 'approve') {
+                            $approvalUrl = $link['href'];
+                            \Log::info('Found PayPal approval URL', ['url' => $approvalUrl]);
+                            break;
+                        }
+                    }
+                }
+                
+                if (!$approvalUrl) {
+                    throw new \Exception('PayPal approval URL not found in response');
+                }
                 
                 // Store order ID and cart info in session
                 if (isset($response['id']) && $response['id']) {
@@ -575,7 +627,8 @@ class PaymentController extends Controller
             return [
                 'mode' => 'live',
                 'client_id' => config('paypal.live.client_id'),
-                'client_secret' => config('paypal.live.client_secret')
+                'client_secret' => config('paypal.live.client_secret'),
+                'merchant_id' => config('paypal.live.merchant_id')
             ];
         } else {
             return [

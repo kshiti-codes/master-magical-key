@@ -46,8 +46,13 @@ class CartController extends Controller
         if(empty($existingCartItem)) {
             // Add to cart
             $cart->addItem($chapter, $request->quantity ?? 1);
+            
+            if($chapter->freeSpells()->exists()) {
+                $freeSpells= $chapter->freeSpells()->get();
+                $cart->addFreeSpells($freeSpells);
+            }
         }
-
+        
         // Determine if we should redirect to cart or checkout
         if ($request->buy_now) {
             return redirect()->route('cart.checkout');
@@ -71,8 +76,11 @@ class CartController extends Controller
             return back()->with('info', 'You already own this spell.');
         }
 
-        // Add to cart - make sure this is calling the correct addSpell method
-        $cart->addSpell($spell, $request->quantity ?? 1);
+        $existingCartItem = $cart->items()->where('spell_id', $spell->id)->first();
+        if(empty($existingCartItem)) {
+            // Add to cart - make sure this is calling the correct addSpell method
+            $cart->addSpell($spell, $request->quantity ?? 1);
+        }
 
         // Find all cart items with spell_id but incorrect item_type
         $itemsToFix = \App\Models\CartItem::whereNotNull('spell_id')
