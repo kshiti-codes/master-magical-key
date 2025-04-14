@@ -295,6 +295,16 @@
     color: #a0ffd8;
 }
 
+.item-subscription {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffe0a0;
+}
+
+.item-video {
+    background: rgba(40, 167, 69, 0.2);
+    color: #a0ffa0;
+}
+
 /* report/user-analysis page */
 
 .period-buttons {

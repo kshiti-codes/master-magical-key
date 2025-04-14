@@ -23,6 +23,7 @@
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
     <script src="{{ asset('js/stars.js') }}" defer></script>
+    <script src="{{ asset('js/components/menu.js') }}" defer></script>
     <script src="{{ asset('js/mystical-transitions.js') }}"></script>
     <script src="{{ asset('js/components/background-audio.js') }}" defer></script>
     @stack('scripts')

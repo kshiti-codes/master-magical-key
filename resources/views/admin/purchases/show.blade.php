@@ -96,6 +96,12 @@
                             @elseif($item->item_type === 'spell' && $item->spell)
                                 <span class="item-type-badge item-spell">Spell</span>
                                 {{ $item->spell->title }}
+                            @elseif($item->item_type === 'subscription' && $item->subscriptionPlan)
+                                <span class="item-type-badge item-subscription">Subscription</span>
+                                {{ $item->subscriptionPlan->name }}
+                            @elseif($item->item_type === 'video' && $item->video)
+                                <span class="item-type-badge item-video">Video</span>
+                                {{ $item->video->title }}
                             @else
                                 Unknown Item
                             @endif

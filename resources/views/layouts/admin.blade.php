@@ -67,6 +67,11 @@
                     <i class="fas fa-shopping-cart"></i> Purchases
                 </a>
             </li>
+            <li>
+                <a href="{{ route('admin.subscriptions.index') }}" class="{{ request()->routeIs('admin.subscriptions*') ? 'active' : '' }}">
+                    <i class="fas fa-credit-card"></i> Subscription Plans
+                </a>
+            </li>
             
             <div class="admin-menu-divider"></div>
             <div class="admin-menu-category">Reports</div>
@@ -74,6 +79,11 @@
             <li>
                 <a href="{{ route('admin.reports.sales') }}" class="{{ request()->routeIs('admin.reports.sales') ? 'active' : '' }}">
                     <i class="fas fa-chart-bar"></i> Sales Report
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.subscriptions.analytics') }}" class="{{ request()->routeIs('admin.subscriptions.analytics') ? 'active' : '' }}">
+                    <i class="fas fa-chart-line"></i> Subscription Analytics
                 </a>
             </li>
             <li>

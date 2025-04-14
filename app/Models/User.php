@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -122,5 +123,94 @@ class User extends Authenticatable
     public function isAdmin()
     {
         return $this->is_admin;
+    }
+
+    /**
+     * Get user subscriptions
+     */
+    public function subscriptions()
+    {
+        return $this->hasMany(UserSubscription::class);
+    }
+    
+    /**
+     * Get user's active subscription
+     */
+    public function activeSubscription()
+    {
+        return $this->subscriptions()
+            ->where('status', 'active')
+            ->whereNull('end_date')
+            ->orWhere('end_date', '>', Carbon::now())
+            ->latest()
+            ->first();
+    }
+    
+    /**
+     * Check if user has lifetime subscription
+     */
+    public function hasLifetimeSubscription()
+    {
+        return $this->subscriptions()
+            ->whereHas('plan', function($query) {
+                $query->where('is_lifetime', true);
+            })
+            ->where('status', 'active')
+            ->exists();
+    }
+    
+    /**
+     * Check if user has active subscription
+     */
+    public function hasActiveSubscription()
+    {
+        return $this->subscriptions()
+            ->where('status', 'active')
+            ->where(function($query) {
+                $query->whereNull('end_date')
+                      ->orWhere('end_date', '>', Carbon::now());
+            })
+            ->exists();
+    }
+    
+    /**
+     * Get training videos accessible to this user
+     */
+    public function videos()
+    {
+        return $this->belongsToMany(TrainingVideo::class, 'user_videos')
+            ->withPivot('purchased_at', 'last_watched_at', 'watch_count')
+            ->withTimestamps();
+    }
+    
+    /**
+     * Check if user has access to a specific video
+     */
+    public function hasVideoAccess(TrainingVideo $video)
+    {
+        // Check direct purchase
+        $hasPurchased = $this->videos()->where('training_videos.id', $video->id)->exists();
+        
+        if ($hasPurchased) {
+            return true;
+        }
+        
+        // Check lifetime subscription
+        return $this->hasLifetimeSubscription();
+    }
+    
+    /**
+     * Grant access to a video
+     */
+    public function grantVideoAccess(TrainingVideo $video)
+    {
+        // Only add if not already owned
+        if (!$this->videos()->where('training_videos.id', $video->id)->exists()) {
+            $this->videos()->attach($video->id, [
+                'purchased_at' => now()
+            ]);
+        }
+        
+        return $this;
     }
 }

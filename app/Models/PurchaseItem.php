@@ -13,6 +13,9 @@ class PurchaseItem extends Model
         'purchase_id',
         'chapter_id',
         'spell_id',
+        'subscription_plan_id',
+        'training_video_id',
+        'item_type',
         'quantity',
         'price',
     ];
@@ -54,6 +57,30 @@ class PurchaseItem extends Model
     }
 
     /**
+     * Get the subscription plan
+     */
+    public function subscriptionPlan()
+    {
+        if ($this->item_type === 'subscription') {
+            return $this->belongsTo(SubscriptionPlan::class, 'subscription_plan_id');
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get the video associated with this purchase item.
+     */
+    public function video()
+    {
+        if ($this->item_type === 'video') {
+            return $this->belongsTo(TrainingVideo::class, 'video_id');
+        }
+        
+        return null;
+    }
+
+    /**
      * Get the purchased item (polymorphic relationship).
      */
     public function purchasable()
@@ -62,6 +89,8 @@ class PurchaseItem extends Model
             return $this->belongsTo(Chapter::class, 'chapter_id');
         } elseif ($this->item_type === 'spell') {
             return $this->belongsTo(Spell::class, 'spell_id');
+        } elseif ($this->item_type === 'video') {
+            return $this->belongsTo(TrainingVideo::class, 'video_id');
         }
         
         return null;
@@ -72,10 +101,14 @@ class PurchaseItem extends Model
      */
     public function getItemNameAttribute()
     {
-        if ($this->item_type === 'chapter') {
-            return $this->chapter ? "Chapter {$this->chapter->id}: {$this->chapter->title}" : 'Unknown Chapter';
-        } elseif ($this->item_type === 'spell') {
-            return $this->spell ? "Spell: {$this->spell->title}" : 'Unknown Spell';
+        if ($this->item_type === 'chapter' && $this->chapter) {
+            return "Chapter {$this->chapter->id}: {$this->chapter->title}";
+        } elseif ($this->item_type === 'spell' && $this->spell) {
+            return "Spell: {$this->spell->title}";
+        } elseif ($this->item_type === 'subscription') {
+            return $this->description ?? 'Subscription Plan';
+        } elseif ($this->item_type === 'video' && $this->video) {
+            return "Training Video: {$this->video->title}";
         }
         
         return 'Unknown Item';

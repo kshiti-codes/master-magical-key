@@ -85,9 +85,12 @@ class InvoiceService
                 } elseif ($item->item_type === 'spell' && $item->spell) {
                     $itemData['title'] = "Spell: {$item->spell->title}";
                     $itemData['type'] = 'spell';
+                } elseif ($item->item_type === 'subscription') {
+                    $itemData['title'] = $item->description ?? 'Subscription Plan';
+                } elseif ($item->item_type === 'video' && $item->video) {
+                    $itemData['title'] = "Training Video: {$item->video->title}";
                 } else {
-                    $itemData['title'] = "Unknown Item";
-                    $itemData['type'] = 'unknown';
+                    $itemData['title'] = $item->description ?? 'Unknown Item';
                 }
                 
                 $items[] = $itemData;

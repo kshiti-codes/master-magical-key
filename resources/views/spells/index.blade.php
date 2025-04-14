@@ -2,6 +2,7 @@
 
 @push('styles')
 <link href="{{ asset('css/components/spells.css') }}" rel="stylesheet">
+<link href="{{ asset('css/components/subscription-modal.css') }}" rel="stylesheet">
 <style>
     .floating-cart-button {
         position: fixed;
@@ -147,6 +148,10 @@
                 @else
                     <!-- User doesn't have access - show purchase options -->
                     <div class="spell-actions">
+                        
+                        <a href="{{ route('spells.show', $spell->id) }}" class="btn btn-sm" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </a>
                         <form action="{{ route('cart.addSpell') }}" method="POST">
                             @csrf
                             <input type="hidden" name="spell_id" value="{{ $spell->id }}">
@@ -246,6 +251,8 @@
         <span class="cart-items-count">{{ $cartItemCount }}</span>
     </a>
     @endif
+
+    @include('partials.subscription-modal')
 </div>
 @endsection
 
@@ -270,4 +277,5 @@
         });
     });
 </script>
+<script src="{{ asset('js/components/subscription-modal.js') }}" defer></script>
 @endpush

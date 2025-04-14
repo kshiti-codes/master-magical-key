@@ -9,12 +9,17 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\SpellController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\TrainingVideoController;
+use App\Http\Controllers\PayPalWebhookController;
+use App\Http\Controllers\SubscriptionPlanController;
 // Admin Controllers
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ChapterAdminController;
 use App\Http\Controllers\Admin\SpellAdminController;
 use App\Http\Controllers\Admin\PurchaseAdminController;
 use App\Http\Controllers\Admin\UserAdminController;
+use App\Http\Controllers\Admin\SubscriptionPlanAdminController;
 
 Auth::routes();
 
@@ -37,6 +42,19 @@ Route::get('/api/chapters/{chapter}/pages', [ChapterController::class, 'getPages
 Route::get('/spells', [SpellController::class, 'index'])->name('spells.index');
 Route::get('/spells/{spell}', [SpellController::class, 'show'])->name('spells.show');
 Route::get('/spells/{spell}/preview', [SpellController::class, 'preview'])->name('spells.preview');
+
+// Subscription routes (public)
+Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+Route::get('/subscriptions/{plan}', [SubscriptionController::class, 'show'])->name('subscriptions.show');
+
+// Training video routes (public)
+Route::get('/videos', [TrainingVideoController::class, 'index'])->name('videos.index');
+Route::get('/videos/{video}', [TrainingVideoController::class, 'show'])->name('videos.show');
+
+//webhook for PayPal
+Route::post('api/webhooks/paypal', [PayPalWebhookController::class, 'handleWebhook'])
+    ->name('paypal.webhook')
+    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
 // Auth routes (already included with Laravel UI)
 
@@ -74,6 +92,23 @@ Route::middleware(['auth'])->group(function () {
     // Invoice routes
     Route::get('/invoices/{purchase}', [InvoiceController::class, 'view'])->name('invoices.view');
     Route::get('/invoices/{purchase}/download', [InvoiceController::class, 'download'])->name('invoices.download');
+
+    // Subscription routes 
+    Route::post('/subscriptions/{plan}/purchase', [SubscriptionController::class, 'purchase'])->name('subscriptions.purchase');
+    Route::post('subscriptions/{subscription}/extend', [SubscriptionController::class, 'extend'])->name('subscriptions.extend');
+    Route::get('subscription/extend/success', [SubscriptionController::class, 'extendSuccess'])->name('subscription.extend.success');
+    Route::get('subscription/extend/cancel', [SubscriptionController::class, 'extendCancel'])->name('subscription.extend.cancel');
+    Route::get('/subscription/success', [SubscriptionController::class, 'success'])->name('subscription.success');
+    Route::get('/subscription/cancel', [SubscriptionController::class, 'cancel'])->name('subscription.cancel');
+    Route::get('/subscriptions/thankyou/{subscription}', [SubscriptionController::class, 'thankyou'])->name('subscriptions.thankyou');
+    Route::get('/subscription/manage', [SubscriptionController::class, 'manage'])->name('subscription.manage');
+    Route::post('/subscriptions/{subscription}/cancel', [SubscriptionController::class, 'cancelSubscription'])->name('subscriptions.cancel-subscription');
+    
+    // Training video routes
+    Route::post('/videos/{video}/purchase', [TrainingVideoController::class, 'purchase'])->name('videos.purchase');
+    Route::get('/videos/purchase/success', [TrainingVideoController::class, 'purchaseSuccess'])->name('videos.purchase.success');
+    Route::get('/videos/purchase/cancel', [TrainingVideoController::class, 'purchaseCancel'])->name('videos.purchase.cancel');
+    Route::get('/videos/{video}/watch', [TrainingVideoController::class, 'watch'])->name('videos.watch');
 });
 
 // Admin routes - all are protected by the 'admin' middleware
@@ -118,4 +153,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/reports/user-analysis', [PurchaseAdminController::class, 'userAnalysis'])->name('reports.user_analysis');
     Route::get('/reports/user-analysis/data', [PurchaseAdminController::class, 'userAnalysisData'])->name('reports.user_analysis.data');
                    
+    //subscription management
+    Route::get('/subscriptions', [SubscriptionPlanAdminController::class, 'index'])->name('subscriptions.index');
+    Route::get('/subscriptions/create', [SubscriptionPlanAdminController::class, 'create'])->name('subscriptions.create');
+    Route::post('/subscriptions', [SubscriptionPlanAdminController::class, 'store'])->name('subscriptions.store');
+    Route::get('/subscriptions/{plan}', [SubscriptionPlanAdminController::class, 'show'])->name('subscriptions.show');
+    Route::get('/subscriptions/{plan}/edit', [SubscriptionPlanAdminController::class, 'edit'])->name('subscriptions.edit');
+    Route::put('/subscriptions/{plan}', [SubscriptionPlanAdminController::class, 'update'])->name('subscriptions.update');
+    Route::delete('/subscriptions/{plan}', [SubscriptionPlanAdminController::class, 'destroy'])->name('subscriptions.destroy');
+    Route::post('/subscriptions/{plan}/toggle-status', [SubscriptionPlanAdminController::class, 'toggleStatus'])->name('subscriptions.toggle-status');
+    Route::get('/subscriptions-analytics', [SubscriptionPlanAdminController::class, 'analytics'])->name('subscriptions.analytics');
 });

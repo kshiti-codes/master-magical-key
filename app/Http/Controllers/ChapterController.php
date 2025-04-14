@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Chapter;
 use App\Services\ChapterPaginationService;
+use App\Http\Controllers\SubscriptionController;
 use App\Models\ChapterPage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,8 +34,11 @@ class ChapterController extends Controller
             // Get IDs of chapters already in cart
             $chaptersInCart = $cart->items->pluck('chapter_id')->toArray();
         }
+
+        // Get subscription plans for the modal
+        $subscriptionPlans = SubscriptionController::getPlansForModal();
         
-        return view('chapters.index', compact('chapters', 'cartItemCount', 'chaptersInCart'));
+        return view('chapters.index', compact('chapters', 'cartItemCount', 'chaptersInCart', 'subscriptionPlans'));
     }
 
     public function show(Chapter $chapter)
