@@ -1,0 +1,225 @@
+/* public/css/components/subscription-modal.css */
+.subscription-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 1500;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.subscription-modal.show {
+    display: flex;
+    opacity: 1;
+}
+
+.subscription-modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 550px;
+    background: linear-gradient(135deg, rgba(30, 30, 60, 0.95), rgba(15, 15, 35, 0.95));
+    border-radius: 15px;
+    border: 1px solid rgba(138, 43, 226, 0.5);
+    box-shadow: 0 0 30px rgba(138, 43, 226, 0.7);
+    overflow: hidden;
+    padding: 0;
+    animation: modalAppear 0.5s ease-out forwards;
+}
+
+@keyframes modalAppear {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.subscription-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 30px;
+    height: 30px;
+    background: rgba(138, 43, 226, 0.3);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.subscription-modal-close:hover {
+    background: rgba(138, 43, 226, 0.6);
+    transform: rotate(90deg);
+}
+
+.subscription-modal-header {
+    position: relative;
+    background: linear-gradient(135deg, #4b0082, #9400d3);
+    padding: 25px 20px;
+    text-align: center;
+}
+
+.subscription-modal-icon {
+    font-size: 2.5rem;
+    color: #f8d70b;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+}
+
+.subscription-modal-header h2 {
+    font-family: 'Cinzel', serif;
+    color: white;
+    font-size: 1.7rem;
+    margin: 0;
+    text-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+}
+
+.subscription-modal-body {
+    padding: 25px;
+    text-align: center;
+}
+
+.subscription-modal-body p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.subscription-plans {
+    display: flex;
+    gap: 15px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.plan-card {
+    background: rgba(30, 30, 70, 0.4);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    min-width: 150px;
+    flex: 1;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.plan-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+    border-color: rgba(138, 43, 226, 0.6);
+}
+
+.plan-lifetime {
+    background: linear-gradient(135deg, rgba(75, 0, 130, 0.4), rgba(148, 0, 211, 0.4));
+    border: 1px solid rgba(216, 181, 255, 0.5);
+}
+
+.plan-title {
+    font-family: 'Cinzel', serif;
+    color: white;
+    font-size: 1.2rem;
+    margin: 0 0 15px 0;
+}
+
+.plan-price {
+    margin-bottom: 10px;
+}
+
+.price-amount {
+    color: #d8b5ff;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.price-period {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.plan-description {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    flex-grow: 1;
+}
+
+.btn-subscribe {
+    display: inline-block;
+    background: linear-gradient(to right, #4b0082, #9400d3);
+    color: white;
+    font-family: 'Cinzel', serif;
+    padding: 8px 15px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-subscribe:hover {
+    background: linear-gradient(to right, #9400d3, #4b0082);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(75, 0, 130, 0.4);
+    color: white;
+}
+
+.no-plans {
+    color: rgba(255, 255, 255, 0.7);
+    font-style: italic;
+    padding: 20px;
+}
+
+.subscription-modal-footer {
+    background: rgba(10, 10, 30, 0.5);
+    padding: 15px;
+    text-align: center;
+}
+
+.dont-show-again {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dont-show-again input {
+    margin-right: 8px;
+}
+
+/* Mobile styles */
+@media (max-width: 767px) {
+    .subscription-modal-content {
+        width: 95%;
+    }
+    
+    .plan-card {
+        min-width: 120px;
+        padding: 15px;
+    }
+    
+    .subscription-plans {
+        flex-direction: column;
+    }
+    
+    .price-amount {
+        font-size: 1.5rem;
+    }
+    
+    .plan-title {
+        font-size: 1.1rem;
+    }
+}

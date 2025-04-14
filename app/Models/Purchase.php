@@ -60,6 +60,22 @@ class Purchase extends Model
     }
 
     /**
+     * Get the subscription plan purchased.
+     */
+    public function subscriptionPlan()
+    {
+        return $this->belongsTo(SubscriptionPlan::class);
+    }
+
+    /**
+     * Get the training video.
+     */
+    public function trainingVideo()
+    {
+        return $this->belongsTo(TrainingVideo::class);
+    }
+
+    /**
      * Generate a unique invoice number.
      */
     public static function generateInvoiceNumber()

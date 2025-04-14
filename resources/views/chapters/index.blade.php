@@ -2,6 +2,7 @@
 
 @push('styles')
 <link href="{{ asset('css/components/chapters.css') }}" rel="stylesheet">
+<link href="{{ asset('css/components/subscription-modal.css') }}" rel="stylesheet">
 <style>
     .floating-cart-button {
         position: fixed;
@@ -188,6 +189,8 @@
         <span class="cart-items-count">{{ $cartItemCount }}</span>
     </a>
     @endif
+
+    @include('partials.subscription-modal')
 </div>
 @endsection
 
@@ -212,4 +215,5 @@
         });
     });
 </script>
+<script src="{{ asset('js/components/subscription-modal.js') }}" defer></script>
 @endpush

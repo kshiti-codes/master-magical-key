@@ -10,9 +10,12 @@ return [
     ],
 
     'live' => [
-        'client_id'     => env('PAYPAL_LIVE_CLIENT_ID', ''),
-        'client_secret' => env('PAYPAL_LIVE_CLIENT_SECRET', ''),
+        'client_id'     => env('PAYPAL_LIVE_CLIENT_ID', 'Aagj8q7oz4BGfM3ikPkHQGjS3Kporqv93y6Hz2kDPqqbXXm9_KTmBeFfEvbEqYsHjgqfLDO2-DIu_f2H'),
+        'client_secret' => env('PAYPAL_LIVE_CLIENT_SECRET', 'EKHln5GyoivdoIW5U75KauXvnkiKLe0jBhBNg9BTWCME5osDP-fHKNSjO_uezZZR-NI5vQXbSMlAazFj'),
         'app_id'        => env('PAYPAL_LIVE_APP_ID', ''),
+        'webhook_id' => env('PAYPAL_WEBHOOK_ID', '15J86786BY168092A'),
+        'webhook_secret' => env('PAYPAL_WEBHOOK_SECRET', 'EOOlSBe8QdSvU9w9uFW2VnBktFV6KiUi5gWYLlPRozPrm9ul9itvMS519wr-FMZsiEogtyBJCHf5Ha7b'),
+        // 'merchant_id'   => env('PAYPAL_LIVE_MERCHANT_ID', 'T9NJ5KWJGKKL4'),
     ],
 
     'payment_action' => env('PAYPAL_PAYMENT_ACTION', 'Sale'),

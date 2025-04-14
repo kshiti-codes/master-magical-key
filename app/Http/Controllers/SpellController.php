@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Spell;
 use App\Models\Chapter;
 use App\Models\UserSpell;
+use App\Http\Controllers\SubscriptionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
@@ -32,12 +33,23 @@ class SpellController extends Controller
             
             // Get IDs of spells already in cart
             $spellsInCart = $cart->items->where('item_type', 'spell')->pluck('spell_id')->toArray();
+
+            $hasLifetime = Auth::user()->hasLifetimeSubscription();
+            $hasActiveSubscription = Auth::user()->hasActiveSubscription();
             
-            // Get IDs of spells the user already owns
-            $userSpells = Auth::user()->spells()->pluck('spells.id')->toArray();
+            if($hasLifetime || $hasActiveSubscription) {
+                // If user has a lifetime subscription or an active subscription, they can access all spells
+                $userSpells = Spell::pluck('id')->toArray();
+            } else {
+                // Otherwise, get IDs of spells the user has purchased
+                $userSpells = Auth::user()->spells()->pluck('spells.id')->toArray();
+            }
         }
+
+        // Get subscription plans for the modal
+        $subscriptionPlans = SubscriptionController::getPlansForModal();
         
-        return view('spells.index', compact('spells', 'cartItemCount', 'spellsInCart', 'userSpells'));
+        return view('spells.index', compact('spells', 'cartItemCount', 'spellsInCart', 'userSpells', 'subscriptionPlans'));
     }
 
     /**

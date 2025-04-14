@@ -7,8 +7,12 @@ use App\Models\Purchase;
 use App\Models\Chapter;
 use App\Models\Spell;
 use App\Models\User;
+use App\Models\PurchaseItem;
+use App\Models\TrainingVideo;
+use App\Models\SubscriptionPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class PurchaseAdminController extends Controller
@@ -96,7 +100,7 @@ class PurchaseAdminController extends Controller
     public function show(Purchase $purchase)
     {
         // Load relationships
-        $purchase->load(['user', 'items']);
+        $purchase = $purchase->load(['user', 'items']);
         
         return view('admin.purchases.show', compact('purchase'));
     }
@@ -447,7 +451,22 @@ class PurchaseAdminController extends Controller
                             } else {
                                 $itemDesc = "Spell: Unknown ($" . number_format($item->price, 2) . ")";
                             }
-                        } else {
+                        } elseif ($item->item_type === 'video') {
+                            $video = \App\Models\TrainingVideo::find($item->video_id);
+                            if ($video) {
+                                $itemDesc = "Training Video: {$video->title} ($" . number_format($item->price, 2) . ")";
+                            } else {
+                                $itemDesc = "Training Video: Unknown ($" . number_format($item->price, 2) . ")";
+                            }
+                        } elseif ($item->item_type === 'subscription') {
+                            $subscription = \App\Models\SubscriptionPlan::find($item->subscription_plan_id);
+                            if ($subscription) {
+                                $itemDesc = "Subscription: {$subscription->plan->name} ($" . number_format($item->price, 2) . ")";
+                            } else {
+                                $itemDesc = "Subscription: Unknown ($" . number_format($item->price, 2) . ")";
+                            }
+                        }
+                        else {
                             $itemDesc = "Item: Unknown ($" . number_format($item->price ?? 0, 2) . ")";
                         }
                         

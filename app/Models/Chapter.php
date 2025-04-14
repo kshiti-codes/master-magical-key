@@ -67,8 +67,29 @@ class Chapter extends Model
         $isUserChapter = \App\Models\UserChapter::where('chapter_id', $this->id)
         ->where('user_id', Auth::id())
         ->exists();
+
+        $hasLifetimeSubscription = \App\Models\User::where('id', Auth::id())
+        ->whereHas('subscriptions', function($query) {
+            $query->where('status', 'active')
+                  ->where('subscription_plan_id', function($subQuery) {
+                      $subQuery->select('id')
+                               ->from('subscription_plans')
+                               ->where('is_lifetime', true);
+                  });
+        })
+        ->exists();
+
+        $hasActiveSubscription = \App\Models\User::where('id', Auth::id())
+        ->whereHas('subscriptions', function($query) {
+            $query->where('status', 'active')
+                  ->where(function($subQuery) {
+                      $subQuery->whereNull('end_date')
+                               ->orWhere('end_date', '>', now());
+                  });
+        })
+        ->exists();
         
-        return $isPurchased && $isUserChapter;
+        return ($isPurchased && $isUserChapter) || $hasLifetimeSubscription || $hasActiveSubscription;
     }
     
     /**
