@@ -148,8 +148,7 @@
                 @else
                     <!-- User doesn't have access - show purchase options -->
                     <div class="spell-actions">
-                        
-                        <a href="{{ route('spells.show', $spell->id) }}" class="btn btn-sm" title="View Details">
+                        <a href="{{ route('spells.show', $spell->id) }}" class="btn btn-sm" title="View Details" style="color: white;">
                             <i class="fas fa-eye"></i>
                         </a>
                         <form action="{{ route('cart.addSpell') }}" method="POST">
@@ -170,8 +169,6 @@
                         </form>
                     </div>
                 @endif
-                
-                <a href="{{ route('spells.show', $spell->id) }}" class="spell-details-link">View Details</a>
             </div>
         @endforeach
         
@@ -229,7 +226,7 @@
                             @csrf
                             <input type="hidden" name="spell_id" value="{{ $spell->id }}">
                             <input type="hidden" name="buy_now" value="1">
-                            <button type="submit" class="btn-portal btn-buy-now btn-sm" style="width:30%;">Buy</button>
+                            <button type="submit" class="btn-portal btn-buy-now btn-sm" style="width:100% !importanant;">Buy</button>
                         </form>
                     </div>
                 @endif
