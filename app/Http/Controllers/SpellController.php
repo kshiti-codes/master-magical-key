@@ -49,7 +49,7 @@ class SpellController extends Controller
         // Get subscription plans for the modal
         $subscriptionPlans = SubscriptionController::getPlansForModal();
         
-        return view('spells.index', compact('spells', 'cartItemCount', 'spellsInCart', 'userSpells', 'subscriptionPlans'));
+        return view('spells.index', compact('spells', 'cartItemCount', 'spellsInCart', 'userSpells', 'user', 'subscriptionPlans'));
     }
 
     /**
