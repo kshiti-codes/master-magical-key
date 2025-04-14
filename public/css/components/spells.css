@@ -78,8 +78,8 @@
     align-items: center;
     text-align: center;
     transition: all 0.3s ease;
-    height: 100%;
     position: relative;
+    height:85%;
 }
 
 .spell-card:hover {
@@ -161,7 +161,6 @@
 
 .spell-actions {
     display: flex;
-    gap: 0.5rem;
     width: 100%;
     margin-top: 10px;
     position: absolute;
