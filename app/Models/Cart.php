@@ -145,12 +145,20 @@ class Cart extends Model
     public function addFreeSpells($spells)
     {
         foreach ($spells as $spell) {
-            $this->items()->create([
-                'spell_id' => $spell->id,
-                'item_type' => 'spell',
-                'quantity' => 1,
-                'price' => 0
-            ]);
+            // Check if this spell is already in the cart
+            $existingSpellItem = $this->items()
+                ->where('spell_id', $spell->id)
+                ->first();
+                
+            // Only add if not already in cart
+            if (!$existingSpellItem) {
+                $this->items()->create([
+                    'spell_id' => $spell->id,
+                    'item_type' => 'spell',
+                    'quantity' => 1,
+                    'price' => 0
+                ]);
+            }
         }
         // Find all cart items with spell_id but incorrect item_type
         $itemsToFix = \App\Models\CartItem::whereNotNull('spell_id')

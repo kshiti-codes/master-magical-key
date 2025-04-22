@@ -66,8 +66,15 @@ class SpellController extends Controller
         
         // Check if user directly owns this spell
         $isOwned = $spell->isOwned();
+
+        // get cart item count
+        $cartItemCount = 0;
+        if (Auth::check()) {
+            $cart = Auth::user()->getCart();
+            $cartItemCount = $cart->itemCount;
+        }
         
-        return view('spells.show', compact('spell', 'relatedChapters', 'hasAccessThroughChapter', 'isOwned'));
+        return view('spells.show', compact('spell', 'relatedChapters', 'hasAccessThroughChapter', 'isOwned', 'cartItemCount'));
     }
     
     /**

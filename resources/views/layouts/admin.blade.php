@@ -26,13 +26,12 @@
     <div class="admin-sidebar">
         <div class="admin-logo">
             <h1>MASTER MAGICAL KEY</h1>
-            <p>Admin Panel</p>
         </div>
         
         <ul class="admin-menu">
             <li>
                 <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                    <i class="fas fa-tachometer-alt"></i> Admin Dashboard
                 </a>
             </li>
             
@@ -89,6 +88,15 @@
             <li>
                 <a href="{{ route('admin.reports.user_analysis') }}" class="{{ request()->routeIs('admin.reports.user_analysis') ? 'active' : '' }}">
                     <i class="fas fa-users"></i> User Analytics
+                </a>
+            </li>
+
+            <div class="admin-menu-divider"></div>
+            <div class="admin-menu-category">Marketing</div>
+
+            <li>
+                <a href="{{ route('admin.email-campaigns.index') }}" class="{{ request()->routeIs('admin.email-campaigns*') ? 'active' : '' }}">
+                    <i class="fas fa-envelope"></i> Email Campaigns
                 </a>
             </li>
         </ul>

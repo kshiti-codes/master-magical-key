@@ -328,5 +328,13 @@
             </div>
         </div>
     @endif
+
+    <!-- Floating Cart Button -->
+    @if(isset($cartItemCount) && $cartItemCount > 0)
+    <a href="{{ route('cart.index') }}" class="floating-cart-button">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-items-count">{{ $cartItemCount }}</span>
+    </a>
+    @endif
 </div>
 @endsection
