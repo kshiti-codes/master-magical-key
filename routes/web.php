@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\SpellAdminController;
 use App\Http\Controllers\Admin\PurchaseAdminController;
 use App\Http\Controllers\Admin\UserAdminController;
 use App\Http\Controllers\Admin\SubscriptionPlanAdminController;
+use App\Http\Controllers\Admin\EmailCampaignController;
 
 Auth::routes();
 
@@ -163,4 +164,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/subscriptions/{plan}', [SubscriptionPlanAdminController::class, 'destroy'])->name('subscriptions.destroy');
     Route::post('/subscriptions/{plan}/toggle-status', [SubscriptionPlanAdminController::class, 'toggleStatus'])->name('subscriptions.toggle-status');
     Route::get('/subscriptions-analytics', [SubscriptionPlanAdminController::class, 'analytics'])->name('subscriptions.analytics');
+
+    //marketing email campaigns
+    Route::get('/email-campaigns', [EmailCampaignController::class, 'index'])->name('email-campaigns.index');
+    Route::get('/email-campaigns/create', [EmailCampaignController::class, 'create'])->name('email-campaigns.create');
+    Route::post('/email-campaigns', [EmailCampaignController::class, 'store'])->name('email-campaigns.store');
+    Route::get('/email-campaigns/{emailCampaign}', [EmailCampaignController::class, 'show'])->name('email-campaigns.show');
+    Route::get('/email-campaigns/{emailCampaign}/edit', [EmailCampaignController::class, 'edit'])->name('email-campaigns.edit');
+    Route::put('/email-campaigns/{emailCampaign}', [EmailCampaignController::class, 'update'])->name('email-campaigns.update');
+    Route::get('/email-campaigns/{emailCampaign}/send', [EmailCampaignController::class, 'showSendConfirmation'])->name('email-campaigns.send-confirmation');
+    Route::post('/email-campaigns/{emailCampaign}/send', [EmailCampaignController::class, 'send'])->name('email-campaigns.send');
 });
