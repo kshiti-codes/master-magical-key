@@ -90,7 +90,11 @@
         background: rgba(0, 128, 128, 0.3);
         color: #a0ffd8;
     }
-    
+
+    .item-type-video {
+        background: rgba(255, 165, 0, 0.3);
+        color: #ffd8a0;
+    }
     .cart-section-divider {
         border-top: 1px dashed rgba(138, 43, 226, 0.3);
         margin: 20px 0;
@@ -132,6 +136,7 @@
             <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
                 <a href="{{ route('chapters.index') }}" class="btn-checkout">Browse Chapters</a>
                 <a href="{{ route('spells.index') }}" class="btn-checkout">Browse Spells</a>
+                <a href="{{ route('videos.index') }}" class="btn-checkout">Browse Videos</a>
             </div>
         </div>
     @else
@@ -140,6 +145,7 @@
             @php
                 $chapterItems = $cart->items->where('item_type', 'chapter');
                 $spellItems = $cart->items->where('item_type', 'spell');
+                $videoItems = $cart->items->where('item_type', 'video');
             @endphp
             
             @if($chapterItems->count() > 0)
@@ -241,6 +247,51 @@
                     </div>
                 @endforeach
             @endif
+
+            <!-- Video Items -->
+            @if($videoItems->count() > 0)
+                @if($chapterItems->count() > 0 || $spellItems->count() > 0)
+                    <div class="cart-section-divider"></div>
+                @endif
+                
+                <h3 class="cart-section-title">Training Videos</h3>
+                
+                @foreach($videoItems as $item)
+                    <div class="cart-item" id="cart-item-{{ $item->id }}">
+                        <div class="item-details">
+                            <h3 class="item-title">
+                                <span class="item-type-badge item-type-video">Video</span>
+                                {{ $item->video->title }}
+                            </h3>
+                            <p class="item-description">{{ Str::limit($item->video->description, 100) }}</p>
+                        </div>
+                        
+                        <div class="item-price">${{ number_format($item->total, 2) }}</div>
+                        
+                        <div class="item-remove">
+                            <button type="button" class="remove-btn" onclick="showRemoveConfirmation('{{ $item->id }}')">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Remove Confirmation Overlay -->
+                        <div class="remove-confirmation" id="remove-confirmation-{{ $item->id }}">
+                            <div class="confirm-content">
+                                <p>Remove this video from your cart?</p>
+                                <div class="confirmation-buttons">
+                                    <form action="{{ route('cart.remove') }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <input type="hidden" name="cart_item_id" value="{{ $item->id }}">
+                                        <button type="submit" class="btn-confirm-remove">Remove</button>
+                                    </form>
+                                    <button type="button" class="btn-cancel-remove" onclick="hideRemoveConfirmation('{{ $item->id }}')">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @endif
         </div>
         
         <div class="cart-summary">
@@ -268,6 +319,9 @@
                     </a>
                     <a href="{{ route('spells.index') }}" class="continue-shopping">
                         <i class="fas fa-magic"></i> Spells
+                    </a>
+                    <a href="{{ route('videos.index') }}" class="continue-shopping">
+                        <i class="fas fa-video"></i> Videos
                     </a>
                 </div>
                 

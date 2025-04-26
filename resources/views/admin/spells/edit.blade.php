@@ -215,8 +215,7 @@
                                             <div class="form-check">
                                                 <input type="checkbox" name="free_with_chapters[]" id="free-{{ $chapter->id }}" 
                                                     value="{{ $chapter->id }}" class="form-check-input free-checkbox"
-                                                    {{ in_array($chapter->id, old('free_with_chapters', $freeChapterIds)) ? 'checked' : '' }}
-                                                    {{ !in_array($chapter->id, old('related_chapters', $relatedChapterIds)) ? 'disabled' : '' }}>
+                                                    {{ in_array($chapter->id, old('free_with_chapters', $freeChapterIds)) ? 'checked' : '' }}>
                                                 <label for="free-{{ $chapter->id }}" class="form-check-label">Free with this chapter</label>
                                             </div>
                                         </div>

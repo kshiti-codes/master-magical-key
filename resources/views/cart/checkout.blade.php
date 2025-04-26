@@ -196,6 +196,10 @@
         background: rgba(0, 128, 128, 0.3);
         color: #a0ffd8;
     }
+    .item-type-video {
+        background: rgba(255, 165, 0, 0.3);
+        color: #ffd8a0;
+    }
     
     @media (max-width: 767px) {
         .steps-line {
@@ -246,6 +250,7 @@
         @php
             $chapterItems = $cart->items->where('item_type', 'chapter');
             $spellItems = $cart->items->where('item_type', 'spell');
+            $videoItems = $cart->items->where('item_type', 'video');
         @endphp
         
         @if($chapterItems->count() > 0)
@@ -303,6 +308,39 @@
                                     {{ $item->spell->title }}
                                 </div>
                                 <div class="item-description">{{ Str::limit($item->spell->description, 80) }}</div>
+                            </td>
+                            <td class="text-center">{{ $item->quantity }}</td>
+                            <td>${{ number_format($item->price, 2) }}</td>
+                            <td class="text-right">${{ number_format($item->total, 2) }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+
+        @if($videoItems->count() > 0)
+            <div class="order-section">
+                <h3 class="order-section-title">Training Videos</h3>
+                
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>Video</th>
+                            <th class="text-center">Qty</th>
+                            <th>Price</th>
+                            <th class="text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($videoItems as $item)
+                        <tr>
+                            <td>
+                                <div class="item-title">
+                                    <span class="item-type-badge item-type-video">Video</span>
+                                    {{ $item->video->title }}
+                                </div>
+                                <div class="item-description">{{ Str::limit($item->video->description, 80) }}</div>
                             </td>
                             <td class="text-center">{{ $item->quantity }}</td>
                             <td>${{ number_format($item->price, 2) }}</td>

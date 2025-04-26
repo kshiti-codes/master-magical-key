@@ -68,14 +68,14 @@
                     </a>
                     <form action="{{ route('admin.subscriptions.toggle-status', $plan) }}" method="POST" class="d-inline">
                         @csrf
-                        <button type="submit" class="btn-admin-secondary btn-sm" title="{{ $plan->is_active ? 'Deactivate' : 'Activate' }}">
+                        <button type="submit" class="btn-admin-secondary btn-sm" title="{{ $plan->is_active ? 'Deactivate' : 'Activate' }}" style="height: 100%;">
                             <i class="fas {{ $plan->is_active ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
                         </button>
                     </form>
                     <form action="{{ route('admin.subscriptions.destroy', $plan) }}" method="POST" class="d-inline delete-form">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn-admin-secondary btn-sm text-danger" title="Delete">
+                        <button type="submit" class="btn-admin-secondary btn-sm text-danger" title="Delete" style="background-color: #dc3545; border-color: #dc3545; height: 100%;" title="Delete Video">
                             <i class="fas fa-trash"></i>
                         </button>
                     </form>

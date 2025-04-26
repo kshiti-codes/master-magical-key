@@ -48,6 +48,11 @@
                     <i class="fas fa-magic"></i> Spells
                 </a>
             </li>
+            <li>
+                <a href="{{ route('admin.videos.index') }}" class="{{ request()->routeIs('admin.videos*') ? 'active' : '' }}">
+                    <i class="fas fa-video"></i> Training Videos
+                </a>
+            </li>
             
             <div class="admin-menu-divider"></div>
             <div class="admin-menu-category">User Management</div>

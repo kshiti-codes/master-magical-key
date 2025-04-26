@@ -63,6 +63,8 @@ class PaymentController extends Controller
                     $itemName = "Chapter {$item->chapter->id}: {$item->chapter->title}";
                 } else if ($item->item_type === 'spell' && $item->spell) {
                     $itemName = "Spell: {$item->spell->title}";
+                } else if ($item->item_type === 'video' && $item->video) {
+                    $itemName = "Training Video: {$item->video->title}";
                 }
                 
                 $paypalItems[] = [
@@ -252,7 +254,6 @@ class PaymentController extends Controller
     {
         // Get order ID from session
         $orderId = $request->session()->get('paypal_order_id');
-        $purchaseType = $request->session()->get('purchase_type', 'single');
         
         if (!$orderId) {
             \Log::error('PayPal order ID not found in session');
@@ -261,330 +262,44 @@ class PaymentController extends Controller
         }
         
         try {
-            // Initialize PayPal
+            // Initialize PayPal and capture payment
             $provider = new PayPalClient;
             $provider->setApiCredentials(config('paypal'));
             $provider->getAccessToken();
             
-            // Log the order ID we're about to capture
-            \Log::info('Attempting to capture PayPal payment', [
-                'order_id' => $orderId
-            ]);
-            
-            // Capture payment
+            \Log::info('Attempting to capture PayPal payment', ['order_id' => $orderId]);
             $response = $provider->capturePaymentOrder($orderId);
             
-            // Log the full response for debugging
-            \Log::info('PayPal capture response', [
-                'response' => $response
+            if (!$response || !isset($response['status']) || $response['status'] !== 'COMPLETED') {
+                throw new \Exception('Payment not completed. Status: ' . ($response['status'] ?? 'unknown'));
+            }
+            
+            // Extract payment details
+            $captureId = $this->extractCaptureId($response);
+            $amount = $this->extractAmount($response);
+            $currency = $this->extractCurrency($response);
+            
+            // Get stored values from session
+            $subtotal = $request->session()->get('subtotal');
+            $tax = $request->session()->get('tax');
+            $total = $request->session()->get('total');
+            $cartId = $request->session()->get('cart_id');
+            
+            if (!$cartId) {
+                throw new \Exception('Cart ID not found in session');
+            }
+            
+            // Process cart purchase
+            list($purchase, $purchasedItems) = $this->processCartPurchase($cartId, $captureId, $amount, $currency, $subtotal, $tax, $total);
+            
+            // Clear session data
+            $request->session()->forget([
+                'paypal_order_id', 'purchase_type', 'chapter_id', 'spell_id', 
+                'training_video_id', 'cart_id', 'subtotal', 'tax', 'total'
             ]);
             
-            if (!$response) {
-                throw new \Exception('Empty response from PayPal capture');
-            }
-            
-            if (!isset($response['status'])) {
-                throw new \Exception('Status not found in PayPal response');
-            }
-            
-            if ($response['status'] === 'COMPLETED') {
-                // Safely access purchase_units array
-                if (!isset($response['purchase_units']) || 
-                    !is_array($response['purchase_units']) || 
-                    empty($response['purchase_units'])) {
-                    throw new \Exception('Purchase units not found in PayPal response');
-                }
-                
-                // Safely access payments array
-                $purchaseUnit = $response['purchase_units'][0];
-                if (!isset($purchaseUnit['payments']) || 
-                    !isset($purchaseUnit['payments']['captures']) || 
-                    !is_array($purchaseUnit['payments']['captures']) || 
-                    empty($purchaseUnit['payments']['captures'])) {
-                    throw new \Exception('Captures not found in PayPal response');
-                }
-                
-                // Safely get capture details
-                $capture = $purchaseUnit['payments']['captures'][0];
-                $captureId = $capture['id'] ?? null;
-                $amount = $capture['amount']['value'] ?? null;
-                $currency = $capture['amount']['currency_code'] ?? null;
-                
-                if (!$captureId || !$amount || !$currency) {
-                    throw new \Exception('Missing essential capture details in PayPal response');
-                }
-                
-                // Log successful capture
-                \Log::info('Payment capture successful', [
-                    'capture_id' => $captureId,
-                    'amount' => $amount,
-                    'currency' => $currency
-                ]);
-                
-                // Get subtotal and tax from session
-                $subtotal = $request->session()->get('subtotal');
-                $tax = $request->session()->get('tax');
-                $total = $request->session()->get('total');
-
-                // Initialize purchasedItems array
-                $purchasedItems = [];
-                $purchase = null;
-
-                if ($purchaseType === 'spell') {
-                    // Process single spell purchase
-                    $spellId = $request->session()->get('spell_id');
-                    if (!$spellId) {
-                        throw new \Exception('Spell ID not found in session');
-                    }
-                    
-                    $spell = Spell::find($spellId);
-                    if (!$spell) {
-                        throw new \Exception('Spell not found with ID: ' . $spellId);
-                    }
-                    
-                    // Create purchase record
-                    $purchase = Purchase::create([
-                        'user_id' => Auth::id(),
-                        'transaction_id' => $captureId,
-                        'amount' => $amount,
-                        'currency' => $currency,
-                        'status' => 'completed',
-                        'subtotal' => $subtotal,
-                        'tax' => $tax,
-                        'tax_rate' => 10.00, // 10% GST
-                        'invoice_number' => $this->generateInvoiceNumber()
-                    ]);
-
-                    // Create purchase item for the spell
-                    \App\Models\PurchaseItem::create([
-                        'purchase_id' => $purchase->id,
-                        'spell_id' => $spell->id,
-                        'item_type' => 'spell',
-                        'quantity' => 1,
-                        'price' => $spell->price
-                    ]);
-
-                    try {
-                        // Generate PDF invoice
-                        $invoiceService = new InvoiceService();
-                        $pdfData = $invoiceService->generateInvoice($purchase);
-                        
-                        // Store PDF data directly in the database
-                        \DB::statement('UPDATE purchases SET invoice_data = ?, emailed_at = NOW() WHERE id = ?', [
-                            $pdfData,
-                            $purchase->id
-                        ]);
-                        
-                        // Refresh the model to get the updated values
-                        $purchase->refresh();
-                        
-                        // Send email with invoice
-                        Mail::to($purchase->user->email)
-                            ->send(new InvoiceEmail($purchase, $pdfData));
-                        
-                        // Mark as emailed
-                        $purchase->emailed_at = now();
-                        $purchase->save();
-                    } catch (\Exception $e) {
-                        // Log error but continue with checkout process
-                        \Log::error("Failed to generate/send invoice for spell purchase #{$purchase->id}", [
-                            'error' => $e->getMessage(),
-                            'trace' => $e->getTraceAsString()
-                        ]);
-                    }
-                    
-                    // Grant access to the spell
-                    Auth::user()->grantSpellAccess($spell);
-
-                    // Set purchased items for view
-                    $purchasedItems = [
-                        [
-                            'spell_id' => $spell->id,
-                            'title' => $spell->title,
-                            'price' => $spell->price,
-                            'quantity' => 1,
-                            'type' => 'spell'
-                        ]
-                    ];
-                    
-                } else {
-                    // Process cart purchase
-                    $cartId = $request->session()->get('cart_id');
-                    
-                    if (!$cartId) {
-                        throw new \Exception('Cart ID not found in session');
-                    }
-                    
-                    \Log::info('Processing cart purchase', [
-                        'cart_id' => $cartId,
-                        'user_id' => Auth::id()
-                    ]);
-                    
-                    $cart = Auth::user()->cart()->find($cartId);
-                    
-                    if (!$cart) {
-                        throw new \Exception('Cart not found with ID: ' . $cartId);
-                    }
-                    
-                    // Create a SINGLE purchase record for the entire order
-                    $purchase = Purchase::create([
-                        'user_id' => Auth::id(),
-                        'transaction_id' => $captureId,
-                        'amount' => $total,
-                        'currency' => $currency,
-                        'status' => 'completed',
-                        'subtotal' => $subtotal,
-                        'tax' => $tax,
-                        'tax_rate' => 10.00,
-                        'invoice_number' => $this->generateInvoiceNumber()
-                    ]);
-                    
-                    \Log::info('Purchase record created', [
-                        'purchase_id' => $purchase->id
-                    ]);
-                    
-                    // Process each item in the cart
-                    $purchasedItems = [];
-                    
-                    foreach ($cart->items as $item) {
-                        if (!$item) continue;
-                        
-                        \Log::info('Processing cart item', [
-                            'item_id' => $item->id,
-                            'item_type' => $item->item_type ?? 'unknown'
-                        ]);
-                        
-                        if ($item->item_type === 'chapter' && $item->chapter) {
-                            // Create a purchase item record for chapter
-                            \App\Models\PurchaseItem::create([
-                                'purchase_id' => $purchase->id,
-                                'chapter_id' => $item->chapter->id,
-                                'item_type' => 'chapter',
-                                'quantity' => $item->quantity,
-                                'price' => $item->price
-                            ]);
-                            
-                            // Add to purchased items for display
-                            $purchasedItems[] = [
-                                'chapter_id' => $item->chapter->id,
-                                'title' => $item->chapter->title,
-                                'price' => $item->price,
-                                'quantity' => $item->quantity,
-                                'type' => 'chapter'
-                            ];
-                            
-                            // Grant access to the chapter
-                            Auth::user()->chapters()->syncWithoutDetaching([
-                                $item->chapter->id => [
-                                    'last_read_at' => now(),
-                                    'last_page' => 1,
-                                ]
-                            ]);
-                            
-                            // Also grant access to any free spells that come with this chapter
-                            $freeSpells = $item->chapter->freeSpells ?? collect();
-                            foreach ($freeSpells as $spell) {
-                                Auth::user()->grantSpellAccess($spell);
-                                
-                                // Add free spells to purchased items for display
-                                $purchasedItems[] = [
-                                    'spell_id' => $spell->id,
-                                    'title' => $spell->title,
-                                    'price' => 0, // Free with chapter
-                                    'quantity' => 1,
-                                    'type' => 'spell',
-                                    'free_with_chapter' => true,
-                                    'chapter_id' => $item->chapter->id
-                                ];
-                            }
-                        } else if ($item->item_type === 'spell' && $item->spell) {
-                            // Create a purchase item record for spell
-                            \App\Models\PurchaseItem::create([
-                                'purchase_id' => $purchase->id,
-                                'spell_id' => $item->spell->id,
-                                'item_type' => 'spell',
-                                'quantity' => $item->quantity,
-                                'price' => $item->price
-                            ]);
-                            
-                            // Add to purchased items for display
-                            $purchasedItems[] = [
-                                'spell_id' => $item->spell->id,
-                                'title' => $item->spell->title,
-                                'price' => $item->price,
-                                'quantity' => $item->quantity,
-                                'type' => 'spell'
-                            ];
-                            
-                            // Grant access to the spell
-                            Auth::user()->grantSpellAccess($item->spell);
-                        }
-                    }
-                    \App\Models\PurchaseItem::whereNotNull('spell_id')
-                        ->where('item_type', '!=', 'spell')
-                        ->update(['item_type' => 'spell']);
-                    // Generate a SINGLE invoice for the entire purchase
-                    try {
-                        // Generate PDF invoice
-                        $invoiceService = new InvoiceService();
-                        $pdfData = $invoiceService->generateInvoice($purchase);
-                        
-                        // Store PDF data
-                        \DB::statement('UPDATE purchases SET invoice_data = ?, emailed_at = NOW() WHERE id = ?', [
-                            $pdfData,
-                            $purchase->id
-                        ]);
-                        
-                        // Refresh the model to get the updated values
-                        $purchase->refresh();
-                        
-                        // Send ONE email with the consolidated invoice
-                        Mail::to($purchase->user->email)
-                            ->send(new InvoiceEmail($purchase, $pdfData));
-                            
-                        // Mark as emailed
-                        $purchase->emailed_at = now();
-                        $purchase->save();
-                    } catch (\Exception $e) {
-                        // Log error but continue with checkout process
-                        \Log::error("Failed to generate/send consolidated invoice for purchase #{$purchase->id}", [
-                            'error' => $e->getMessage(),
-                            'trace' => $e->getTraceAsString()
-                        ]);
-                    }
-                    
-                    // Clear the cart
-                    $cart->clear();
-                }
-                
-                // Clear the session data
-                $request->session()->forget([
-                    'paypal_order_id', 
-                    'purchase_type', 
-                    'chapter_id',
-                    'spell_id',
-                    'cart_id',
-                    'subtotal',
-                    'tax',
-                    'total'
-                ]);
-                
-                \Log::info('Ready to render success page', [
-                    'purchase_id' => $purchase->id ?? 'No purchase ID',
-                    'items_count' => count($purchasedItems)
-                ]);
-                
-                // Ensure variables are set before passing to view
-                $subtotal = $subtotal ?? 0;
-                $tax = $tax ?? 0;
-                $total = $total ?? 0;
-                
-                // Return success view
-                return view('payment.success', compact('purchase', 'subtotal', 'tax', 'purchasedItems', 'total'));
-            }
-            
-            // If payment not completed
-            throw new \Exception('Payment was not completed. Status: ' . ($response['status'] ?? 'unknown'));
+            // Return success view
+            return view('payment.success', compact('purchase', 'subtotal', 'tax', 'purchasedItems', 'total'));
             
         } catch (\Exception $e) {
             \Log::error('PayPal capture error', [
@@ -595,6 +310,232 @@ class PaymentController extends Controller
             
             return redirect()->route('chapters.index')
                 ->with('error', 'An error occurred while processing your payment: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Extract capture ID from PayPal response
+     */
+    private function extractCaptureId($response)
+    {
+        if (!isset($response['purchase_units'][0]['payments']['captures'][0]['id'])) {
+            throw new \Exception('Capture ID not found in PayPal response');
+        }
+        
+        return $response['purchase_units'][0]['payments']['captures'][0]['id'];
+    }
+
+    /**
+     * Extract amount from PayPal response
+     */
+    private function extractAmount($response)
+    {
+        if (!isset($response['purchase_units'][0]['payments']['captures'][0]['amount']['value'])) {
+            throw new \Exception('Amount not found in PayPal response');
+        }
+        
+        return $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'];
+    }
+
+    /**
+     * Extract currency from PayPal response
+     */
+    private function extractCurrency($response)
+    {
+        if (!isset($response['purchase_units'][0]['payments']['captures'][0]['amount']['currency_code'])) {
+            throw new \Exception('Currency not found in PayPal response');
+        }
+        
+        return $response['purchase_units'][0]['payments']['captures'][0]['amount']['currency_code'];
+    }
+
+    /**
+     * Process cart purchase
+     */
+    private function processCartPurchase($cartId, $captureId, $amount, $currency, $subtotal, $tax, $total)
+    {
+        $cart = Auth::user()->cart()->findOrFail($cartId);
+        
+        // Create purchase record
+        $purchase = $this->createPurchaseRecord(Auth::id(), $captureId, $total, $currency, $subtotal, $tax);
+        
+        // Process each item and build purchasedItems array
+        $purchasedItems = [];
+        
+        foreach ($cart->items as $item) {
+            if (!$item) continue;
+            
+            if ($item->item_type === 'chapter' && $item->chapter) {
+                $this->processChapterPurchase($purchase, $item, $purchasedItems);
+            } else if ($item->item_type === 'spell' && $item->spell) {
+                $this->processSpellCartItem($purchase, $item, $purchasedItems);
+            } else if ($item->item_type === 'video' && $item->video) {
+                $this->processVideoCartItem($purchase, $item, $purchasedItems);
+            }
+        }
+        
+        // Ensure all purchase items have correct item_type
+        \App\Models\PurchaseItem::whereNotNull('spell_id')
+            ->where('item_type', '!=', 'spell')
+            ->update(['item_type' => 'spell']);
+        
+        // Generate and send invoice
+        $this->generateAndSendInvoice($purchase);
+        
+        // Clear the cart
+        $cart->clear();
+        
+        return [$purchase, $purchasedItems];
+    }
+
+    /**
+     * Process chapter purchase from cart
+     */
+    private function processChapterPurchase($purchase, $item, &$purchasedItems)
+    {
+        // Create purchase item
+        \App\Models\PurchaseItem::create([
+            'purchase_id' => $purchase->id,
+            'chapter_id' => $item->chapter->id,
+            'item_type' => 'chapter',
+            'quantity' => $item->quantity,
+            'price' => $item->price
+        ]);
+        
+        // Add to purchased items
+        $purchasedItems[] = [
+            'chapter_id' => $item->chapter->id,
+            'title' => $item->chapter->title,
+            'price' => $item->price,
+            'quantity' => $item->quantity,
+            'type' => 'chapter'
+        ];
+        
+        // Grant access to chapter
+        Auth::user()->chapters()->syncWithoutDetaching([
+            $item->chapter->id => [
+                'last_read_at' => now(),
+                'last_page' => 1,
+            ]
+        ]);
+        
+        // Process free spells that come with the chapter
+        // $freeSpells = $item->chapter->freeSpells ?? collect();
+        // foreach ($freeSpells as $spell) {
+        //     Auth::user()->grantSpellAccess($spell);
+            
+        //     // Add free spells to purchased items
+        //     $purchasedItems[] = [
+        //         'spell_id' => $spell->id,
+        //         'title' => $spell->title,
+        //         'price' => 0,
+        //         'quantity' => 1,
+        //         'type' => 'spell',
+        //         'free_with_chapter' => true,
+        //         'chapter_id' => $item->chapter->id
+        //     ];
+        // }
+    }
+
+    /**
+     * Process spell cart item
+     */
+    private function processSpellCartItem($purchase, $item, &$purchasedItems)
+    {
+        // Create purchase item
+        \App\Models\PurchaseItem::create([
+            'purchase_id' => $purchase->id,
+            'spell_id' => $item->spell->id,
+            'item_type' => 'spell',
+            'quantity' => $item->quantity,
+            'price' => $item->price
+        ]);
+        
+        // Add to purchased items
+        $purchasedItems[] = [
+            'spell_id' => $item->spell->id,
+            'title' => $item->spell->title,
+            'price' => $item->price,
+            'quantity' => $item->quantity,
+            'type' => 'spell'
+        ];
+        
+        // Grant access
+        Auth::user()->grantSpellAccess($item->spell);
+    }
+
+    /**
+     * Process video cart item
+     */
+    private function processVideoCartItem($purchase, $item, &$purchasedItems)
+    {
+        // Create purchase item
+        \App\Models\PurchaseItem::create([
+            'purchase_id' => $purchase->id,
+            'training_video_id' => $item->video->id,
+            'item_type' => 'video',
+            'quantity' => $item->quantity,
+            'price' => $item->price
+        ]);
+        
+        // Add to purchased items
+        $purchasedItems[] = [
+            'training_video_id' => $item->video->id,
+            'title' => $item->video->title,
+            'price' => $item->price,
+            'quantity' => $item->quantity,
+            'type' => 'video'
+        ];
+        
+        // Grant access
+        Auth::user()->grantVideoAccess($item->video);
+    }
+
+    /**
+     * Create purchase record
+     */
+    private function createPurchaseRecord($userId, $transactionId, $amount, $currency, $subtotal, $tax)
+    {
+        return Purchase::create([
+            'user_id' => $userId,
+            'transaction_id' => $transactionId,
+            'amount' => $amount,
+            'currency' => $currency,
+            'status' => 'completed',
+            'subtotal' => $subtotal,
+            'tax' => $tax,
+            'tax_rate' => 10.00,
+            'invoice_number' => $this->generateInvoiceNumber()
+        ]);
+    }
+
+    /**
+     * Generate and send invoice
+     */
+    private function generateAndSendInvoice($purchase)
+    {
+        try {
+            $invoiceService = new InvoiceService();
+            $pdfData = $invoiceService->generateInvoice($purchase);
+            
+            // Store PDF data
+            \DB::statement('UPDATE purchases SET invoice_data = ?, emailed_at = NOW() WHERE id = ?', [
+                $pdfData,
+                $purchase->id
+            ]);
+            
+            // Refresh model and send email
+            $purchase->refresh();
+            Mail::to($purchase->user->email)->send(new InvoiceEmail($purchase, $pdfData));
+            
+            // Mark as emailed
+            $purchase->emailed_at = now();
+            $purchase->save();
+        } catch (\Exception $e) {
+            \Log::error("Failed to generate/send invoice for purchase #{$purchase->id}", [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
         }
     }
 
