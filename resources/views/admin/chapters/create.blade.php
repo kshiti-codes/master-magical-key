@@ -71,14 +71,14 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="is_published" name="is_published" {{ old('is_published') ? 'checked' : '' }}>
+                        <input class="form-check-input" type="checkbox" id="is_published" name="is_published" value="1" {{ old('is_published') ? 'checked' : '' }}>
                         <label class="form-check-label" for="is_published">Publish this chapter</label>
                     </div>
                 </div>
                 
                 <div class="col-md-6">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="is_free" name="is_free" {{ old('is_free') ? 'checked' : '' }}>
+                        <input class="form-check-input" type="checkbox" id="is_free" name="is_free" value="1" {{ old('is_free') ? 'checked' : '' }}>
                         <label class="form-check-label" for="is_free">Free chapter</label>
                     </div>
                 </div>

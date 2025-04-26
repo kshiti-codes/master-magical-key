@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\PurchaseAdminController;
 use App\Http\Controllers\Admin\UserAdminController;
 use App\Http\Controllers\Admin\SubscriptionPlanAdminController;
 use App\Http\Controllers\Admin\EmailCampaignController;
+use App\Http\Controllers\Admin\TrainingVideoAdminController;
 
 Auth::routes();
 
@@ -106,7 +107,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/subscriptions/{subscription}/cancel', [SubscriptionController::class, 'cancelSubscription'])->name('subscriptions.cancel-subscription');
     
     // Training video routes
-    Route::post('/videos/{video}/purchase', [TrainingVideoController::class, 'purchase'])->name('videos.purchase');
+    Route::post('/cart/add-video', [CartController::class, 'addVideo'])->name('cart.addVideo');
+    Route::get('/videos/{video}/download', [TrainingVideoController::class, 'download'])->name('videos.download');
+    // Route::post('/payment/process-video', [PaymentController::class, 'processVideo'])->name('payment.processVideo');
+    Route::post('/videos/purchase', [TrainingVideoController::class, 'purchase'])->name('videos.purchase');
+    Route::post('/videos/add-to-cart', [TrainingVideoController::class, 'addToCart'])->name('videos.add-to-cart');
     Route::get('/videos/purchase/success', [TrainingVideoController::class, 'purchaseSuccess'])->name('videos.purchase.success');
     Route::get('/videos/purchase/cancel', [TrainingVideoController::class, 'purchaseCancel'])->name('videos.purchase.cancel');
     Route::get('/videos/{video}/watch', [TrainingVideoController::class, 'watch'])->name('videos.watch');
@@ -174,4 +179,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::put('/email-campaigns/{emailCampaign}', [EmailCampaignController::class, 'update'])->name('email-campaigns.update');
     Route::get('/email-campaigns/{emailCampaign}/send', [EmailCampaignController::class, 'showSendConfirmation'])->name('email-campaigns.send-confirmation');
     Route::post('/email-campaigns/{emailCampaign}/send', [EmailCampaignController::class, 'send'])->name('email-campaigns.send');
+
+    // Training video management
+    Route::get('/videos', [TrainingVideoAdminController::class, 'index'])->name('videos.index');
+    Route::get('/videos/create', [TrainingVideoAdminController::class, 'create'])->name('videos.create');
+    Route::post('/videos', [TrainingVideoAdminController::class, 'store'])->name('videos.store');
+    Route::get('/videos/{video}', [TrainingVideoAdminController::class, 'show'])->name('videos.show');
+    Route::get('/videos/{video}/edit', [TrainingVideoAdminController::class, 'edit'])->name('videos.edit');
+    Route::put('/videos/{video}', [TrainingVideoAdminController::class, 'update'])->name('videos.update');
+    Route::delete('/videos/{video}', [TrainingVideoAdminController::class, 'destroy'])->name('videos.destroy');
+    Route::post('/videos/{video}/toggle-status', [TrainingVideoAdminController::class, 'toggleStatus'])->name('videos.toggle-status');
 });

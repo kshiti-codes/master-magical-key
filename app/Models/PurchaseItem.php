@@ -74,7 +74,7 @@ class PurchaseItem extends Model
     public function video()
     {
         if ($this->item_type === 'video') {
-            return $this->belongsTo(TrainingVideo::class, 'video_id');
+            return $this->belongsTo(TrainingVideo::class, 'training_video_id');
         }
         
         return null;
@@ -90,7 +90,7 @@ class PurchaseItem extends Model
         } elseif ($this->item_type === 'spell') {
             return $this->belongsTo(Spell::class, 'spell_id');
         } elseif ($this->item_type === 'video') {
-            return $this->belongsTo(TrainingVideo::class, 'video_id');
+            return $this->belongsTo(TrainingVideo::class, 'training_video_id');
         }
         
         return null;

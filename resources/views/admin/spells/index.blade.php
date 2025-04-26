@@ -11,7 +11,6 @@
 </div>
 
 <div class="admin-card">
-    <h2 class="admin-card-title">All Spells</h2>
     
     @if($spells->isEmpty())
         <div class="text-center py-4">

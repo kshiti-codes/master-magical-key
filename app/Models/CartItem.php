@@ -13,6 +13,8 @@ class CartItem extends Model
         'cart_id',
         'chapter_id',
         'spell_id',
+        'training_video_id',
+        'item_type',
         'quantity',
         'price',
     ];
@@ -54,6 +56,18 @@ class CartItem extends Model
     }
 
     /**
+     * Get the video associated with this cart item.
+     */
+    public function video()
+    {
+        if ($this->item_type === 'video') {
+            return $this->belongsTo(TrainingVideo::class, 'training_video_id');
+        }
+        
+        return null;
+    }
+
+    /**
      * Get the purchasable item (polymorphic relationship).
      */
     public function purchasable()
@@ -62,6 +76,8 @@ class CartItem extends Model
             return $this->belongsTo(Chapter::class, 'chapter_id');
         } elseif ($this->item_type === 'spell') {
             return $this->belongsTo(Spell::class, 'spell_id');
+        } elseif ($this->item_type === 'video') {
+            return $this->belongsTo(TrainingVideo::class, 'training_video_id');
         }
         
         return null;
@@ -76,6 +92,8 @@ class CartItem extends Model
             return $this->chapter ? "Chapter {$this->chapter->id}: {$this->chapter->title}" : 'Unknown Chapter';
         } elseif ($this->item_type === 'spell') {
             return $this->spell ? "Spell: {$this->spell->title}" : 'Unknown Spell';
+        } elseif ($this->item_type === 'video' && $this->video) {
+            return "Training Video: {$this->video->title}";
         }
         
         return 'Unknown Item';

@@ -107,7 +107,11 @@ class Cart extends Model
      */
     public function getTaxAttribute()
     {
-        return round($this->subtotal * 0.1, 2);
+        // Calculate tax per item and sum them to ensure consistency with PayPal requirements
+        return $this->items->sum(function ($item) {
+            // Calculate tax per item and multiply by quantity
+            return round($item->price * 0.1, 2) * $item->quantity;
+        });
     }
 
     /**
@@ -177,6 +181,51 @@ class Cart extends Model
             return true;
         }
         return false;
+    }
+
+    /**
+     * Add a training video to the cart.
+     */
+    public function addVideo(TrainingVideo $video, $quantity = 1)
+    {
+        // Check if video already in cart
+        $existingItem = $this->items()->where('training_video_id', $video->id)
+                            ->where('item_type', 'video')
+                            ->first();
+
+        if ($existingItem) {
+            // Update quantity
+            $existingItem->update([
+                'quantity' => $existingItem->quantity + $quantity
+            ]);
+            return $existingItem;
+        }
+
+        // Add new item
+        return $this->items()->create([
+            'training_video_id' => $video->id,
+            'item_type' => 'video',
+            'quantity' => $quantity,
+            'price' => $video->price
+        ]);
+    }
+
+    /**
+     * Get the count of videos in the cart.
+     */
+    public function getVideosCountAttribute()
+    {
+        return $this->items->where('item_type', 'video')->sum('quantity');
+    }
+
+    /**
+     * Get the subtotal for videos.
+     */
+    public function getVideosSubtotalAttribute()
+    {
+        return $this->items->where('item_type', 'video')->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
     }
 
     /**
