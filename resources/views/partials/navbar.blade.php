@@ -17,7 +17,7 @@
             <a href="{{ route('spells.index') }}" class="menu-link">Spells</a>
             <a href="{{ route('videos.index') }}" class="menu-link">Training Video</a>
             <a href="{{ route('subscriptions.index') }}" class="menu-link">Subscriptions</a>
-            <!-- <a href="{{ route('contact') }}" class="menu-link">Contact</a> -->
+            <a href="{{ route('contact') }}" class="menu-link">Contact</a>
             <a href="{{ route('faq') }}" class="menu-link">FAQ</a>
             @guest
                 <a href="{{ route('login') }}" class="menu-link">Login</a>

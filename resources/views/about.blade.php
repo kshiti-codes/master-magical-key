@@ -453,6 +453,17 @@
             <span class="cosmic-emoji">🌿</span> People of Peony PTY Ltd <span class="cosmic-emoji">🌿</span>
         </p>
     </div>
+
+    <div class="about-section">
+        <h2 class="section-title">About the Website Developer 👩🏻‍💻</h2>
+        <p class="about-text">
+            This website was developed by Kshiti Patel, a passionate web developer and digital creator. 
+            With a love for all things mystical and a knack for technology, 
+            Kshiti aims to create enchanting online experiences that resonate with the soul. 
+            If you have any questions or need assistance, feel free to reach out at 
+            <a href="mailto:kshiti.de@gmail.com" style="color: #d8b5ff;">kshiti.de@gmail.com</a>
+        </p>
+    </div>
     
     <div class="about-section">
         <h2 class="section-title">Last Updated</h2>
