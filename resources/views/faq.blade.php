@@ -18,6 +18,7 @@
         margin-bottom: 30px;
         letter-spacing: 3px;
         text-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
+        text-align: left;
     }
     
     .faq-section {
@@ -142,7 +143,7 @@
     
     @media (max-width: 767px) {
         .faq-title {
-            font-size: 1.8rem;
+            font-size: 1rem;
         }
         
         .section-title {

@@ -13,6 +13,7 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\TrainingVideoController;
 use App\Http\Controllers\PayPalWebhookController;
 use App\Http\Controllers\SubscriptionPlanController;
+use App\Http\Controllers\ContactController;
 // Admin Controllers
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ChapterAdminController;
@@ -109,12 +110,15 @@ Route::middleware(['auth'])->group(function () {
     // Training video routes
     Route::post('/cart/add-video', [CartController::class, 'addVideo'])->name('cart.addVideo');
     Route::get('/videos/{video}/download', [TrainingVideoController::class, 'download'])->name('videos.download');
-    // Route::post('/payment/process-video', [PaymentController::class, 'processVideo'])->name('payment.processVideo');
     Route::post('/videos/purchase', [TrainingVideoController::class, 'purchase'])->name('videos.purchase');
     Route::post('/videos/add-to-cart', [TrainingVideoController::class, 'addToCart'])->name('videos.add-to-cart');
     Route::get('/videos/purchase/success', [TrainingVideoController::class, 'purchaseSuccess'])->name('videos.purchase.success');
     Route::get('/videos/purchase/cancel', [TrainingVideoController::class, 'purchaseCancel'])->name('videos.purchase.cancel');
     Route::get('/videos/{video}/watch', [TrainingVideoController::class, 'watch'])->name('videos.watch');
+
+    // Contact routes
+    Route::get('/contact', [App\Http\Controllers\ContactController::class, 'index'])->name('contact');
+    Route::post('/contact', [App\Http\Controllers\ContactController::class, 'submit'])->name('contact.submit');
 });
 
 // Admin routes - all are protected by the 'admin' middleware
