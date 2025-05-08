@@ -102,6 +102,9 @@
                             @elseif($item->item_type === 'video' && $item->video)
                                 <span class="item-type-badge item-video">Video</span>
                                 {{ $item->video->title }}
+                            @elseif($item->item_type === 'session' && $item->session)
+                                <span class="item-type-badge item-video">Session</span>
+                                {{ $item->session->sessionType->name }}
                             @else
                                 Unknown Item
                             @endif

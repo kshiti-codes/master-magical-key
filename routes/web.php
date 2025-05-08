@@ -194,3 +194,5 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/videos/{video}', [TrainingVideoAdminController::class, 'destroy'])->name('videos.destroy');
     Route::post('/videos/{video}/toggle-status', [TrainingVideoAdminController::class, 'toggleStatus'])->name('videos.toggle-status');
 });
+
+require __DIR__.'/session-booking.php';

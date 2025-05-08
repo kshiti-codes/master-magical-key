@@ -15,6 +15,7 @@ class PurchaseItem extends Model
         'spell_id',
         'subscription_plan_id',
         'training_video_id',
+        'booked_session_id',
         'item_type',
         'quantity',
         'price',
@@ -75,6 +76,18 @@ class PurchaseItem extends Model
     {
         if ($this->item_type === 'video') {
             return $this->belongsTo(TrainingVideo::class, 'training_video_id');
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get the session associated with this purchase item.
+     */
+    public function session()
+    {
+        if ($this->item_type === 'session') {
+            return $this->belongsTo(BookedSession::class, 'booked_session_id');
         }
         
         return null;
