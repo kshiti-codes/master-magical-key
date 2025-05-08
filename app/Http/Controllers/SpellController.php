@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class SpellController extends Controller
@@ -90,6 +91,8 @@ class SpellController extends Controller
         $user = Auth::user();
         
         // Check if user has direct access
+        $hasActiveSubscription = $user->hasActiveSubscription();
+        $hasLifetime = $user->hasLifetimeSubscription();
         $hasDirectAccess = $user->spells()->where('spell_id', $spell->id)->exists();
         
         // Check if user has access through chapter
@@ -104,14 +107,22 @@ class SpellController extends Controller
                 ->whereIn('chapter_id', $chapterIds)
                 ->exists();
         }
-        
-        if (!$hasDirectAccess && !$hasChapterAccess) {
+
+        if (!$hasDirectAccess && !$hasChapterAccess && !$hasLifetime && !$hasActiveSubscription) {
+            Log::info('User does not have access to download the spell.', [
+                'user_id' => $user->id,
+                'spell_id' => $spell->id,
+                'hasDirectAccess' => $hasDirectAccess,
+                'hasChapterAccess' => $hasChapterAccess,
+                'hasLifetime' => $hasLifetime,
+                'hasActiveSubscription' => $hasActiveSubscription,
+            ]);
             return redirect()->route('spells.show', $spell)
                 ->with('error', 'You do not have access to download this spell.');
         }
         
         // Record download if user has direct access
-        if ($hasDirectAccess) {
+        if ($hasDirectAccess || $hasLifetime || $hasActiveSubscription) {
             $userSpell = UserSpell::where('user_id', Auth::id())
                 ->where('spell_id', $spell->id)
                 ->first();

@@ -76,6 +76,14 @@ class Purchase extends Model
     }
 
     /**
+     * Get the booked session.
+     */
+    public function bookedSession()
+    {
+        return $this->belongsTo(BookedSession::class);
+    }
+
+    /**
      * Generate a unique invoice number.
      */
     public static function generateInvoiceNumber()

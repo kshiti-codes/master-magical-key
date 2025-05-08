@@ -104,6 +104,30 @@
                     <i class="fas fa-envelope"></i> Email Campaigns
                 </a>
             </li>
+
+            <div class="admin-menu-divider"></div>
+            <div class="admin-menu-category">Session Booking</div>
+
+            <li>
+                <a href="{{ route('admin.coaches.index') }}" class="{{ request()->routeIs('admin.coaches*') ? 'active' : '' }}">
+                    <i class="fas fa-user-tie"></i> Coaches
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.session-types.index') }}" class="{{ request()->routeIs('admin.session-types*') ? 'active' : '' }}">
+                    <i class="fas fa-list-alt"></i> Session Types
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.availabilities.index') }}" class="{{ request()->routeIs('admin.availabilities*') ? 'active' : '' }}">
+                    <i class="fas fa-calendar-alt"></i> Availabilities
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.booked-sessions.index') }}" class="{{ request()->routeIs('admin.booked-sessions*') ? 'active' : '' }}">
+                    <i class="fas fa-calendar-check"></i> Booked Sessions
+                </a>
+            </li>
         </ul>
     </div>
     
@@ -155,6 +179,8 @@
         
         <!-- Page Content -->
         @yield('content')
+        <!-- Modal Container - This is what we're adding -->
+        @yield('modals')
     </div>
 
     <!-- Scripts -->
