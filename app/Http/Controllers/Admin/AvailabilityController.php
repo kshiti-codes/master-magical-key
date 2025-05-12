@@ -22,7 +22,30 @@ class AvailabilityController extends Controller
         
         $query = CoachAvailability::query();
         
-        if ($selectedCoachId) {
+        // If user is a coach only (not an admin) or specifically viewing their coach data
+        if (!auth()->user()->is_admin || ($request->has('coach_id') && auth()->user()->is_coach)) {
+            // Get the coach ID - use the requested ID if present, otherwise use the user's coach ID
+            $coachId = $selectedCoachId ?: null;
+            
+            // If coach is also admin and no specific coach ID was provided, show all
+            if (auth()->user()->is_admin && !$coachId) {
+                // No filtering needed, show all availabilities
+            } else {
+                // If coach only or specific coach view
+                if (!$coachId && auth()->user()->is_coach) {
+                    $coach = Coach::where('email', auth()->user()->email)->first();
+                    if ($coach) {
+                        $coachId = $coach->id;
+                        $selectedCoachId = $coachId;
+                    }
+                }
+                
+                if ($coachId) {
+                    $query->where('coach_id', $coachId);
+                }
+            }
+        } elseif ($selectedCoachId) {
+            // Admin filtering by coach ID
             $query->where('coach_id', $selectedCoachId);
         }
         
@@ -43,7 +66,21 @@ class AvailabilityController extends Controller
      */
     public function create()
     {
-        $coaches = Coach::where('is_active', true)->orderBy('name')->get();
+        if (auth()->user()->is_admin) {
+            // Admin can select any coach
+            $coaches = Coach::where('is_active', true)->orderBy('name')->get();
+        } else {
+            // Coach can only select themselves
+            $coach = auth()->user()->coach;
+            
+            if (!$coach) {
+                return redirect()->route('admin.dashboard')
+                    ->with('error', 'Coach profile not found. Please contact an administrator.');
+            }
+            
+            $coaches = collect([$coach]);
+        }
+        
         return view('admin.availabilities.create', compact('coaches'));
     }
 
@@ -59,6 +96,16 @@ class AvailabilityController extends Controller
             'end_time' => 'required|date_format:H:i|after:start_time',
             'status' => 'required|in:available,unavailable'
         ]);
+        
+        // If user is a coach but not an admin, verify they are creating their own availability
+        if (!auth()->user()->is_admin) {
+            $coach = auth()->user()->coach;
+            
+            if (!$coach || $coach->id != $validated['coach_id']) {
+                return redirect()->route('admin.availabilities.index')
+                    ->with('error', 'You can only create availabilities for yourself');
+            }
+        }
         
         // Check for overlapping availabilities
         $exists = CoachAvailability::where('coach_id', $validated['coach_id'])
@@ -92,7 +139,24 @@ class AvailabilityController extends Controller
     public function edit($id)
     {
         $availability = CoachAvailability::findOrFail($id);
-        $coaches = Coach::where('is_active', true)->orderBy('name')->get();
+    
+        // If user is a coach but not an admin, verify they are editing their own availability
+        if (!auth()->user()->is_admin) {
+            $coach = auth()->user()->coach;
+            
+            if (!$coach || $coach->id != $availability->coach_id) {
+                return redirect()->route('admin.availabilities.index')
+                    ->with('error', 'You can only edit your own availabilities');
+            }
+        }
+        
+        if (auth()->user()->is_admin) {
+            // Admin can select any coach
+            $coaches = Coach::where('is_active', true)->orderBy('name')->get();
+        } else {
+            // Coach can only select themselves
+            $coaches = collect([auth()->user()->coach]);
+        }
         
         return view('admin.availabilities.edit', compact('availability', 'coaches'));
     }
@@ -103,6 +167,16 @@ class AvailabilityController extends Controller
     public function update(Request $request, $id)
     {
         $availability = CoachAvailability::findOrFail($id);
+    
+        // If user is a coach but not an admin, verify they are updating their own availability
+        if (!auth()->user()->is_admin) {
+            $coach = auth()->user()->coach;
+            
+            if (!$coach || $coach->id != $availability->coach_id) {
+                return redirect()->route('admin.availabilities.index')
+                    ->with('error', 'You can only update your own availabilities');
+            }
+        }
         
         // Check if the availability is already booked
         if ($availability->status === 'booked') {
@@ -151,6 +225,16 @@ class AvailabilityController extends Controller
     public function destroy($id)
     {
         $availability = CoachAvailability::findOrFail($id);
+    
+        // If user is a coach but not an admin, verify they are deleting their own availability
+        if (!auth()->user()->is_admin) {
+            $coach = auth()->user()->coach;
+            
+            if (!$coach || $coach->id != $availability->coach_id) {
+                return redirect()->route('admin.availabilities.index')
+                    ->with('error', 'You can only delete your own availabilities');
+            }
+        }
         
         // Check if the availability is already booked
         if ($availability->status === 'booked') {
@@ -170,7 +254,21 @@ class AvailabilityController extends Controller
      */
     public function batchCreate()
     {
-        $coaches = Coach::where('is_active', true)->orderBy('name')->get();
+        if (auth()->user()->is_admin) {
+            // Admin can select any coach
+            $coaches = Coach::where('is_active', true)->orderBy('name')->get();
+        } else {
+            // Coach can only select themselves
+            $coach = auth()->user()->coach;
+            
+            if (!$coach) {
+                return redirect()->route('admin.dashboard')
+                    ->with('error', 'Coach profile not found. Please contact an administrator.');
+            }
+            
+            $coaches = collect([$coach]);
+        }
+        
         return view('admin.availabilities.batch', compact('coaches'));
     }
     
@@ -188,6 +286,16 @@ class AvailabilityController extends Controller
             'time_slots.*.start_time' => 'required|date_format:H:i',
             'time_slots.*.end_time' => 'required|date_format:H:i|after:time_slots.*.start_time'
         ]);
+        
+        // If user is a coach but not an admin, verify they are creating their own availabilities
+        if (!auth()->user()->is_admin) {
+            $coach = auth()->user()->coach;
+            
+            if (!$coach || $coach->id != $request->coach_id) {
+                return redirect()->route('admin.availabilities.index')
+                    ->with('error', 'You can only create availabilities for yourself');
+            }
+        }
         
         // Parse date range - handle different possible formats
         try {

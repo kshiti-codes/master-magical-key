@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookedSession;
+use App\Models\Coach;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
@@ -20,12 +21,35 @@ class BookedSessionController extends Controller
         
         $query = BookedSession::with(['user', 'coach', 'sessionType']);
         
-        if ($status) {
-            $query->where('status', $status);
+        // If user is a coach only (not an admin) or specifically viewing their coach data
+        if (!auth()->user()->is_admin || ($request->has('coach_id') && auth()->user()->is_coach)) {
+            // Get the coach ID - use the requested ID if present, otherwise use the user's coach ID
+            $filterCoachId = $coachId ?: null;
+            
+            // If coach is also admin and no specific coach ID was provided, show all
+            if (auth()->user()->is_admin && !$filterCoachId) {
+                // No filtering needed, show all booked sessions
+            } else {
+                // If coach only or specific coach view
+                if (!$filterCoachId && auth()->user()->is_coach) {
+                    $coach = Coach::where('email', auth()->user()->email)->first();
+                    if ($coach) {
+                        $filterCoachId = $coach->id;
+                        $coachId = $filterCoachId;
+                    }
+                }
+                
+                if ($filterCoachId) {
+                    $query->where('coach_id', $filterCoachId);
+                }
+            }
+        } elseif ($coachId) {
+            // Admin filtering by coach ID
+            $query->where('coach_id', $coachId);
         }
         
-        if ($coachId) {
-            $query->where('coach_id', $coachId);
+        if ($status) {
+            $query->where('status', $status);
         }
         
         // Upcoming sessions first, then past sessions by descending date

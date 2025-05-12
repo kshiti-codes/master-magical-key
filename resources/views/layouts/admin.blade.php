@@ -29,105 +29,130 @@
         </div>
         
         <ul class="admin-menu">
-            <li>
-                <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                    <i class="fas fa-tachometer-alt"></i> Admin Dashboard
-                </a>
-            </li>
-            
-            <div class="admin-menu-divider"></div>
-            <div class="admin-menu-category">Content Management</div>
-            
-            <li>
-                <a href="{{ route('admin.chapters.index') }}" class="{{ request()->routeIs('admin.chapters*') ? 'active' : '' }}">
-                    <i class="fas fa-book"></i> Chapters
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.spells.index') }}" class="{{ request()->routeIs('admin.spells*') ? 'active' : '' }}">
-                    <i class="fas fa-magic"></i> Spells
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.videos.index') }}" class="{{ request()->routeIs('admin.videos*') ? 'active' : '' }}">
-                    <i class="fas fa-video"></i> Training Videos
-                </a>
-            </li>
-            
-            <div class="admin-menu-divider"></div>
-            <div class="admin-menu-category">User Management</div>
-            
-            <li>
-                <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users*') ? 'active' : '' }}">
-                    <i class="fas fa-users"></i> Users
-                </a>
-            </li>
-            
-            <div class="admin-menu-divider"></div>
-            <div class="admin-menu-category">Financials</div>
-            
-            <li>
-                <a href="{{ route('admin.purchases.index') }}" class="{{ request()->routeIs('admin.purchases*') ? 'active' : '' }}">
-                    <i class="fas fa-shopping-cart"></i> Purchases
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.subscriptions.index') }}" class="{{ request()->routeIs('admin.subscriptions*') ? 'active' : '' }}">
-                    <i class="fas fa-credit-card"></i> Subscription Plans
-                </a>
-            </li>
-            
-            <div class="admin-menu-divider"></div>
-            <div class="admin-menu-category">Reports</div>
-            
-            <li>
-                <a href="{{ route('admin.reports.sales') }}" class="{{ request()->routeIs('admin.reports.sales') ? 'active' : '' }}">
-                    <i class="fas fa-chart-bar"></i> Sales Report
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.subscriptions.analytics') }}" class="{{ request()->routeIs('admin.subscriptions.analytics') ? 'active' : '' }}">
-                    <i class="fas fa-chart-line"></i> Subscription Analytics
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.reports.user_analysis') }}" class="{{ request()->routeIs('admin.reports.user_analysis') ? 'active' : '' }}">
-                    <i class="fas fa-users"></i> User Analytics
-                </a>
-            </li>
+            @if(auth()->user()->is_admin)
+                <li>
+                    <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                        <i class="fas fa-tachometer-alt"></i> Admin Dashboard
+                    </a>
+                </li>
+                
+                <div class="admin-menu-divider"></div>
+                <div class="admin-menu-category">Content Management</div>
+                
+                <li>
+                    <a href="{{ route('admin.chapters.index') }}" class="{{ request()->routeIs('admin.chapters*') ? 'active' : '' }}">
+                        <i class="fas fa-book"></i> Chapters
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.spells.index') }}" class="{{ request()->routeIs('admin.spells*') ? 'active' : '' }}">
+                        <i class="fas fa-magic"></i> Spells
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.videos.index') }}" class="{{ request()->routeIs('admin.videos*') ? 'active' : '' }}">
+                        <i class="fas fa-video"></i> Training Videos
+                    </a>
+                </li>
+                
+                <div class="admin-menu-divider"></div>
+                <div class="admin-menu-category">User Management</div>
+                
+                <li>
+                    <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users*') ? 'active' : '' }}">
+                        <i class="fas fa-users"></i> Users
+                    </a>
+                </li>
+                
+                <div class="admin-menu-divider"></div>
+                <div class="admin-menu-category">Financials</div>
+                
+                <li>
+                    <a href="{{ route('admin.purchases.index') }}" class="{{ request()->routeIs('admin.purchases*') ? 'active' : '' }}">
+                        <i class="fas fa-shopping-cart"></i> Purchases
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.subscriptions.index') }}" class="{{ request()->routeIs('admin.subscriptions*') ? 'active' : '' }}">
+                        <i class="fas fa-credit-card"></i> Subscription Plans
+                    </a>
+                </li>
+                
+                <div class="admin-menu-divider"></div>
+                <div class="admin-menu-category">Reports</div>
+                
+                <li>
+                    <a href="{{ route('admin.reports.sales') }}" class="{{ request()->routeIs('admin.reports.sales') ? 'active' : '' }}">
+                        <i class="fas fa-chart-bar"></i> Sales Report
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.subscriptions.analytics') }}" class="{{ request()->routeIs('admin.subscriptions.analytics') ? 'active' : '' }}">
+                        <i class="fas fa-chart-line"></i> Subscription Analytics
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.reports.user_analysis') }}" class="{{ request()->routeIs('admin.reports.user_analysis') ? 'active' : '' }}">
+                        <i class="fas fa-users"></i> User Analytics
+                    </a>
+                </li>
 
-            <div class="admin-menu-divider"></div>
-            <div class="admin-menu-category">Marketing</div>
+                <div class="admin-menu-divider"></div>
+                <div class="admin-menu-category">Marketing</div>
 
-            <li>
-                <a href="{{ route('admin.email-campaigns.index') }}" class="{{ request()->routeIs('admin.email-campaigns*') ? 'active' : '' }}">
-                    <i class="fas fa-envelope"></i> Email Campaigns
-                </a>
-            </li>
-
+                <li>
+                    <a href="{{ route('admin.email-campaigns.index') }}" class="{{ request()->routeIs('admin.email-campaigns*') ? 'active' : '' }}">
+                        <i class="fas fa-envelope"></i> Email Campaigns
+                    </a>
+                </li>
+            @endif
             <div class="admin-menu-divider"></div>
             <div class="admin-menu-category">Session Booking</div>
 
-            <li>
-                <a href="{{ route('admin.coaches.index') }}" class="{{ request()->routeIs('admin.coaches*') ? 'active' : '' }}">
-                    <i class="fas fa-user-tie"></i> Coaches
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.session-types.index') }}" class="{{ request()->routeIs('admin.session-types*') ? 'active' : '' }}">
-                    <i class="fas fa-list-alt"></i> Session Types
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.availabilities.index') }}" class="{{ request()->routeIs('admin.availabilities*') ? 'active' : '' }}">
-                    <i class="fas fa-calendar-alt"></i> Availabilities
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.booked-sessions.index') }}" class="{{ request()->routeIs('admin.booked-sessions*') ? 'active' : '' }}">
-                    <i class="fas fa-calendar-check"></i> Booked Sessions
-                </a>
-            </li>
+            @if(auth()->user()->is_coach)
+                <!-- Coach-specific menu items -->
+                @if(!auth()->user()->is_admin)
+                    <!-- Only show "My Profile" link to coaches who are not admins -->
+                    <li>
+                        <a href="{{ route('admin.coaches.show', auth()->user()->coach->id) }}" class="{{ request()->routeIs('admin.coaches.show') || request()->routeIs('admin.coaches.edit') ? 'active' : '' }}">
+                            <i class="fas fa-user-tie"></i> My Profile
+                        </a>
+                    </li>
+                @endif
+                <!-- Show these for all coaches -->
+                <li>
+                    <a href="{{ route('admin.availabilities.index', ['coach_id' => auth()->user()->coach->id]) }}" class="{{ request()->routeIs('admin.availabilities*') && !request()->routeIs('admin.availabilities.index') ? 'active' : (request()->routeIs('admin.availabilities.index') && request()->input('coach_id') == (auth()->user()->coach->id ?? 0) ? 'active' : '') }}">
+                        <i class="fas fa-calendar-alt"></i> My Availabilities
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.booked-sessions.index', ['coach_id' => auth()->user()->coach->id ?? 0]) }}" class="{{ request()->routeIs('admin.booked-sessions*') && !request()->routeIs('admin.booked-sessions.index') ? 'active' : (request()->routeIs('admin.booked-sessions.index') && request()->input('coach_id') == (auth()->user()->coach->id ?? 0) ? 'active' : '') }}">
+                        <i class="fas fa-calendar-check"></i> My Booked Sessions
+                    </a>
+                </li>
+            @endif
+            @if(auth()->user()->is_admin)
+                <li>
+                    <a href="{{ route('admin.coaches.index') }}" class="{{ request()->routeIs('admin.coaches*') ? 'active' : '' }}">
+                        <i class="fas fa-user-tie"></i> Coaches
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.session-types.index') }}" class="{{ request()->routeIs('admin.session-types*') ? 'active' : '' }}">
+                        <i class="fas fa-list-alt"></i> Session Types
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.availabilities.index') }}" class="{{ request()->routeIs('admin.availabilities*') ? 'active' : '' }}">
+                        <i class="fas fa-calendar-alt"></i>All Availabilities
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.booked-sessions.index') }}" class="{{ request()->routeIs('admin.booked-sessions*') ? 'active' : '' }}">
+                        <i class="fas fa-calendar-check"></i>All Booked Sessions
+                    </a>
+                </li>
+            @endif
         </ul>
     </div>
     

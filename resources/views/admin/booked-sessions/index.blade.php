@@ -25,7 +25,7 @@
         <form action="{{ route('admin.booked-sessions.index') }}" method="GET" class="row g-3" style="display: flex; align-items: center; flex-direction: row; gap: 10px;">
             <div class="col-md-4">
                 <label for="coach_id" class="form-label">Coach</label>
-                <select name="coach_id" id="coach_id" class="form-select">
+                <select name="coach_id" id="coach_id" {{ !auth()->user()->is_admin ? 'disabled' : '' }} class="form-select">
                     <option value="">All Coaches</option>
                     @foreach($coaches as $coach)
                         <option value="{{ $coach->id }}" {{ $coachId == $coach->id ? 'selected' : '' }}>

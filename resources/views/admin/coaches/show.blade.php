@@ -66,9 +66,11 @@
         <div class="admin-card mb-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="admin-card-title">Session Types</h2>
-                <a href="{{ route('admin.session-types.index') }}" class="btn-admin-secondary btn-sm">
-                    <i class="fas fa-cog"></i> Manage Session Types
-                </a>
+                @if(auth()->user()->is_admin)
+                    <a href="{{ route('admin.session-types.index') }}" class="btn-admin-secondary btn-sm">
+                        <i class="fas fa-cog"></i> Manage Session Types
+                    </a>
+                @endif
             </div>
             
             @if($sessionTypes->isEmpty())

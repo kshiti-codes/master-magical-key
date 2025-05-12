@@ -44,6 +44,11 @@ class Coach extends Model
     {
         return $this->hasMany(BookedSession::class);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
     
     /**
      * Get available time slots for a specific date

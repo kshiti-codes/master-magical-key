@@ -4,9 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
-class AdminMiddleware
+class CoachMiddleware
 {
     /**
      * Handle an incoming request.
@@ -17,9 +16,9 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        // Check if user is logged in and is an admin OR a coach
-        if (!auth()->check() || (!auth()->user()->is_admin && !auth()->user()->is_coach)) {
-            return redirect()->route('home')->with('error', 'You do not have permission to access the admin area.');
+        // Check if user is logged in and is a coach (can also be an admin)
+        if (!auth()->check() || !auth()->user()->is_coach) {
+            return redirect('/');
         }
 
         return $next($request);

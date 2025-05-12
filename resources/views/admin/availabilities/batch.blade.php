@@ -33,12 +33,21 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label for="coach_id" class="form-label">Coach</label>
-                    <select name="coach_id" id="coach_id" class="form-select" required>
-                        <option value="">Select Coach</option>
+                    <select name="coach_id" id="coach_id" class="form-select" {{ !auth()->user()->is_admin ? 'disabled' : '' }} required>
+                        @if(auth()->user()->is_admin)
+                            <option value="">Select Coach</option>
+                        @endif
                         @foreach($coaches as $coach)
-                            <option value="{{ $coach->id }}">{{ $coach->name }}</option>
+                            <option value="{{ $coach->id }}" {{ !auth()->user()->is_admin ? 'selected' : '' }}>
+                                {{ $coach->name }}{{ !auth()->user()->is_admin ? ' (You)' : '' }}
+                            </option>
                         @endforeach
                     </select>
+                    
+                    @if(!auth()->user()->is_admin && isset($coaches[0]))
+                        <!-- Add a hidden input to ensure the coach_id is submitted even when the select is disabled -->
+                        <input type="hidden" name="coach_id" value="{{ $coaches[0]->id }}">
+                    @endif
                 </div>
 
                 <div class="mb-3">
