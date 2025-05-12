@@ -82,6 +82,11 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    public function coach()
+    {
+        return $this->hasOne(Coach::class);
+    }
+
     /**
      * Check if user has access to a specific spell
      */

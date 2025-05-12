@@ -232,7 +232,7 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 1.5rem;
-        margin-bottom: 2rem;
+        margin-bottom: 4rem;
     }
     
     /* Card Styling */
@@ -240,7 +240,7 @@
         background: rgba(30, 30, 60, 0.7);
         border: 1px solid rgba(138, 43, 226, 0.4);
         border-radius: 8px;
-        padding: 1.5rem;
+        padding: 0.5rem;
         cursor: pointer;
         transition: all 0.3s ease;
         height: 100%;
@@ -302,11 +302,6 @@
         border: 2px solid rgba(138, 43, 226, 0.5);
     }
     
-    /* Date Time Selection */
-    .date-time-selection {
-        margin-bottom: 2rem;
-    }
-    
     .date-group {
         margin-bottom: 0.5rem;
     }
@@ -325,7 +320,6 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 0.5rem;
-        padding: 1rem;
         background: rgba(20, 20, 40, 0.5);
         border-radius: 0 0 8px 8px;
         border: 1px solid rgba(138, 43, 226, 0.4);
@@ -333,7 +327,7 @@
     }
     
     .time-slot {
-        padding: 1rem;
+        padding: 0.8rem;
         background: rgba(30, 30, 60, 0.7);
         border: 1px solid rgba(138, 43, 226, 0.4);
         border-radius: 5px;
@@ -358,7 +352,7 @@
     .step-navigation {
         display: flex;
         justify-content: space-between;
-        margin-top: 4rem;
+        margin-bottom: 2rem;
     }
     
     .cosmic-button {
@@ -442,12 +436,8 @@
     
     /* Responsive adjustments */
     @media (max-width: 768px) {
-        .booking-steps-container {
-            flex-wrap: wrap;
-        }
         
         .booking-step {
-            flex: 0 0 50%;
             margin-bottom: 1rem;
         }
         
@@ -460,6 +450,7 @@
         .step-navigation {
             flex-direction: column;
             gap: 1rem;
+            margin-bottom: 2rem;
         }
         
         .cosmic-button {

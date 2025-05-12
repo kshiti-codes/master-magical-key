@@ -29,6 +29,13 @@ class AdminController extends Controller
      */
     public function index()
     {
+        if (auth()->user()->is_coach && !auth()->user()->is_admin) {
+            $coach = auth()->user()->coach;
+            
+            if ($coach) {
+                return redirect()->route('admin.coaches.show', $coach->id);
+            }
+        }
         // Get sales stats
         $totalSales = Purchase::where('status', 'completed')->sum('amount');
         $monthSales = Purchase::where('status', 'completed')

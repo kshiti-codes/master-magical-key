@@ -14,6 +14,18 @@ class CoachController extends Controller
      */
     public function index()
     {
+        // If user is a coach but not an admin, redirect to their own profile
+        if (auth()->user()->is_coach && !auth()->user()->is_admin) {
+            $coach = Coach::where('email', auth()->user()->email)->first();
+            if ($coach) {
+                return redirect()->route('admin.coaches.show', $coach->id);
+            } else {
+                return redirect()->route('admin.dashboard')
+                    ->with('error', 'Coach profile not found');
+            }
+        }
+        
+        // Original code for admins
         $coaches = Coach::orderBy('name')->get();
         return view('admin.coaches.index', compact('coaches'));
     }
@@ -60,6 +72,21 @@ class CoachController extends Controller
      */
     public function show(Coach $coach)
     {
+        // If user is a coach but not an admin, verify they are accessing their own profile
+        if (auth()->user()->is_coach && !auth()->user()->is_admin) {
+            $userCoach = Coach::where('email', auth()->user()->email)->first();
+            if (!$userCoach) {
+                return redirect()->route('admin.dashboard')
+                    ->with('error', 'Coach profile not found. Please contact an administrator.');
+            }
+            
+            if ($userCoach->id !== $coach->id) {
+                return redirect()->route('admin.dashboard')
+                    ->with('error', 'You do not have permission to view this coach profile');
+            }
+        }
+        
+        // Original code
         $sessionTypes = $coach->sessionTypes;
         $upcomingSessions = $coach->bookedSessions()
             ->with(['user', 'sessionType'])

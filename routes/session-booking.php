@@ -34,13 +34,18 @@ Route::middleware(['auth'])->group(function () {
 
 // Admin routes (protected by auth and admin middleware)
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Coaches management
-    Route::resource('coaches', CoachController::class);
+    // Coaches management (admin only)
+    Route::resource('coaches', CoachController::class)->except(['show', 'edit', 'update']);
+
+    // Coach profile routes (both admin and coach)
+    Route::get('/coaches/{coach}', [CoachController::class, 'show'])->name('coaches.show');
+    Route::get('/coaches/{coach}/edit', [CoachController::class, 'edit'])->name('coaches.edit');
+    Route::put('/coaches/{coach}', [CoachController::class, 'update'])->name('coaches.update');
     
-    // Session types management
+    // Session types management (admin only)
     Route::resource('session-types', SessionTypeController::class);
     
-    // Map coaches to session types
+    // Map coaches to session types (admin only)
     Route::get('/session-types/{id}/coaches', [SessionTypeController::class, 'manageCoaches'])->name('session-types.coaches');
     Route::post('/session-types/{id}/coaches', [SessionTypeController::class, 'updateCoaches'])->name('session-types.update-coaches');
     

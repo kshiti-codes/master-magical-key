@@ -32,29 +32,32 @@
     <!-- Filter form -->
     <div class="mb-4">
         <form action="{{ route('admin.availabilities.index') }}" method="GET" class="filter-section">
-            <div class="filter-group">
-                <label for="coach_id" class="form-label">Coach</label>
-                <select name="coach_id" id="coach_id" class="form-select">
-                    <option value="">All Coaches</option>
-                    @foreach($coaches as $coach)
-                        <option value="{{ $coach->id }}" {{ $selectedCoachId == $coach->id ? 'selected' : '' }}>
-                            {{ $coach->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="date" class="form-label">Date</label>
-                <input type="date" class="form-control" id="date" name="date" value="{{ $selectedDate }}">
-            </div>
-            <div class="filter-actions">
-                <button type="submit" class="btn-admin-primary">
-                    <i class="fas fa-filter"></i> Filter
-                </button>
-                <a href="{{ route('admin.availabilities.index') }}" class="btn-admin-secondary">
-                    <i class="fas fa-undo"></i> Reset
-                </a>
-            </div>
+             @if(auth()->user()->is_admin)
+                <!-- Only show coach filter for admins -->
+                <div class="filter-group">
+                    <label for="coach_id" class="form-label">Coach</label>
+                    <select name="coach_id" id="coach_id" class="form-select">
+                        <option value="">All Coaches</option>
+                        @foreach($coaches as $coach)
+                            <option value="{{ $coach->id }}" {{ $selectedCoachId == $coach->id ? 'selected' : '' }}>
+                                {{ $coach->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="date" class="form-label">Date</label>
+                    <input type="date" class="form-control" id="date" name="date" value="{{ $selectedDate }}">
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="btn-admin-primary">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                    <a href="{{ route('admin.availabilities.index') }}" class="btn-admin-secondary">
+                        <i class="fas fa-undo"></i> Reset
+                    </a>
+                </div>
+            @endif
         </form>
     </div>
 
