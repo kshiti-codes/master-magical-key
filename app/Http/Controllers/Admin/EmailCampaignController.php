@@ -5,17 +5,22 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\EmailCampaign;
 use App\Models\User;
+use App\Services\GmailApiService;
+use App\Mail\GmailMarketingEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\MarketingEmail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class EmailCampaignController extends Controller
 {
+    private $gmailService;
+    
     public function __construct()
     {
         $this->middleware(['auth', 'admin']);
+        $this->gmailService = new GmailApiService();
     }
 
     /**
@@ -24,8 +29,9 @@ class EmailCampaignController extends Controller
     public function index()
     {
         $campaigns = EmailCampaign::orderBy('created_at', 'desc')->get();
+        $gmailConfigured = $this->gmailService->isConfigured();
         
-        return view('admin.email-campaigns.index', compact('campaigns'));
+        return view('admin.email-campaigns.index', compact('campaigns', 'gmailConfigured'));
     }
 
     /**
@@ -170,6 +176,12 @@ class EmailCampaignController extends Controller
                 ->with('error', 'This campaign has already been sent');
         }
 
+        // Check if Gmail API is configured
+        if (!$this->gmailService->isConfigured()) {
+            return redirect()->route('admin.email-campaigns.index')
+                ->with('error', 'Gmail API is not configured. Please configure it first.');
+        }
+
         // Get recipient count based on segment
         $recipientCount = $this->getRecipientCount($emailCampaign->segment_conditions);
 
@@ -190,6 +202,12 @@ class EmailCampaignController extends Controller
                 ->with('error', 'This campaign has already been sent');
         }
 
+        // Check if Gmail API is configured
+        if (!$this->gmailService->isConfigured()) {
+            return redirect()->route('admin.email-campaigns.index')
+                ->with('error', 'Gmail API is not configured. Please configure it first.');
+        }
+
         // Get recipients based on segment
         $recipients = $this->getRecipients($emailCampaign->segment_conditions);
         $totalRecipients = count($recipients);
@@ -205,8 +223,10 @@ class EmailCampaignController extends Controller
             'total_recipients' => $totalRecipients
         ]);
 
-        // In a real application, you would queue these emails
-        // For simplicity, we'll send them directly
+        $sentCount = 0;
+        $failedCount = 0;
+
+        // Send emails using Gmail API
         foreach ($recipients as $recipient) {
             try {
                 // Create log entry
@@ -219,21 +239,38 @@ class EmailCampaignController extends Controller
                     'updated_at' => now()
                 ]);
                 
-                // Send email
-                Mail::to($recipient->email)
-                    ->send(new MarketingEmail($emailCampaign, $recipient));
+                // Create marketing email instance
+                $marketingEmail = new GmailMarketingEmail($emailCampaign, $recipient);
                 
-                // Update log
-                DB::table('email_campaign_logs')
-                    ->where('email_campaign_id', $emailCampaign->id)
-                    ->where('user_id', $recipient->id)
-                    ->update([
-                        'sent' => true,
-                        'sent_at' => now()
+                // Send via Gmail API
+                $success = $marketingEmail->sendViaGmail();
+                
+                if ($success) {
+                    $sentCount++;
+                    
+                    // Update log
+                    DB::table('email_campaign_logs')
+                        ->where('email_campaign_id', $emailCampaign->id)
+                        ->where('user_id', $recipient->id)
+                        ->update([
+                            'sent' => true,
+                            'sent_at' => now()
+                        ]);
+                } else {
+                    $failedCount++;
+                    Log::warning('Failed to send campaign email via Gmail API', [
+                        'campaign_id' => $emailCampaign->id,
+                        'user_id' => $recipient->id,
+                        'email' => $recipient->email
                     ]);
+                }
+                
+                // Add a small delay to avoid rate limits
+                usleep(100000); // 0.1 second delay
+                
             } catch (\Exception $e) {
-                // Log error but continue
-                \Log::error('Failed to send marketing email', [
+                $failedCount++;
+                Log::error('Exception sending campaign email', [
                     'campaign_id' => $emailCampaign->id,
                     'user_id' => $recipient->id,
                     'error' => $e->getMessage()
@@ -247,8 +284,51 @@ class EmailCampaignController extends Controller
             'sent_at' => now()
         ]);
 
+        $message = "Email campaign sent! {$sentCount} emails sent successfully";
+        if ($failedCount > 0) {
+            $message .= ", {$failedCount} failed.";
+        }
+
         return redirect()->route('admin.email-campaigns.index')
-            ->with('success', "Email campaign sent to {$totalRecipients} recipients");
+            ->with('success', $message);
+    }
+
+    /**
+     * Configure Gmail API
+     */
+    public function configureGmail()
+    {
+        $isConfigured = $this->gmailService->isConfigured();
+        $authUrl = $isConfigured ? null : $this->gmailService->getAuthUrl();
+        
+        return view('admin.email-campaigns.gmail-config', [
+            'authUrl' => $authUrl,
+            'isConfigured' => $isConfigured,
+            'gmailConfigured' => $isConfigured // Add this line to fix the error
+        ]);
+    }
+
+    /**
+     * Handle Gmail OAuth callback
+     */
+    public function handleGmailCallback(Request $request)
+    {
+        $authCode = $request->input('code');
+        
+        if (!$authCode) {
+            return redirect()->route('admin.email-campaigns.configure-gmail')
+                ->with('error', 'Authorization code not received');
+        }
+
+        $success = $this->gmailService->exchangeAuthCode($authCode);
+        
+        if ($success) {
+            return redirect()->route('admin.email-campaigns.index')
+                ->with('success', 'Gmail API configured successfully!');
+        } else {
+            return redirect()->route('admin.email-campaigns.configure-gmail')
+                ->with('error', 'Failed to configure Gmail API');
+        }
     }
 
     /**

@@ -31,7 +31,7 @@
                     <td>{{ $video->title }}</td>
                     <td>{{ $video->getFormattedDurationAttribute() }}</td>
                     <td>
-                        @if($video->isFree())
+                        @if($video->isFreeForUser())
                             <span class="badge bg-success">Free</span>
                         @else
                             {{ $video->getFormattedPriceAttribute() }}

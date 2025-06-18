@@ -183,6 +183,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::put('/email-campaigns/{emailCampaign}', [EmailCampaignController::class, 'update'])->name('email-campaigns.update');
     Route::get('/email-campaigns/{emailCampaign}/send', [EmailCampaignController::class, 'showSendConfirmation'])->name('email-campaigns.send-confirmation');
     Route::post('/email-campaigns/{emailCampaign}/send', [EmailCampaignController::class, 'send'])->name('email-campaigns.send');
+    
+    // Gmail API configuration routes
+    Route::get('/email-campaigns/gmail/config', [EmailCampaignController::class, 'configureGmail'])
+        ->name('email-campaigns.configure-gmail');
+    Route::get('/email-campaigns/gmail/callback', [EmailCampaignController::class, 'handleGmailCallback'])
+        ->name('email-campaigns.gmail-callback');
 
     // Training video management
     Route::get('/videos', [TrainingVideoAdminController::class, 'index'])->name('videos.index');
