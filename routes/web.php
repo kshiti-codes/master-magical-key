@@ -14,6 +14,7 @@ use App\Http\Controllers\TrainingVideoController;
 use App\Http\Controllers\PayPalWebhookController;
 use App\Http\Controllers\SubscriptionPlanController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ProductController;
 // Admin Controllers
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ChapterAdminController;
@@ -27,7 +28,8 @@ use App\Http\Controllers\Admin\TrainingVideoAdminController;
 Auth::routes();
 
 // Public routes
-Route::get('/', [HomeController::class, 'index'])->name('home');
+// Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/framework', [HomeController::class, 'framework'])->name('framework');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 Route::post('/contact', [HomeController::class, 'submitContact'])->name('contact.submit');
@@ -58,7 +60,6 @@ Route::get('/videos/{video}', [TrainingVideoController::class, 'show'])->name('v
 Route::post('api/webhooks/paypal', [PayPalWebhookController::class, 'handleWebhook'])
     ->name('paypal.webhook')
     ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
-
 // Auth routes (already included with Laravel UI)
 
 // Protected routes
@@ -202,3 +203,4 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 });
 
 require __DIR__.'/session-booking.php';
+require __DIR__.'/products.php';

@@ -154,6 +154,7 @@
         
         <!-- Purchased Items -->
         @php
+            $productItems = collect($purchasedItems)->where('type', 'product');
             $chapterItems = collect($purchasedItems)->where('type', 'chapter');
             $spellItems = collect($purchasedItems)->where('type', 'spell');
             $videoItems = collect($purchasedItems)->where('type', 'video');
@@ -258,6 +259,36 @@
                 </table>
             </div>
         @endif
+
+        <!-- Product Summary -->
+        @if($productItems->count() > 0)
+            <div class="order-section">
+                <h3 class="order-section-title">Purchased Products</h3>
+                <table class="purchase-items-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th class="text-right">Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($productItems as $item)
+                            <tr>
+                                <td>
+                                    <div class="item-title">
+                                        {{ $item['title'] }}
+                                    </div>
+                                    @if(isset($item['quantity']) && $item['quantity'] > 1)
+                                        <div class="item-quantity">Qty: {{ $item['quantity'] }}</div>
+                                    @endif
+                                </td>
+                                <td class="text-right">${{ number_format($item['price'] * ($item['quantity'] ?? 1), 2) }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
         
         <!-- Purchase Summary -->
         <div class="purchase-summary">
@@ -279,22 +310,10 @@
         
         <div class="success-actions">
             @if($chapterItems->count() > 0)
-                <a href="{{ route('home') }}" class="btn-read">
-                    Open Digital Book
+                <a href="{{ route('products') }}" class="btn-read">
+                    Browse Products
                 </a>
             @endif
-            
-            <a href="{{ route('chapters.index') }}" class="btn-chapters">
-                Browse More Chapters
-            </a>
-            
-            <a href="{{ route('spells.index') }}" class="btn-chapters">
-                Browse More Spells
-            </a>
-
-            <a href="{{ route('videos.index') }}" class="btn-chapters">
-                Browse More Videos
-            </a>
         </div>
         
         <div style="margin-top: 20px; text-align: center;">

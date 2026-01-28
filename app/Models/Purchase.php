@@ -52,6 +52,14 @@ class Purchase extends Model
     }
 
     /**
+     * Get the product purchased.
+     */
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    /**
      * Get the chapters purchased.
      */
     public function chapter()

@@ -11,6 +11,7 @@ class PurchaseItem extends Model
 
     protected $fillable = [
         'purchase_id',
+        'product_id',
         'chapter_id',
         'spell_id',
         'subscription_plan_id',
@@ -27,6 +28,14 @@ class PurchaseItem extends Model
     public function purchase()
     {
         return $this->belongsTo(Purchase::class);
+    }
+
+    /**
+     * Get the product associated with this purchase item.
+     */
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 
     /**
@@ -98,7 +107,9 @@ class PurchaseItem extends Model
      */
     public function purchasable()
     {
-        if ($this->item_type === 'chapter') {
+        if ($this->item_type === 'product') {
+            return $this->belongsTo(Product::class, 'product_id');
+        } elseif ($this->item_type === 'chapter') {
             return $this->belongsTo(Chapter::class, 'chapter_id');
         } elseif ($this->item_type === 'spell') {
             return $this->belongsTo(Spell::class, 'spell_id');
@@ -114,7 +125,9 @@ class PurchaseItem extends Model
      */
     public function getItemNameAttribute()
     {
-        if ($this->item_type === 'chapter' && $this->chapter) {
+        if ($this->item_type === 'product' && $this->product) {
+            return $this->product->title;
+        } elseif ($this->item_type === 'chapter' && $this->chapter) {
             return "Chapter {$this->chapter->id}: {$this->chapter->title}";
         } elseif ($this->item_type === 'spell' && $this->spell) {
             return "Spell: {$this->spell->title}";
@@ -122,6 +135,8 @@ class PurchaseItem extends Model
             return $this->description ?? 'Subscription Plan';
         } elseif ($this->item_type === 'video' && $this->video) {
             return "Training Video: {$this->video->title}";
+        } elseif ($this->item_type === 'session' && $this->session) {
+            return "Coaching Session: {$this->session->session_time}";
         }
         
         return 'Unknown Item';

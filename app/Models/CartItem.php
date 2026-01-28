@@ -11,6 +11,7 @@ class CartItem extends Model
 
     protected $fillable = [
         'cart_id',
+        'product_id',
         'chapter_id',
         'spell_id',
         'training_video_id',
@@ -25,6 +26,14 @@ class CartItem extends Model
     public function cart()
     {
         return $this->belongsTo(Cart::class);
+    }
+
+    /**
+     * Get the product associated with this cart item.
+     */
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 
     /**
@@ -72,7 +81,9 @@ class CartItem extends Model
      */
     public function purchasable()
     {
-        if ($this->item_type === 'chapter') {
+        if ($this->item_type === 'product') {
+            return $this->belongsTo(Product::class, 'product_id');
+        } elseif ($this->item_type === 'chapter') {
             return $this->belongsTo(Chapter::class, 'chapter_id');
         } elseif ($this->item_type === 'spell') {
             return $this->belongsTo(Spell::class, 'spell_id');
@@ -88,7 +99,9 @@ class CartItem extends Model
      */
     public function getItemNameAttribute()
     {
-        if ($this->item_type === 'chapter') {
+        if ($this->item_type === 'product' && $this->product) {
+            return $this->product->title;
+        } elseif ($this->item_type === 'chapter') {
             return $this->chapter ? "Chapter {$this->chapter->id}: {$this->chapter->title}" : 'Unknown Chapter';
         } elseif ($this->item_type === 'spell') {
             return $this->spell ? "Spell: {$this->spell->title}" : 'Unknown Spell';

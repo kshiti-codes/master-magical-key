@@ -11,15 +11,16 @@
     <div class="menu-content">
         <button class="close-menu" onclick="closeMenu()" type="button">×</button>
         <div class="menu-links">
-            <a href="{{ route('home') }}" class="menu-link">Home</a>
-            <a href="{{ route('about') }}" class="menu-link">About</a>
-            <a href="{{ route('chapters.index') }}" class="menu-link">Chapters</a>
-            <a href="{{ route('spells.index') }}" class="menu-link">Spells</a>
-            <a href="{{ route('videos.index') }}" class="menu-link">Training Video</a>
-            <a href="{{ route('subscriptions.index') }}" class="menu-link">Subscriptions</a>
-            <a href="{{ route('sessions.index') }}" class="menu-link">Sessions</a>
-            <a href="{{ route('contact') }}" class="menu-link">Contact</a>
-            <a href="{{ route('faq') }}" class="menu-link">FAQ</a>
+            <a href="{{ route('products') }}" class="menu-link">The Master Magical Keys</a>
+            <a href="{{ route('framework') }}" class="menu-link">The Framework</a>
+            <a href="{{ route('about') }}" class="menu-link">The Keyholder</a>
+            <a href="{{ route('faq') }}" class="menu-link">The Agreements</a>
+            <!-- <a href="{{ route('chapters.index') }}" class="menu-link">Chapters</a> -->
+            <!-- <a href="{{ route('spells.index') }}" class="menu-link">Spells</a> -->
+            <!-- <a href="{{ route('videos.index') }}" class="menu-link">Training Video</a> -->
+            <!-- <a href="{{ route('subscriptions.index') }}" class="menu-link">Subscriptions</a> -->
+            <!-- <a href="{{ route('sessions.index') }}" class="menu-link">Sessions</a> -->
+            <!-- <a href="{{ route('contact') }}" class="menu-link">Contact</a> -->
             @guest
                 <a href="{{ route('login') }}" class="menu-link">Login</a>
                 <a href="{{ route('register') }}" class="menu-link">Register</a>
