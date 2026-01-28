@@ -59,7 +59,9 @@ class PaymentController extends Controller
                 $itemTax = round($itemSubtotal * 0.1, 2);
                 
                 $itemName = "Unknown Item";
-                if ($item->item_type === 'chapter' && $item->chapter) {
+                if($item->item_type === 'product' && $item->product) {
+                    $itemName = "Product: {$item->product->title}";
+                } else if ($item->item_type === 'chapter' && $item->chapter) {
                     $itemName = "Chapter {$item->chapter->id}: {$item->chapter->title}";
                 } else if ($item->item_type === 'spell' && $item->spell) {
                     $itemName = "Spell: {$item->spell->title}";
@@ -257,7 +259,7 @@ class PaymentController extends Controller
         
         if (!$orderId) {
             \Log::error('PayPal order ID not found in session');
-            return redirect()->route('chapters.index')
+            return redirect()->route('products')
                 ->with('error', 'Payment information not found.');
         }
         
@@ -294,7 +296,7 @@ class PaymentController extends Controller
             
             // Clear session data
             $request->session()->forget([
-                'paypal_order_id', 'purchase_type', 'chapter_id', 'spell_id', 
+                'paypal_order_id', 'purchase_type', 'product_id', 'chapter_id', 'spell_id', 
                 'training_video_id', 'cart_id', 'subtotal', 'tax', 'total'
             ]);
             
@@ -308,7 +310,7 @@ class PaymentController extends Controller
                 'order_id' => $orderId
             ]);
             
-            return redirect()->route('chapters.index')
+            return redirect()->route('products')
                 ->with('error', 'An error occurred while processing your payment: ' . $e->getMessage());
         }
     }
@@ -364,8 +366,10 @@ class PaymentController extends Controller
         
         foreach ($cart->items as $item) {
             if (!$item) continue;
-            
-            if ($item->item_type === 'chapter' && $item->chapter) {
+            if($item->item_type === 'product' && $item->product) {
+                $this->processProductCartItem($purchase, $item, $purchasedItems);
+            }
+            else if ($item->item_type === 'chapter' && $item->chapter) {
                 $this->processChapterPurchase($purchase, $item, $purchasedItems);
             } else if ($item->item_type === 'spell' && $item->spell) {
                 $this->processSpellCartItem($purchase, $item, $purchasedItems);
@@ -386,6 +390,30 @@ class PaymentController extends Controller
         $cart->clear();
         
         return [$purchase, $purchasedItems];
+    }
+
+    private function processProductCartItem($purchase, $item, &$purchasedItems)
+    {
+        // Create purchase item
+        \App\Models\PurchaseItem::create([
+            'purchase_id' => $purchase->id,
+            'product_id' => $item->product->id,
+            'item_type' => 'product',
+            'quantity' => $item->quantity,
+            'price' => $item->price
+        ]);
+        
+        // Add to purchased items
+        $purchasedItems[] = [
+            'product_id' => $item->product->id,
+            'title' => $item->product->title,
+            'price' => $item->price,
+            'quantity' => $item->quantity,
+            'type' => 'product'
+        ];
+        
+        // Grant access to product if applicable
+        Auth::user()->products()->syncWithoutDetaching([$item->product->id]);
     }
 
     /**
@@ -418,23 +446,6 @@ class PaymentController extends Controller
                 'last_page' => 1,
             ]
         ]);
-        
-        // Process free spells that come with the chapter
-        // $freeSpells = $item->chapter->freeSpells ?? collect();
-        // foreach ($freeSpells as $spell) {
-        //     Auth::user()->grantSpellAccess($spell);
-            
-        //     // Add free spells to purchased items
-        //     $purchasedItems[] = [
-        //         'spell_id' => $spell->id,
-        //         'title' => $spell->title,
-        //         'price' => 0,
-        //         'quantity' => 1,
-        //         'type' => 'spell',
-        //         'free_with_chapter' => true,
-        //         'chapter_id' => $item->chapter->id
-        //     ];
-        // }
     }
 
     /**
@@ -556,9 +567,9 @@ class PaymentController extends Controller
      */
     public function cancel(Request $request)
     {
-        $request->session()->forget(['paypal_order_id', 'chapter_id']);
+        $request->session()->forget(['paypal_order_id', 'product_id', 'chapter_id', 'spell_id', 'training_video_id', 'cart_id', 'subtotal', 'tax', 'total']);
         
-        return redirect()->route('chapters.index')
+        return redirect()->route('products')
             ->with('info', 'Payment was cancelled.');
     }
 

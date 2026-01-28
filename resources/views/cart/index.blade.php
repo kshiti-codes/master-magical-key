@@ -134,9 +134,10 @@
             <h2>Your cart is empty</h2>
             <p>Explore the mystical chapters and spells to begin your cosmic journey.</p>
             <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
-                <a href="{{ route('chapters.index') }}" class="btn-checkout">Browse Chapters</a>
+                <!-- <a href="{{ route('chapters.index') }}" class="btn-checkout">Browse Chapters</a>
                 <a href="{{ route('spells.index') }}" class="btn-checkout">Browse Spells</a>
-                <a href="{{ route('videos.index') }}" class="btn-checkout">Browse Videos</a>
+                <a href="{{ route('videos.index') }}" class="btn-checkout">Browse Videos</a> -->
+                <a href="{{ route('products') }}" class="btn-checkout">Browse Products</a>
             </div>
         </div>
     @else
@@ -146,8 +147,46 @@
                 $chapterItems = $cart->items->where('item_type', 'chapter');
                 $spellItems = $cart->items->where('item_type', 'spell');
                 $videoItems = $cart->items->where('item_type', 'video');
+                $productItems = $cart->items->where('item_type', 'product');
             @endphp
             
+            <!-- Product Items -->
+            @if($productItems->count() > 0)
+                <h3 class="cart-section-title">Products</h3>
+                @foreach($productItems as $item)
+                    <div class="cart-item" id="cart-item-{{ $item->id }}">
+                        <div class="item-details">
+                            <h3 class="item-title">
+                                <span class="item-type-badge item-type-video">{{ $item->product->type }}</span>
+                                {{ $item->product->title }}
+                            </h3>
+                            <p class="item-description">{{ Str::limit($item->product->description, 100) }}</p>
+                        </div> 
+                        <div class="item-price">${{ number_format($item->total, 2) }}</div>
+                        <div class="item-remove">
+                            <button type="button" class="remove-btn" onclick="showRemoveConfirmation('{{ $item->id }}')">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                        <!-- Remove Confirmation Overlay -->
+                        <div class="remove-confirmation" id="remove-confirmation-{{ $item->id }}">
+                            <div class="confirm-content">
+                                <p>Remove this product from your cart?</p>
+                                <div class="confirmation-buttons">
+                                    <form action="{{ route('cart.remove') }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <input type="hidden" name="cart_item_id" value="{{ $item->id }}">
+                                        <button type="submit" class="btn-confirm-remove">Remove</button>
+                                    </form>
+                                    <button type="button" class="btn-cancel-remove" onclick="hideRemoveConfirmation('{{ $item->id }}')">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @endif
+
             @if($chapterItems->count() > 0)
                 <h3 class="cart-section-title">Chapters</h3>
                 
@@ -161,6 +200,9 @@
                                 @elseif($item->item_type == 'spell' && $item->spell)
                                     <span class="item-type-badge item-type-spell">Spell</span>
                                     {{ $item->spell->title }}
+                                @elseif($item->item_type == 'product' &&  $item->product)
+                                    <span class="item-type-badge item-type-video">Product</span>
+                                    {{ $item->product->title }}
                                 @else
                                     <span class="item-type-badge">Unknown Item</span>
                                 @endif
@@ -314,7 +356,7 @@
             
             <div class="cart-actions">
                 <div style="display: flex; gap: 10px;">
-                    <a href="{{ route('chapters.index') }}" class="continue-shopping">
+                    <!-- <a href="{{ route('chapters.index') }}" class="continue-shopping">
                         <i class="fas fa-arrow-left"></i> Chapters
                     </a>
                     <a href="{{ route('spells.index') }}" class="continue-shopping">
@@ -322,6 +364,9 @@
                     </a>
                     <a href="{{ route('videos.index') }}" class="continue-shopping">
                         <i class="fas fa-video"></i> Videos
+                    </a> -->
+                    <a href="{{ route('products') }}" class="continue-shopping">
+                        <i class="fas fa-key"></i> Products
                     </a>
                 </div>
                 

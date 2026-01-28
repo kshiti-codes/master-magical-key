@@ -14,7 +14,7 @@ class CartController extends Controller
     /**
      * Display the cart.
      */
-    public function index()
+    public function index() 
     {
         $cart = Auth::user()->getCart();
 

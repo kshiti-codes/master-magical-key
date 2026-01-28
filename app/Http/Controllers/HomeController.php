@@ -32,6 +32,11 @@ class HomeController extends Controller
         return view('home', compact('chapters'));
     }
 
+    public function framework()
+    {
+        return view('framework');
+    }
+
     public function about()
     {
         return view('about');
@@ -52,4 +57,5 @@ class HomeController extends Controller
     {
         return view('faq');
     }
+
 }

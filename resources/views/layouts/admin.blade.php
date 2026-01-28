@@ -39,22 +39,26 @@
                 <div class="admin-menu-divider"></div>
                 <div class="admin-menu-category">Content Management</div>
                 
-                <li>
+                <!-- <li>
                     <a href="{{ route('admin.chapters.index') }}" class="{{ request()->routeIs('admin.chapters*') ? 'active' : '' }}">
                         <i class="fas fa-book"></i> Chapters
                     </a>
-                </li>
-                <li>
+                </li> -->
+                <!-- <li>
                     <a href="{{ route('admin.spells.index') }}" class="{{ request()->routeIs('admin.spells*') ? 'active' : '' }}">
                         <i class="fas fa-magic"></i> Spells
                     </a>
-                </li>
-                <li>
+                </li> -->
+                <!-- <li>
                     <a href="{{ route('admin.videos.index') }}" class="{{ request()->routeIs('admin.videos*') ? 'active' : '' }}">
                         <i class="fas fa-video"></i> Training Videos
                     </a>
+                </li> -->
+                <li>
+                    <a href="{{ route('admin.products.index') }}" class="{{ request()->routeIs('admin.products*') ? 'active' : '' }}">
+                        <i class="fas fa-box"></i> Products
+                    </a>
                 </li>
-                
                 <div class="admin-menu-divider"></div>
                 <div class="admin-menu-category">User Management</div>
                 
@@ -72,11 +76,11 @@
                         <i class="fas fa-shopping-cart"></i> Purchases
                     </a>
                 </li>
-                <li>
+                <!-- <li>
                     <a href="{{ route('admin.subscriptions.index') }}" class="{{ request()->routeIs('admin.subscriptions*') ? 'active' : '' }}">
                         <i class="fas fa-credit-card"></i> Subscription Plans
                     </a>
-                </li>
+                </li> -->
                 
                 <div class="admin-menu-divider"></div>
                 <div class="admin-menu-category">Reports</div>
@@ -86,11 +90,11 @@
                         <i class="fas fa-chart-bar"></i> Sales Report
                     </a>
                 </li>
-                <li>
+                <!-- <li>
                     <a href="{{ route('admin.subscriptions.analytics') }}" class="{{ request()->routeIs('admin.subscriptions.analytics') ? 'active' : '' }}">
                         <i class="fas fa-chart-line"></i> Subscription Analytics
                     </a>
-                </li>
+                </li> -->
                 <li>
                     <a href="{{ route('admin.reports.user_analysis') }}" class="{{ request()->routeIs('admin.reports.user_analysis') ? 'active' : '' }}">
                         <i class="fas fa-users"></i> User Analytics
@@ -107,20 +111,20 @@
                 </li>
             @endif
             <div class="admin-menu-divider"></div>
-            <div class="admin-menu-category">Session Booking</div>
+            <!-- <div class="admin-menu-category">Session Booking</div> -->
 
             @if(auth()->user()->is_coach)
                 <!-- Coach-specific menu items -->
                 @if(!auth()->user()->is_admin)
                     <!-- Only show "My Profile" link to coaches who are not admins -->
-                    <li>
+                    <!-- <li>
                         <a href="{{ route('admin.coaches.show', auth()->user()->coach->id) }}" class="{{ request()->routeIs('admin.coaches.show') || request()->routeIs('admin.coaches.edit') ? 'active' : '' }}">
                             <i class="fas fa-user-tie"></i> My Profile
                         </a>
-                    </li>
+                    </li> -->
                 @endif
                 <!-- Show these for all coaches -->
-                <li>
+                <!-- <li>
                     <a href="{{ route('admin.availabilities.index', ['coach_id' => auth()->user()->coach->id]) }}" class="{{ request()->routeIs('admin.availabilities*') && !request()->routeIs('admin.availabilities.index') ? 'active' : (request()->routeIs('admin.availabilities.index') && request()->input('coach_id') == (auth()->user()->coach->id ?? 0) ? 'active' : '') }}">
                         <i class="fas fa-calendar-alt"></i> My Availabilities
                     </a>
@@ -129,10 +133,10 @@
                     <a href="{{ route('admin.booked-sessions.index', ['coach_id' => auth()->user()->coach->id ?? 0]) }}" class="{{ request()->routeIs('admin.booked-sessions*') && !request()->routeIs('admin.booked-sessions.index') ? 'active' : (request()->routeIs('admin.booked-sessions.index') && request()->input('coach_id') == (auth()->user()->coach->id ?? 0) ? 'active' : '') }}">
                         <i class="fas fa-calendar-check"></i> My Booked Sessions
                     </a>
-                </li>
+                </li> -->
             @endif
             @if(auth()->user()->is_admin)
-                <li>
+                <!-- <li>
                     <a href="{{ route('admin.coaches.index') }}" class="{{ request()->routeIs('admin.coaches*') ? 'active' : '' }}">
                         <i class="fas fa-user-tie"></i> Coaches
                     </a>
@@ -151,7 +155,7 @@
                     <a href="{{ route('admin.booked-sessions.index') }}" class="{{ request()->routeIs('admin.booked-sessions*') ? 'active' : '' }}">
                         <i class="fas fa-calendar-check"></i>All Booked Sessions
                     </a>
-                </li>
+                </li> -->
             @endif
         </ul>
     </div>
@@ -165,7 +169,7 @@
             </button>
             
             <div class="navbar-right">
-                <a href="{{ route('home') }}" target="_blank">
+                <a href="{{ route('products') }}" target="_blank">
                     <i class="fas fa-external-link-alt"></i> View Site
                 </a>
                 <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

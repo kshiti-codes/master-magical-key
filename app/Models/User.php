@@ -35,6 +35,13 @@ class User extends Authenticatable
         return $this->hasMany(Purchase::class);
     }
 
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'product_user')
+        ->withTimestamps()
+        ->withPivot(['quantity', 'price']);
+    }
+
     public function chapters()
     {
         return $this->belongsToMany(Chapter::class, 'user_chapters')
