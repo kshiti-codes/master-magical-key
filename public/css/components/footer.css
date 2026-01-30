@@ -50,7 +50,8 @@
     .mystical-footer {
         flex-direction: column;
         gap: 10px;
-        position: relative !important;
+        position: fixed !important;
+        bottom:0;
     }
     
     .footer-copyright, .social-icons-container {

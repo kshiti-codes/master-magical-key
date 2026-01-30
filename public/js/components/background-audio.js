@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const audioTracks = {
         'ambient1': {
             name: 'Cosmic Mystery',
-            path: '/chapter-audio/universe.mp3'
+            path: '/thegatestatement.m4a'
         },
     };
     

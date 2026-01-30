@@ -14,7 +14,7 @@
         font-family: 'Cinzel', serif;
         color: #fff;
         text-align: center;
-        font-size: 2.2rem;
+        font-size: 1.5rem;
         margin-bottom: 30px;
         letter-spacing: 3px;
         text-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
@@ -32,9 +32,9 @@
     
     .keyholder-text {
         color: rgba(255, 255, 255, 0.95);
-        font-size: 1.1rem;
-        line-height: 1.9;
-        margin-bottom: 25px;
+        font-size: 14px;
+        line-height: 1.25;
+        margin-bottom: 10px;
         font-family: 'Rajdhani', sans-serif;
         font-weight: 400;
     }
@@ -45,7 +45,7 @@
     
     .keyholder-signature {
         text-align: right;
-        font-size: 1.2rem;
+        font-size: 14px;
         color: #d8b5ff;
         margin-top: 40px;
         font-style: italic;
