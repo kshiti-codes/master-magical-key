@@ -110,7 +110,7 @@
                 
                 @if($product->image)
                     <div class="current-file">
-                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->title }}" style="max-width: 200px; max-height: 200px; border-radius: 5px; margin-bottom: 1rem;">
+                        <img src="{{ asset($product->image) }}" alt="{{ $product->title }}" style="max-width: 200px; max-height: 200px; border-radius: 5px; margin-bottom: 1rem;">
                         <div class="admin-form-checkbox" style="padding: 0;">
                             <input type="checkbox" id="remove_image" name="remove_image" value="1">
                             <label for="remove_image" style="color: rgba(239, 68, 68, 0.8);">

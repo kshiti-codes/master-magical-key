@@ -231,7 +231,7 @@ class ProductController extends Controller
             'currency' => 'required|string|max:3',
             'type' => 'required|in:digital_download,course,session,subscription,video,other',
             'pdf_file' => 'nullable|file|mimes:pdf|max:51200',
-            'audio_file' => 'nullable|file|mimes:mp3,wav,m4a,ogg|max:102400',
+            'audio_file' => 'nullable|file|mimetypes:audio/mpeg,audio/mp3,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,audio/ogg,audio/x-ogg|max:102400',
             'popup_text' => 'nullable|string',
             'is_active' => 'boolean',
             'sku' => 'nullable|string|unique:products,sku',
@@ -285,17 +285,17 @@ class ProductController extends Controller
             $product->update(['audio_file_path' => $audioRelativePath]);
         }
 
-        // Handle image upload (images can be public)
+        // Handle image upload — saved directly into public/images/products/
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
             $imageFile = $request->file('image');
             
             // Generate a filename
             $imageExtension = $imageFile->getClientOriginalExtension();
             $imageFileName = Str::slug($product->title) . '-' . time() . '.' . $imageExtension;
-            $imageRelativePath = 'products/images/' . $imageFileName;
+            $imageRelativePath = 'images/products/' . $imageFileName;
             
-            // PUBLIC STORAGE: Images can be in public
-            $imageDirectory = storage_path('app/public/products/images');
+            // PUBLIC PATH: directly inside public/ (= public_html on GoDaddy)
+            $imageDirectory = public_path('images/products');
             if (!file_exists($imageDirectory)) {
                 mkdir($imageDirectory, 0755, true);
             }
@@ -336,7 +336,7 @@ class ProductController extends Controller
             'currency' => 'required|string|max:3',
             'type' => 'required|in:digital_download,course,session,subscription,video,other',
             'pdf_file' => 'nullable|file|mimes:pdf|max:51200',
-            'audio_file' => 'nullable|file|mimes:mp3,wav,m4a,ogg|max:102400',
+            'audio_file' => 'nullable|file|mimetypes:audio/mpeg,audio/mp3,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,audio/ogg,audio/x-ogg|max:102400',
             'popup_text' => 'nullable|string',
             'is_active' => 'boolean',
             'sku' => 'nullable|string|unique:products,sku,' . $product->id,
@@ -427,8 +427,8 @@ class ProductController extends Controller
 
         // Handle image removal/update
         if ($request->boolean('remove_image') && $product->image) {
-            // Delete old image from PUBLIC storage
-            $oldImagePath = storage_path('app/public/' . $product->image);
+            // Delete old image from public/
+            $oldImagePath = public_path($product->image);
             if (file_exists($oldImagePath)) {
                 unlink($oldImagePath);
             }
@@ -439,7 +439,7 @@ class ProductController extends Controller
             
             // Delete old image if exists
             if ($product->image) {
-                $oldImagePath = storage_path('app/public/' . $product->image);
+                $oldImagePath = public_path($product->image);
                 if (file_exists($oldImagePath)) {
                     unlink($oldImagePath);
                 }
@@ -448,10 +448,10 @@ class ProductController extends Controller
             // Generate a filename
             $imageExtension = $imageFile->getClientOriginalExtension();
             $imageFileName = Str::slug($product->title) . '-' . time() . '.' . $imageExtension;
-            $imageRelativePath = 'products/images/' . $imageFileName;
+            $imageRelativePath = 'images/products/' . $imageFileName;
             
-            // PUBLIC STORAGE: Images can be in public
-            $imageDirectory = storage_path('app/public/products/images');
+            // PUBLIC PATH: directly inside public/ (= public_html on GoDaddy)
+            $imageDirectory = public_path('images/products');
             if (!file_exists($imageDirectory)) {
                 mkdir($imageDirectory, 0755, true);
             }
@@ -480,7 +480,10 @@ class ProductController extends Controller
             Storage::disk('local')->delete($product->audio_file_path);
         }
         if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+            $imagePath = public_path($product->image);
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
         }
 
         $product->delete();

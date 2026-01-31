@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     selectedPhotos.forEach((photoNum, index) => {
         const img = document.createElement('img');
-        img.src = `/storage/photos/photo${photoNum}.png`;
+        img.src = `/photos/photo${photoNum}.png`;
         img.classList.add('side-photo');
         
         const pos = sidePositions[index];

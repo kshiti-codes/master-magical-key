@@ -42,7 +42,7 @@
                 <tr>
                     <td>
                         @if($product->image)
-                            <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->title }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                            <img src="{{ asset($product->image) }}" alt="{{ $product->title }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
                         @else
                             <div style="width: 50px; height: 50px; background: rgba(138, 43, 226, 0.2); border-radius: 5px; display: flex; align-items: center; justify-content: center;">
                                 <i class="fas fa-box" style="color: rgba(138, 43, 226, 0.5);"></i>
