@@ -5,7 +5,7 @@
     .faq-container {
         max-width: 900px;
         margin: 0 auto;
-        padding: 40px 20px;
+        padding: 30px 20px;
         position: relative;
         z-index: 1;
     }
@@ -14,8 +14,8 @@
         font-family: 'Cinzel', serif;
         color: #fff;
         text-align: center;
-        font-size: 3rem;
-        margin-bottom: 30px;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
         letter-spacing: 3px;
         text-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
     }
@@ -23,8 +23,8 @@
     .faq-intro {
         /* text-align: center; */
         color: rgba(255, 255, 255, 0.9);
-        line-height: 1.8;
-        margin-bottom: 40px;
+        line-height: 1.25;
+        margin-bottom: 20px;
         font-style: italic;
     }
     
@@ -32,7 +32,8 @@
         background: rgba(10, 10, 30, 0.8);
         border-radius: 10px;
         padding: 30px;
-        margin-bottom: 40px;
+        margin-bottom: 20px;
+        font-size: 14px;
         border: 1px solid rgba(138, 43, 226, 0.4);
         box-shadow: 0 0 30px rgba(138, 43, 226, 0.3);
         backdrop-filter: blur(10px);
@@ -41,11 +42,11 @@
     .section-title {
         font-family: 'Cinzel', serif;
         color: #d8b5ff;
-        font-size: 1.5rem;
+        font-size: 14px;
         letter-spacing: 2px;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
         position: relative;
-        padding-bottom: 10px;
+        padding-bottom: 5px;
     }
     
     .section-title:after {
@@ -60,7 +61,7 @@
     
     .faq-text {
         color: rgba(255, 255, 255, 0.9);
-        line-height: 1.8;
+        line-height: 1.25;
         margin-bottom: 20px;
     }
     
@@ -69,7 +70,7 @@
     }
     
     .faq-item {
-        margin-bottom: 15px;
+        margin-bottom: 10px;
         border: 1px solid rgba(138, 43, 226, 0.3);
         border-radius: 8px;
         overflow: hidden;
@@ -93,7 +94,7 @@
         margin: 0;
         color: #d8b5ff;
         font-family: 'Cinzel', serif;
-        font-size: 1.1rem;
+        font-size: 14px;
     }
     
     .faq-icon {
@@ -150,11 +151,11 @@
     
     @media (max-width: 767px) {
         .faq-main-title {
-            font-size: 2rem;
+            font-size: 1.5rem;
         }
         
         .section-title {
-            font-size: 1.3rem;
+            font-size: 1rem;
         }
         
         .faq-section {

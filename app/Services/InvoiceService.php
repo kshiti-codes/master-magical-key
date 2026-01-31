@@ -79,7 +79,10 @@ class InvoiceService
                     'total' => $item->price * $item->quantity
                 ];
                 
-                if ($item->item_type === 'chapter' && $item->chapter) {
+                if($item->item_type === 'product' && $item->product) {
+                    $itemData['title'] = $item->product->title;
+                    $itemData['type'] = 'product';
+                } elseif ($item->item_type === 'chapter' && $item->chapter) {
                     $itemData['title'] = "Chapter {$item->chapter->id}: {$item->chapter->title}";
                     $itemData['type'] = 'chapter';
                 } elseif ($item->item_type === 'spell' && $item->spell) {

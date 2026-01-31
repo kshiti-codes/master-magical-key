@@ -90,7 +90,10 @@
                 @foreach($purchase->items as $item)
                     <tr>
                         <td>
-                            @if($item->item_type === 'chapter' && $item->chapter)
+                            @if($item->item_type === 'product' && $item->product)
+                                <span class="item-type-badge item-chapter">Product</span>
+                                {{ $item->product->title }}
+                            @elseif($item->item_type === 'chapter' && $item->chapter)
                                 <span class="item-type-badge item-chapter">Chapter</span>
                                 Chapter {{ $item->chapter->order }}: {{ $item->chapter->title }}
                             @elseif($item->item_type === 'spell' && $item->spell)

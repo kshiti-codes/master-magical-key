@@ -44,10 +44,8 @@ class AdminController extends Controller
             ->sum('amount');
             
         // Get content stats
-        $chaptersCount = Chapter::count();
-        $publishedChaptersCount = Chapter::where('is_published', true)->count();
-        $spellsCount = Spell::count();
-        $publishedSpellsCount = Spell::where('is_published', true)->count();
+        $productsCount = \App\Models\Product::count();
+        $activeProductsCount = \App\Models\Product::where('is_active', true)->count();
         
         // Get user stats
         $usersCount = User::count();
@@ -88,10 +86,8 @@ class AdminController extends Controller
         return view('admin.dashboard', compact(
             'totalSales', 
             'monthSales', 
-            'chaptersCount', 
-            'publishedChaptersCount',
-            'spellsCount',
-            'publishedSpellsCount',
+            'productsCount', 
+            'activeProductsCount',
             'usersCount',
             'newUsers',
             'recentPurchases',

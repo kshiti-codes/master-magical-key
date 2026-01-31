@@ -24,6 +24,7 @@
     <script src="{{ asset('js/components/menu.js') }}" defer></script>
     <script src="{{ asset('js/mystical-transitions.js') }}"></script>
     <script src="{{ asset('js/components/background-audio.js') }}" defer></script>
+    <script src="{{ asset('js/background-photos.js') }}"></script>
     @stack('scripts')
 </head>
 <body>

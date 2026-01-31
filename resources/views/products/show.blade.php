@@ -34,164 +34,6 @@
         margin-bottom: 40px;
     }
     
-    .product-image-section {
-        background: rgba(10, 10, 30, 0.8);
-        border-radius: 15px;
-        padding: 30px;
-        border: 1px solid rgba(138, 43, 226, 0.4);
-        box-shadow: 0 0 30px rgba(138, 43, 226, 0.3);
-        backdrop-filter: blur(10px);
-    }
-    
-    .product-main-image {
-        width: 100%;
-        height: 400px;
-        border-radius: 10px;
-        overflow: hidden;
-        background: rgba(138, 43, 226, 0.1);
-        border: 1px solid rgba(138, 43, 226, 0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .product-main-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    
-    .no-image-placeholder {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        color: rgba(255, 255, 255, 0.5);
-    }
-    
-    .no-image-placeholder i {
-        font-size: 5rem;
-        margin-bottom: 20px;
-    }
-    
-    .product-info-section {
-        background: rgba(10, 10, 30, 0.8);
-        border-radius: 15px;
-        padding: 40px;
-        border: 1px solid rgba(138, 43, 226, 0.4);
-        box-shadow: 0 0 30px rgba(138, 43, 226, 0.3);
-        backdrop-filter: blur(10px);
-    }
-    
-    .product-badge {
-        display: inline-block;
-        padding: 8px 16px;
-        background: rgba(138, 43, 226, 0.6);
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: bold;
-        letter-spacing: 1px;
-        margin-bottom: 20px;
-        border: 1px solid rgba(138, 43, 226, 0.8);
-    }
-    
-    .product-badge.owned {
-        background: rgba(0, 200, 0, 0.6);
-        border-color: rgba(0, 200, 0, 0.8);
-    }
-    
-    .product-badge.free {
-        background: rgba(0, 200, 0, 0.6);
-        border-color: rgba(0, 200, 0, 0.8);
-    }
-    
-    .product-title {
-        font-family: 'Cinzel', serif;
-        color: #fff;
-        font-size: 2.5rem;
-        letter-spacing: 2px;
-        margin-bottom: 20px;
-        text-shadow: 0 0 20px rgba(138, 43, 226, 0.7);
-    }
-    
-    .product-price-box {
-        background: rgba(138, 43, 226, 0.2);
-        border: 2px solid rgba(138, 43, 226, 0.5);
-        border-radius: 15px;
-        padding: 20px;
-        margin-bottom: 30px;
-        text-align: center;
-    }
-    
-    .product-price {
-        font-size: 3rem;
-        color: #fff;
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-    
-    .product-price-gst {
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 1rem;
-    }
-    
-    .product-description {
-        color: rgba(255, 255, 255, 0.9);
-        line-height: 1.8;
-        font-size: 1.1rem;
-        margin-bottom: 30px;
-        padding: 20px;
-        background: rgba(0, 0, 0, 0.3);
-        border-radius: 10px;
-        border: 1px solid rgba(138, 43, 226, 0.2);
-    }
-    
-    .product-actions {
-        display: flex;
-        gap: 15px;
-        margin-top: 30px;
-    }
-    
-    .btn-primary-action {
-        flex: 1;
-        background: rgba(138, 43, 226, 0.6);
-        color: white;
-        border: 2px solid rgba(138, 43, 226, 0.8);
-        padding: 18px 30px;
-        border-radius: 50px;
-        cursor: pointer;
-        font-size: 1.2rem;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        font-family: 'Rajdhani', sans-serif;
-        font-weight: 600;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-    }
-    
-    .btn-primary-action:hover {
-        background: rgba(138, 43, 226, 0.9);
-        transform: translateY(-3px);
-        box-shadow: 0 10px 30px rgba(138, 43, 226, 0.6);
-        text-decoration: none;
-        color: white;
-    }
-    
-    .btn-disabled {
-        background: rgba(100, 100, 100, 0.3);
-        cursor: not-allowed;
-        opacity: 0.6;
-    }
-    
-    .btn-disabled:hover {
-        transform: none;
-        box-shadow: none;
-    }
-    
     /* Authorization Popup Modal */
     .auth-popup-overlay {
         display: none;
@@ -215,7 +57,7 @@
         background: rgba(10, 10, 30, 0.95);
         border: 2px solid rgba(138, 43, 226, 0.8);
         border-radius: 20px;
-        padding: 50px;
+        padding: 20px;
         max-width: 800px;
         width: 90%;
         max-height: 80vh;
@@ -276,9 +118,9 @@
     .popup-title {
         font-family: 'Cinzel', serif;
         color: #fff;
-        font-size: 2rem;
+        font-size: 14px;
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 10px;
         letter-spacing: 3px;
         text-shadow: 0 0 20px rgba(138, 43, 226, 0.9);
     }
@@ -286,8 +128,8 @@
     .popup-text {
         color: rgba(255, 255, 255, 0.95);
         line-height: 1.25;
-        font-size: 1rem;
-        margin-bottom: 40px;
+        font-size: 12px;
+        margin-bottom: 20px;
         text-align: center;
         white-space: pre-wrap;
     }
@@ -297,10 +139,10 @@
         background: rgba(138, 43, 226, 0.7);
         color: white;
         border: 2px solid rgba(138, 43, 226, 0.9);
-        padding: 20px;
+        padding: 5px;
         border-radius: 50px;
         cursor: pointer;
-        font-size: 1.3rem;
+        font-size: 14px;
         font-family: 'Rajdhani', sans-serif;
         font-weight: 600;
         letter-spacing: 2px;
@@ -325,7 +167,6 @@
         padding: 20px;
         border: 1px solid rgba(138, 43, 226, 0.4);
         box-shadow: 0 0 30px rgba(138, 43, 226, 0.3);
-        margin-top: 40px;
         position: relative;
     }
     
@@ -338,20 +179,33 @@
         background: rgba(138, 43, 226, 0.2);
         border-radius: 10px;
     }
-    
+   
+    .title-audio-container {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
     .pdf-viewer-title {
+        width: 50%;
         background: rgba(10, 10, 30, 0.95);
         border-radius: 15px;
-        padding: 20px;
+        padding: 10px;
         border: 1px solid rgba(138, 43, 226, 0.4);
         box-shadow: 0 0 30px rgba(138, 43, 226, 0.3);
-        margin-top: 40px;
         position: relative;
         font-family: 'Cinzel', serif;
         color: #d8b5ff;
-        font-size: 1.5rem;
+        font-size: 14px;
         text-align: center;
         letter-spacing: 2px;
+    }
+    /* Audio Player */
+    audio {
+        width: 50%;
+        height: 40px;
+        outline: none;
     }
     
     .btn-download {
@@ -393,35 +247,6 @@
         width: 100%;
         height: 100%;
         border: none;
-    }
-    
-    /* Audio Player */
-    .audio-player-section {
-        background: rgba(138, 43, 226, 0.1);
-        border: 1px solid rgba(138, 43, 226, 0.3);
-        border-radius: 15px;
-        padding: 20px;
-        margin-top: 30px;
-        display: none;
-    }
-    
-    .audio-player-section.active {
-        display: block;
-    }
-    
-    .audio-player-title {
-        font-family: 'Cinzel', serif;
-        color: #d8b5ff;
-        font-size: 1.2rem;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    audio {
-        width: 100%;
-        outline: none;
     }
     
     /* Responsive Design */
@@ -467,25 +292,26 @@
     </a>
     
     @if($hasPurchased || $product->price == 0)
-        <div class="pdf-viewer-title">
-            {{ $product->title }}
-
-        </div>
-        @if($product->audio_file_path)
+        <div class="title-audio-container">
+            <div class="pdf-viewer-title">
+                {{ $product->title }}
+            </div>
+            @if($product->audio_file_path)
             <audio controls>   
                 <source src="{{ route('products.download-audio', $product->slug) }}" type="audio/mp3">
-                Your browser does not support the audio element.
+                    Your browser does not support the audio element.
             </audio>
-        @endif   
+            @endif   
+        </div>
         @if($product->pdf_file_path)
-            <div class="pdf-iframe-wrapper">
-                <iframe src="{{ route('products.download-pdf', $product->slug) }}#toolbar=1" type="application/pdf"></iframe>
-            </div>
+        <div class="pdf-iframe-wrapper">
+            <iframe src="{{ route('products.download-pdf', $product->slug) }}#toolbar=1" type="application/pdf"></iframe>
+        </div>
         @else
-            <div class="no-image-placeholder" style="margin-top: 20px;">
-                <i class="fas fa-file-pdf"></i>
-                <div>No PDF available for this product.</div>
-            </div>
+        <div class="no-image-placeholder" style="margin-top: 20px;">
+            <i class="fas fa-file-pdf"></i>
+            <div>No PDF available for this product.</div>
+        </div>
         @endif
     @endif
 </div>

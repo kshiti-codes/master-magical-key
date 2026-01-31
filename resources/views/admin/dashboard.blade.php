@@ -110,23 +110,18 @@
                 </div>
             </div>
             
-            <!-- Content Stats -->
+            <!-- Product Stats -->
             <div class="col-lg-2" style="width: 25%;">
                 <div class="stats-card">
-                    <div class="stat-icon"><i class="fas fa-book"></i></div>
-                    <div class="stat-title">Content Stats</div>
-                    <div class="stat-value">{{ $publishedChaptersCount }}/{{ $chaptersCount }}</div>
-                    <div class="stat-subtitle">Published Chapters</div>
+                    <div class="stat-icon"><i class="fas fa-box"></i></div>
+                    <div class="stat-title">Product Stats</div>
+                    <div class="stat-value">{{ $activeProductsCount }}/{{ $productsCount }}</div>
+                    <div class="stat-subtitle">Active Products</div>
                 </div>
             </div>
-            
+
             <div class="col-lg-2" style="width: 25%;">
-                <div class="stats-card">
-                    <div class="stat-icon"><i class="fas fa-magic"></i></div>
-                    <div class="stat-title">Spell Stats</div>
-                    <div class="stat-value">{{ $publishedSpellsCount }}/{{ $spellsCount }}</div>
-                    <div class="stat-subtitle">Published Spells</div>
-                </div>
+                <!-- Empty space or add another stat card if needed -->
             </div>
         </div>
     </div>
@@ -272,40 +267,23 @@
         new Chart(contentCtx, {
             type: 'pie',
             data: {
-                labels: ['Published Chapters', 'Unpublished Chapters', 'Published Spells', 'Unpublished Spells'],
+                labels: ['Active Products', 'Inactive Products'],
                 datasets: [{
                     data: [
-                        {{ $publishedChaptersCount }}, 
-                        {{ $chaptersCount - $publishedChaptersCount }},
-                        {{ $publishedSpellsCount }},
-                        {{ $spellsCount - $publishedSpellsCount }}
+                        {{ $activeProductsCount }}, 
+                        {{ $productsCount - $activeProductsCount }}
                     ],
                     backgroundColor: [
-                        'rgba(75, 192, 192, 0.7)',
-                        'rgba(75, 192, 192, 0.3)',
-                        'rgba(153, 102, 255, 0.7)',
-                        'rgba(153, 102, 255, 0.3)'
+                        'rgba(138, 43, 226, 0.7)',
+                        'rgba(138, 43, 226, 0.3)'
                     ],
                     borderColor: [
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(153, 102, 255, 1)'
+                        'rgba(138, 43, 226, 1)',
+                        'rgba(138, 43, 226, 1)'
                     ],
                     borderWidth: 1
                 }]
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            color: 'rgba(255, 255, 255, 0.7)'
-                        }
-                    }
-                }
-            }
         });
     });
 </script>

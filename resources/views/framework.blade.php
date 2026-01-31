@@ -5,7 +5,7 @@
     .map-container {
         max-width: 900px;
         margin: 0 auto;
-        padding: 40px 20px;
+        padding: 30px 20px;
         position: relative;
         z-index: 1;
     }
@@ -14,8 +14,8 @@
         font-family: 'Cinzel', serif;
         color: #fff;
         text-align: center;
-        font-size: 2.2rem;
-        margin-bottom: 30px;
+        font-size: 1.5rem;
+        margin-bottom: 10px;
         letter-spacing: 3px;
         text-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
     }
@@ -24,7 +24,7 @@
         background: rgba(10, 10, 30, 0.8);
         border-radius: 10px;
         padding: 30px;
-        margin-bottom: 40px;
+        margin-bottom: 10px;
         border: 1px solid rgba(138, 43, 226, 0.4);
         box-shadow: 0 0 30px rgba(138, 43, 226, 0.3);
         backdrop-filter: blur(10px);
@@ -33,7 +33,7 @@
     .section-subtitle {
         font-family: 'Cinzel', serif;
         color: #d8b5ff;
-        font-size: 1.3rem;
+        font-size: 14px;
         letter-spacing: 2px;
         margin-bottom: 20px;
         text-align: center;
@@ -41,9 +41,9 @@
     
     .map-text {
         color: rgba(255, 255, 255, 0.9);
-        line-height: 1.8;
-        margin-bottom: 20px;
-        font-size: 1.05rem;
+        line-height: 1.25;
+        margin-bottom: 10px;
+        font-size: 14px;
     }
     
     .map-text.center {
@@ -73,16 +73,16 @@
     
     .key-symbol {
         text-align: center;
-        font-size: 2rem;
-        margin: 20px 0;
+        font-size: 1rem;
+        margin: 10px 0;
     }
     
     .signature {
         text-align: center;
         font-family: 'Cinzel', serif;
         color: #d8b5ff;
-        font-size: 1.2rem;
-        margin-top: 40px;
+        font-size: 12px;
+        margin-top: 20px;
         letter-spacing: 1px;
     }
     
@@ -93,7 +93,7 @@
         }
         
         .map-title {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
         }
         
         .map-section {

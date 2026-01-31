@@ -80,63 +80,6 @@
         <div class="chart-container">
             <canvas id="salesChart"></canvas>
         </div>
-        
-        <!-- Top Selling Items -->
-        <div class="top-items-container">
-            <!-- Top Chapters -->
-            <div>
-                <h3 class="table-title">Top Selling Chapters</h3>
-                <table class="top-selling-table" id="topChaptersTable">
-                    <thead>
-                        <tr>
-                            <th>Chapter</th>
-                            <th class="text-right">Sales Count</th>
-                            <th class="text-right">Revenue</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($topChapters as $chapter)
-                            <tr>
-                                <td>{{ $chapter->title }}</td>
-                                <td class="text-right">{{ $chapter->sales_count }}</td>
-                                <td class="text-right">${{ number_format($chapter->sales_amount, 2) }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="3" class="text-center">No chapter sales data available</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Top Spells -->
-            <div>
-                <h3 class="table-title">Top Selling Spells</h3>
-                <table class="top-selling-table">
-                    <thead>
-                        <tr>
-                            <th>Spell</th>
-                            <th class="text-right">Sales Count</th>
-                            <th class="text-right">Revenue</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($topSpells as $spell)
-                            <tr>
-                                <td>{{ $spell->title }}</td>
-                                <td class="text-right">{{ $spell->sales_count }}</td>
-                                <td class="text-right">${{ number_format($spell->sales_amount, 2) }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="3" class="text-center">No spell sales data available</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
     </div>
 @endsection
 

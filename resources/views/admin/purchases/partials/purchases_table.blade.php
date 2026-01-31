@@ -23,7 +23,9 @@
                     <td>
                         @php $itemCount = $purchase->items->count(); @endphp
                         @foreach($purchase->items->take(2) as $item)
-                            @if($item->item_type === 'chapter' && $item->chapter)
+                            @if($item->item_type === 'product' && $item->product)
+                                <div>Product: {{ Str::limit($item->product->title, 20) }}</div>
+                            @elseif($item->item_type === 'chapter' && $item->chapter)
                                 <div>Chapter {{ $item->chapter->id }}: {{ Str::limit($item->chapter->title, 20) }}</div>
                             @elseif($item->item_type === 'spell' && $item->spell)
                                 <div>Spell: {{ Str::limit($item->spell->title, 20) }}</div>

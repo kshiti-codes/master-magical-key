@@ -5,7 +5,7 @@
     .products-container {
         max-width: 1400px;
         margin: 0 auto;
-        padding: 40px 20px;
+        padding: 30px 30px;
         position: relative;
         z-index: 1;
     }
@@ -14,9 +14,9 @@
         font-family: 'Cinzel', serif;
         color: #fff;
         text-align: center;
-        font-size: 2.5rem;
-        margin-bottom: 15px;
+        font-size: 1.5rem;
         letter-spacing: 4px;
+        margin: 0;
         text-shadow: 0 0 20px rgba(138, 43, 226, 0.9);
         animation: glow 2s ease-in-out infinite alternate;
     }
@@ -33,8 +33,8 @@
     .products-subtitle {
         text-align: center;
         color: rgba(255, 255, 255, 0.7);
-        margin-bottom: 40px;
-        font-size: 1.1rem;
+        margin: 0 0 30px;
+        font-size: 1rem;
         letter-spacing: 2px;
     }
     
@@ -61,7 +61,7 @@
     /* Desktop View - Grid Layout */
     .products-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
         gap: 30px;
         margin-bottom: 40px;
     }
@@ -69,7 +69,7 @@
     .product-card {
         background: rgba(10, 10, 30, 0.8);
         border-radius: 15px;
-        padding: 25px;
+        padding: 10px;
         border: 1px solid rgba(138, 43, 226, 0.4);
         box-shadow: 0 0 30px rgba(138, 43, 226, 0.3);
         backdrop-filter: blur(10px);
@@ -89,8 +89,8 @@
         position: absolute;
         top: -50%;
         left: -50%;
-        width: 150%;
-        height: 150%;
+        width: 100%;
+        height: 100%;
         background: radial-gradient(circle, rgba(138, 43, 226, 0.1) 0%, transparent 70%);
         opacity: 0;
         transition: opacity 0.4s ease;
@@ -102,14 +102,15 @@
     }
     
     .product-image-container {
-        width: 100%;
-        height: 200px;
+        width: 80%;
+        height: 150px;
         border-radius: 10px;
         overflow: hidden;
-        margin-bottom: 20px;
         background: rgba(138, 43, 226, 0.1);
         border: 1px solid rgba(138, 43, 226, 0.3);
         position: relative;
+        left: 10%;
+        margin-bottom: 15px;
     }
     
     .product-image {
@@ -127,6 +128,7 @@
         width: 100%;
         height: 100%;
         display: flex;
+        left: 10%;
         align-items: center;
         justify-content: center;
         flex-direction: column;
@@ -140,13 +142,13 @@
     
     .product-badge {
         position: absolute;
-        top: 15px;
-        right: 15px;
+        top: 10px;
+        right: 10px;
         background: rgba(138, 43, 226, 0.9);
         color: white;
         padding: 5px 15px;
         border-radius: 20px;
-        font-size: 0.75rem;
+        font-size: 12px;
         font-weight: bold;
         letter-spacing: 1px;
         z-index: 2;
@@ -159,9 +161,9 @@
     .product-title {
         font-family: 'Cinzel', serif;
         color: #d8b5ff;
-        font-size: 1.2rem;
+        font-size: 14px;
+        margin: 0 0 2px;
         letter-spacing: 1px;
-        margin-bottom: 15px;
         text-align: center;
         position: relative;
         z-index: 1;
@@ -169,31 +171,30 @@
     
     .product-description {
         color: rgba(255, 255, 255, 0.8);
-        font-size: 0.95rem;
-        line-height: 1.6;
-        margin-bottom: 20px;
+        font-size: 12px;
+        line-height: 16px;
         text-align: center;
-        min-height: 80px;
+        margin-bottom: 5px;
     }
     
     .product-price-container {
         text-align: center;
-        margin-bottom: 20px;
-        padding: 10px;
+        margin-bottom: 5px;
+        padding: 5px;
         background: rgba(138, 43, 226, 0.1);
         border-radius: 10px;
         border: 1px solid rgba(138, 43, 226, 0.3);
     }
     
     .product-price {
-        font-size: 1.2rem;
+        font-size: 14px;
         color: #fff;
         font-weight: bold;
-        margin-bottom: 5px;
+        margin-bottom: 2px;
     }
     
     .product-price-gst {
-        font-size: 0.85rem;
+        font-size: 12px;
         color: rgba(255, 255, 255, 0.6);
     }
     
@@ -208,11 +209,11 @@
         background: rgba(138, 43, 226, 0.6);
         color: white;
         border: 1px solid rgba(138, 43, 226, 0.8);
-        padding: 12px 20px;
+        padding: 10px 10px;
         border-radius: 30px;
         cursor: pointer;
         pointer-events: auto;
-        font-size: 1rem;
+        font-size: 14px;
         transition: all 0.3s ease;
         text-decoration: none;
         display: inline-flex;
@@ -378,13 +379,26 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 5px;
         }
-        
+
+        .product-image-container {
+            width: 100%;
+            height: 120px;
+            left: 0;
+        }
+
         .products-title {
-            font-size: 1rem;
+            font-size: 1.5rem;
         }
         
         .products-subtitle {
             font-size: 1rem;
+        }
+
+        .product-badge {
+            top: 10px;
+            right: 10px;
+            padding: 4px 12px;
+            font-size: 0.55rem;
         }
         
         .products-grid {
@@ -408,6 +422,10 @@
         .btn-add-cart {
             font-size: 0.85rem;
             padding: 8px 15px;
+        }
+        .btn-read-more {
+            font-size: 12px !important;
+            padding: 2px 5px;
         }
     }
 
@@ -450,6 +468,168 @@
         font-size: 12px;
         font-weight: bold;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Description Read More Button */
+    .btn-read-more {
+        background: rgba(138, 43, 226, 0.4);
+        color: #d8b5ff;
+        border: 1px solid rgba(138, 43, 226, 0.6);
+        padding: 3px 6px;
+        border-radius: 15px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-family: 'Rajdhani', sans-serif;
+    }
+
+    .btn-read-more:hover {
+        background: rgba(138, 43, 226, 0.7);
+        color: #fff;
+        transform: translateY(-2px);
+    }
+
+    /* Modal Styles */
+    .description-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        backdrop-filter: blur(5px);
+        animation: fadeIn 0.3s ease;
+    }
+
+    .description-modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content-wrapper {
+        background: rgba(10, 10, 30, 0.95);
+        border-radius: 20px;
+        padding: 0;
+        max-width: 800px;
+        width: 90%;
+        max-height: 80vh;
+        border: 2px solid rgba(138, 43, 226, 0.6);
+        box-shadow: 0 0 50px rgba(138, 43, 226, 0.5);
+        animation: slideUp 0.4s ease;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        background: rgba(138, 43, 226, 0.3);
+        padding: 10px 10px;
+        border-bottom: 1px solid rgba(138, 43, 226, 0.5);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-title {
+        font-family: 'Cinzel', serif;
+        color: #d8b5ff;
+        font-size: 14px;
+        margin: 0;
+        letter-spacing: 1px;
+        text-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+    }
+
+    .modal-close {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        font-size: 1rem;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-close:hover {
+        background: rgba(255, 0, 0, 0.6);
+        border-color: rgba(255, 0, 0, 0.8);
+        transform: rotate(90deg);
+    }
+
+    .modal-body {
+        padding: 10px;
+        max-height: calc(80vh - 100px);
+        overflow-y: auto;
+    }
+
+    .modal-description {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 12px;
+        line-height: 1;
+        text-align: left;
+        white-space: pre-line;
+    }
+
+    /* Custom Scrollbar for Modal */
+    .modal-body::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .modal-body::-webkit-scrollbar-track {
+        background: rgba(138, 43, 226, 0.1);
+        border-radius: 10px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+        background: rgba(138, 43, 226, 0.5);
+        border-radius: 10px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb:hover {
+        background: rgba(138, 43, 226, 0.8);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .modal-content-wrapper {
+            width: 95%;
+            max-height: 90vh;
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-description {
+            font-size: 0.85rem;
+        }
     }
 </style>
 @endpush
@@ -508,6 +688,15 @@
                 </div>
                 
                 <h2 class="product-title">{{ $product->title }}</h2>
+
+                <div class="product-description">
+                    {{ Str::limit($product->description, 50) }}
+                    @if(strlen($product->description) > 50)
+                        <button class="btn-read-more" onclick="openDescriptionModal({{ $product->id }}, '{{ addslashes($product->title) }}', `{{ addslashes($product->description) }}`)">
+                            <i class="fas fa-book-open"></i> Read More
+                        </button>
+                    @endif
+                </div>
                 
                 <div class="product-price-container">
                     <div class="product-price">${{ number_format($product->price, 2) }} AUD</div>
@@ -573,6 +762,16 @@
                 @endphp
                 
                 <div class="product-info">
+                    <div class="product-image-container">
+                        @if($product->image)
+                            <img src="{{ $product->image_url }}" alt="{{ $product->title }}" class="product-image">
+                        @else
+                            <div class="no-image-placeholder">
+                                <i class="fas fa-key"></i>
+                                <span>{{ $product->title }}</span>
+                            </div>
+                        @endif
+                    </div>
                     <h2 class="product-list-title">
                         {{ $product->title }}
                         @if($hasPurchased)
@@ -585,6 +784,14 @@
                             </span>
                         @endif
                     </h2>
+                    <div class="product-description">
+                        {{ Str::limit($product->description, 50) }}
+                        @if(strlen($product->description) > 50)
+                            <button class="btn-read-more" onclick="openDescriptionModal({{ $product->id }}, '{{ addslashes($product->title) }}', `{{ addslashes($product->description) }}`)">
+                                <i class="fas fa-book-open"></i> Read More
+                            </button>
+                        @endif
+                    </div>
                     <p class="product-list-price">${{ number_format($product->price, 2) }} AUD</p>
                     @if($product->price > 0)
                         <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.75rem; margin-top: 2px;">
@@ -648,6 +855,21 @@
         <span class="cart-items-count">{{ $cartItemCount }}</span>
     </a>
     @endif
+
+    <!-- Description Modal -->
+    <div id="descriptionModal" class="description-modal">
+        <div class="modal-content-wrapper">
+            <div class="modal-header">
+                <h2 id="modalTitle" class="modal-title"></h2>
+                <button class="modal-close" onclick="closeDescriptionModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modalDescription" class="modal-description"></div>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -671,5 +893,39 @@
             });
         });
     });
+</script>
+<script>
+function openDescriptionModal(productId, productTitle, productDescription) {
+    const modal = document.getElementById('descriptionModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDescription = document.getElementById('modalDescription');
+    
+    modalTitle.textContent = productTitle;
+    modalDescription.textContent = productDescription;
+    
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevent background scroll
+}
+
+function closeDescriptionModal() {
+    const modal = document.getElementById('descriptionModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = ''; // Restore scroll
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('descriptionModal');
+    if (event.target === modal) {
+        closeDescriptionModal();
+    }
+});
+
+// Close modal with ESC key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeDescriptionModal();
+    }
+});
 </script>
 @endpush
