@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Select 6 random photos
     const selectedPhotos = [];
     while (selectedPhotos.length < 6) {
-        const randomIndex = Math.floor(Math.random() * photoCount) + 1;
+        const randomIndex = Math.floor(Math.random() * photoCount) + 1;  
         if (!selectedPhotos.includes(randomIndex)) {
             selectedPhotos.push(randomIndex);
         }
