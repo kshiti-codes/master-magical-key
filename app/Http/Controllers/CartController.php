@@ -6,6 +6,7 @@ use App\Models\Chapter;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Spell;
+use App\Models\PromoCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -129,6 +130,44 @@ class CartController extends Controller
         $cart->removeItem($request->cart_item_id);
 
         return back()->with('success', 'Item removed from cart.');
+    }
+
+    /**
+     * Apply a promo code to the cart.
+     */
+    public function applyPromoCode(Request $request)
+    {
+        $code = strtoupper(trim($request->input('promo_code', '')));
+
+        $promo = PromoCode::where('code', $code)->first();
+
+        if (!$promo || !$promo->isValid()) {
+            return back()->with('promo_error', 'Invalid or expired promo code.');
+        }
+
+        $cart = Auth::user()->getCart();
+        $subtotal = $cart->subtotal;
+
+        if ($promo->min_order_amount && $subtotal < $promo->min_order_amount) {
+            return back()->with('promo_error', 'Minimum order of $' . number_format($promo->min_order_amount, 2) . ' required.');
+        }
+
+        $discount = $promo->calculateDiscount($subtotal);
+
+        $request->session()->put('promo_code', $promo->code);
+        $request->session()->put('promo_id', $promo->id);
+        $request->session()->put('promo_discount', $discount);
+
+        return back()->with('promo_success', 'Promo code applied!');
+    }
+
+    /**
+     * Remove the applied promo code.
+     */
+    public function removePromoCode(Request $request)
+    {
+        $request->session()->forget(['promo_code', 'promo_id', 'promo_discount']);
+        return back();
     }
 
     /**

@@ -86,6 +86,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/cart/add', [CartController::class, 'addItem'])->name('cart.add');
     Route::post('/cart/update', [CartController::class, 'updateItem'])->name('cart.update');
     Route::delete('/cart/remove', [CartController::class, 'removeItem'])->name('cart.remove');
+    Route::post('/cart/apply-promo', [CartController::class, 'applyPromoCode'])->name('cart.applyPromo');
+    Route::delete('/cart/remove-promo', [CartController::class, 'removePromoCode'])->name('cart.removePromo');
     Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
     Route::get('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
     
@@ -147,6 +149,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/spells/{spell}/preview', [App\Http\Controllers\Admin\SpellAdminController::class, 'preview'])->name('spells.preview');
     Route::post('spells/{spell}/upload-pdf', [SpellAdminController::class, 'uploadPdf'])
         ->name('spells.upload-pdf');
+
+    // Promo codes
+    Route::get('/promo-codes', [App\Http\Controllers\Admin\PromoCodeAdminController::class, 'index'])->name('promo-codes.index');
+    Route::get('/promo-codes/create', [App\Http\Controllers\Admin\PromoCodeAdminController::class, 'create'])->name('promo-codes.create');
+    Route::post('/promo-codes', [App\Http\Controllers\Admin\PromoCodeAdminController::class, 'store'])->name('promo-codes.store');
+    Route::delete('/promo-codes/{promoCode}', [App\Http\Controllers\Admin\PromoCodeAdminController::class, 'destroy'])->name('promo-codes.destroy');
+    Route::post('/promo-codes/{promoCode}/toggle', [App\Http\Controllers\Admin\PromoCodeAdminController::class, 'toggle'])->name('promo-codes.toggle');
     
     // User management
     Route::put('users/{user}/content', [UserAdminController::class, 'updateOwnedContent'])->name('users.update-content');

@@ -338,20 +338,74 @@
         
         <div class="cart-summary">
             <h3 class="summary-title">Order Summary</h3>
-            
+
+            <!-- Promo Code Input -->
+            @if(session('promo_success'))
+                <div class="alert alert-success" style="padding: 8px 12px; font-size: 0.85rem; margin-bottom: 10px;">
+                    {{ session('promo_success') }}
+                </div>
+            @endif
+            @if(session('promo_error'))
+                <div class="alert alert-danger" style="padding: 8px 12px; font-size: 0.85rem; margin-bottom: 10px;">
+                    {{ session('promo_error') }}
+                </div>
+            @endif
+
+            @if(session('promo_code'))
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,200,100,0.12); border: 1px solid rgba(0,200,100,0.3); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px;">
+                    <span style="color: #a0ffd8; font-size: 0.85rem;">
+                        <i class="fas fa-tag"></i> <strong>{{ session('promo_code') }}</strong> applied
+                    </span>
+                    <form action="{{ route('cart.removePromo') }}" method="POST" style="margin:0;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" style="background:none; border:none; color:rgba(255,255,255,0.5); cursor:pointer; font-size:0.8rem; padding:0;">
+                            <i class="fas fa-times"></i> Remove
+                        </button>
+                    </form>
+                </div>
+            @else
+                <form action="{{ route('cart.applyPromo') }}" method="POST" style="display:flex; gap:8px; margin-bottom:15px;">
+                    @csrf
+                    <input type="text" name="promo_code" placeholder="Promo code"
+                           style="flex:1; background:rgba(10,10,30,0.6); border:1px solid rgba(138,43,226,0.3); border-radius:8px; padding:8px 12px; color:white; font-size:0.85rem; outline:none;"
+                           onfocus="this.style.borderColor='rgba(138,43,226,0.7)'" onblur="this.style.borderColor='rgba(138,43,226,0.3)'">
+                    <button type="submit"
+                            style="background:rgba(138,43,226,0.4); border:1px solid rgba(138,43,226,0.6); color:#d8b5ff; padding:8px 14px; border-radius:8px; cursor:pointer; font-size:0.85rem; white-space:nowrap;"
+                            onmouseover="this.style.background='rgba(138,43,226,0.6)'" onmouseout="this.style.background='rgba(138,43,226,0.4)'">
+                        Apply
+                    </button>
+                </form>
+            @endif
+            <!-- End Promo Code -->
+
+            @php
+                $promoDiscount = min(session('promo_discount', 0), $cart->subtotal);
+                $discountedSubtotal = $cart->subtotal - $promoDiscount;
+                $gst = round($discountedSubtotal * 0.1, 2);
+                $finalTotal = $discountedSubtotal + $gst;
+            @endphp
+
             <div class="summary-row">
                 <div class="summary-label">Subtotal</div>
                 <div class="summary-value">${{ number_format($cart->subtotal, 2) }}</div>
             </div>
-            
+
+            @if($promoDiscount > 0)
+            <div class="summary-row">
+                <div class="summary-label" style="color:#a0ffd8;">Discount</div>
+                <div class="summary-value" style="color:#a0ffd8;">-${{ number_format($promoDiscount, 2) }}</div>
+            </div>
+            @endif
+
             <div class="summary-row">
                 <div class="summary-label">GST (10%)</div>
-                <div class="summary-value">${{ number_format($cart->tax, 2) }}</div>
+                <div class="summary-value">${{ number_format($gst, 2) }}</div>
             </div>
-            
+
             <div class="summary-row total">
                 <div class="summary-label">Total</div>
-                <div class="summary-value">${{ number_format($cart->total, 2) }}</div>
+                <div class="summary-value">${{ number_format($finalTotal, 2) }}</div>
             </div>
             
             <div class="cart-actions">

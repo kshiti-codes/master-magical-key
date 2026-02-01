@@ -35,10 +35,12 @@ class PaymentController extends Controller
                     ->with('error', 'Your cart is empty. Please add items before checkout.');
             }
             
-            // Calculate prices including GST
+            // Calculate prices including GST (with promo discount)
             $subtotal = $cart->subtotal;
-            $tax = $cart->tax;
-            $total = $cart->total;
+            $promoDiscount = min($request->session()->get('promo_discount', 0), $subtotal);
+            $discountedSubtotal = $subtotal - $promoDiscount;
+            $tax = round($discountedSubtotal * 0.1, 2);
+            $total = $discountedSubtotal + $tax;
             
             // Log cart details for debugging
             \Log::info('Cart details before PayPal checkout', [
@@ -51,12 +53,16 @@ class PaymentController extends Controller
             
             // Prepare PayPal items with null checks
             $paypalItems = [];
+            $taxRatio = ($subtotal > 0 && $promoDiscount > 0) ? $discountedSubtotal / $subtotal : 1.0;
+            $actualTaxTotal = 0;
+
             foreach ($cart->items as $item) {
                 // Skip any null items
                 if (!$item) continue;
                 
                 $itemSubtotal = $item->price;
-                $itemTax = round($itemSubtotal * 0.1, 2);
+                $itemTax = round($itemSubtotal * 0.1 * $taxRatio, 2);
+                $actualTaxTotal += $itemTax * $item->quantity;
                 
                 $itemName = "Unknown Item";
                 if($item->item_type === 'product' && $item->product) {
@@ -83,6 +89,10 @@ class PaymentController extends Controller
                     ]
                 ];
             }
+
+            // Recalculate tax/total from adjusted per-item taxes so PayPal validation passes
+            $tax = round($actualTaxTotal, 2);
+            $total = $discountedSubtotal + $tax;
             
             // Check if we have PayPal items
             if (empty($paypalItems)) {
@@ -160,6 +170,10 @@ class PaymentController extends Controller
                                         "currency_code" => 'AUD',
                                         "value" => number_format($subtotal, 2, '.', '')
                                     ],
+                                    ...($promoDiscount > 0 ? ["discount" => [
+                                        "currency_code" => 'AUD',
+                                        "value" => number_format($promoDiscount, 2, '.', '')
+                                    ]] : []),
                                     "tax_total" => [
                                         "currency_code" => 'AUD',
                                         "value" => number_format($tax, 2, '.', '')
@@ -295,9 +309,16 @@ class PaymentController extends Controller
             list($purchase, $purchasedItems) = $this->processCartPurchase($cartId, $captureId, $amount, $currency, $subtotal, $tax, $total);
             
             // Clear session data
+            // Increment promo used_count if one was applied
+            $promoId = $request->session()->get('promo_id');
+            if ($promoId) {
+                \App\Models\PromoCode::find($promoId)?->increment('used_count');
+            }
+
             $request->session()->forget([
                 'paypal_order_id', 'purchase_type', 'product_id', 'chapter_id', 'spell_id', 
-                'training_video_id', 'cart_id', 'subtotal', 'tax', 'total'
+                'training_video_id', 'cart_id', 'subtotal', 'tax', 'total',
+                'promo_code', 'promo_id', 'promo_discount'
             ]);
             
             // Return success view

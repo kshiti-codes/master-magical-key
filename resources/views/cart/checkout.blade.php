@@ -353,18 +353,31 @@
         @endif
         
         <!-- Price Summary -->
+        @php
+            $promoDiscount = min(session('promo_discount', 0), $cart->subtotal);
+            $discountedSubtotal = $cart->subtotal - $promoDiscount;
+            $gst = round($discountedSubtotal * 0.1, 2);
+            $finalTotal = $discountedSubtotal + $gst;
+        @endphp
+
         <table class="price-summary-table">
             <tr class="subtotal-row">
                 <td class="label">Subtotal:</td>
                 <td class="value">${{ number_format($cart->subtotal, 2) }}</td>
             </tr>
+            @if($promoDiscount > 0)
+            <tr>
+                <td class="label" style="color:#a0ffd8;">Discount ({{ session('promo_code') }}):</td>
+                <td class="value" style="color:#a0ffd8;">-${{ number_format($promoDiscount, 2) }}</td>
+            </tr>
+            @endif
             <tr class="tax-row">
                 <td class="label">GST (10%):</td>
-                <td class="value">${{ number_format($cart->tax, 2) }}</td>
+                <td class="value">${{ number_format($gst, 2) }}</td>
             </tr>
             <tr class="total-row">
                 <td class="label">Total:</td>
-                <td class="value">${{ number_format($cart->total, 2) }} AUD</td>
+                <td class="value">${{ number_format($finalTotal, 2) }} AUD</td>
             </tr>
         </table>
         

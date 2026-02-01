@@ -103,7 +103,11 @@
 
                 <div class="admin-menu-divider"></div>
                 <div class="admin-menu-category">Marketing</div>
-
+                <li>
+                    <a href="{{ route('admin.promo-codes.index') }}" class="{{ request()->routeIs('admin.promo-codes*') ? 'active' : '' }}">
+                        <i class="fas fa-tag"></i> Promo Codes
+                    </a>
+                </li>
                 <li>
                     <a href="{{ route('admin.email-campaigns.index') }}" class="{{ request()->routeIs('admin.email-campaigns*') ? 'active' : '' }}">
                         <i class="fas fa-envelope"></i> Email Campaigns
