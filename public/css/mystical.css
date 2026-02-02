@@ -37,6 +37,12 @@ body::before {
     pointer-events: none;
 }
 
+@media (max-width: 768px) {
+    body {
+        background-attachment: scroll;
+    }
+}
+
 /* Page transition animations */
 .fade-transition {
     animation: fadeTransition 0.5s ease-out;
