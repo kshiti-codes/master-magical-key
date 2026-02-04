@@ -282,6 +282,103 @@
             height: 500px;
         }
     }
+    /* Mobile Responsive Styles for Fallback */
+    @media (max-width: 768px) {
+        .pdf-iframe-wrapper { 
+            height: 500px; 
+        }
+        
+        .title-audio-container { 
+            flex-direction: column; 
+            gap: 15px; 
+        }
+        
+        .pdf-viewer-title, 
+        audio, 
+        .fallback-container { 
+            width: 100%; 
+        }
+        
+        /* PDF Fallback Mobile */
+        .fallback-container {
+            padding: 15px;
+        }
+        
+        .fallback-container i {
+            font-size: 1.5rem !important;
+        }
+        
+        .fallback-container p {
+            font-size: 0.8rem !important;
+            margin-bottom: 12px !important;
+        }
+        
+        /* PDF Download Section Mobile */
+        div[style*="padding: 30px"] {
+            padding: 20px !important;
+        }
+        
+        div[style*="padding: 30px"] i {
+            font-size: 3rem !important;
+            margin-bottom: 15px !important;
+        }
+        
+        div[style*="padding: 30px"] h3 {
+            font-size: 1rem !important;
+            margin-bottom: 10px !important;
+        }
+        
+        div[style*="padding: 30px"] p {
+            font-size: 0.85rem !important;
+            margin-bottom: 20px !important;
+        }
+        
+        /* Download Buttons Mobile */
+        .btn-download {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .btn-download i {
+            font-size: 1rem;
+        }
+    }
+
+    /* Extra Small Devices (phones, less than 480px) */
+    @media (max-width: 480px) {
+        .product-detail-container {
+            padding: 20px 15px;
+        }
+        
+        .back-link {
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        
+        .pdf-viewer-title {
+            font-size: 12px;
+            padding: 8px;
+        }
+        
+        .fallback-container {
+            padding: 15px 10px;
+        }
+        
+        .fallback-container i {
+            font-size: 1.2rem !important;
+        }
+        
+        .fallback-container p {
+            font-size: 0.75rem !important;
+        }
+        
+        .btn-download {
+            padding: 8px 15px;
+            font-size: 0.85rem;
+        }
+    }
 </style>
 @endpush
 
@@ -299,10 +396,6 @@
             @if($product->audio_file_path)
                 @if($isSafari)
                     <div class="fallback-container">
-                        <i class="fas fa-music" style="font-size: 2rem; color: rgba(138, 43, 226, 0.8); margin-bottom: 10px;"></i>
-                        <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 15px; font-size: 0.85rem;">
-                            Audio playback in Safari
-                        </p>
                         <a href="{{ route('products.download-audio', $product->slug) }}" 
                            download="{{ Str::slug($product->title) }}-audio.mp3"
                            class="btn-download">
