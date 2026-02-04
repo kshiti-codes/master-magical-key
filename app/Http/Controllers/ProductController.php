@@ -64,8 +64,23 @@ class ProductController extends Controller
                     ->exists();
             }
         }
+        $isSafari = $this->isSafariBrowser();
 
-        return view('products.show', compact('product', 'hasPurchased', 'inCart'));
+        return view('products.show', compact('product', 'hasPurchased', 'inCart', 'isSafari'));
+    }
+
+    private function isSafariBrowser()
+    {
+        $userAgent = request()->header('User-Agent');
+        
+        $isSafari = stripos($userAgent, 'Safari') !== false && 
+                    stripos($userAgent, 'Chrome') === false;
+        
+        $isIOS = stripos($userAgent, 'iPhone') !== false || 
+                stripos($userAgent, 'iPad') !== false || 
+                stripos($userAgent, 'iPod') !== false;
+        
+        return $isSafari || $isIOS;
     }
 
     /**

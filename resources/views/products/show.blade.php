@@ -297,48 +297,50 @@
                 {{ $product->title }}
             </div>
             @if($product->audio_file_path)
-            <audio controls>   
-                <source src="{{ route('products.download-audio', $product->slug) }}" type="audio/mp3">
-                    Your browser does not support the audio element.
-            </audio>
-            <!-- Safari/iOS Audio Fallback -->
-            <div id="safari-audio-container" class="audio-fallback-container" style="display: none;">
-                <i class="fas fa-music" style="font-size: 2rem; color: rgba(138, 43, 226, 0.8); margin-bottom: 10px;"></i>
-                <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 15px; font-size: 0.85rem;">
-                    Audio playback issues in Safari
-                </p>
-                <a href="{{ route('products.download-audio', $product->slug) }}" 
-                   download="{{ Str::slug($product->title) }}-audio.mp3"
-                   class="btn-download-audio">
-                    <i class="fas fa-download"></i> Download Audio
-                </a>
-            </div>
+                @if($isSafari)
+                    <div class="fallback-container">
+                        <i class="fas fa-music" style="font-size: 2rem; color: rgba(138, 43, 226, 0.8); margin-bottom: 10px;"></i>
+                        <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 15px; font-size: 0.85rem;">
+                            Audio playback in Safari
+                        </p>
+                        <a href="{{ route('products.download-audio', $product->slug) }}" 
+                           download="{{ Str::slug($product->title) }}-audio.mp3"
+                           class="btn-download">
+                            <i class="fas fa-download"></i> Download Audio
+                        </a>
+                    </div>
+                @else
+                    <audio controls>   
+                        <source src="{{ route('products.download-audio', $product->slug) }}" type="audio/mp3">
+                        Your browser does not support the audio element.
+                    </audio>
+                @endif
             @endif   
         </div>
         @if($product->pdf_file_path)
-        <div class="pdf-iframe-wrapper">
-            <iframe src="{{ route('products.download-pdf', $product->slug) }}#toolbar=1" type="application/pdf"></iframe>
-        </div>
-
-        <!-- Safari/iOS Fallback with Preview -->
-        <div id="safari-pdf-container" style="display: none; text-align: center; padding: 30px;">
-            <div style="background: rgba(10, 10, 30, 0.95); border-radius: 15px; padding: 30px; border: 1px solid rgba(138, 43, 226, 0.4);">
-                <i class="fas fa-file-pdf" style="font-size: 5rem; color: rgba(138, 43, 226, 0.8); margin-bottom: 20px;"></i>
-                <h3 style="color: #d8b5ff; margin-bottom: 15px; font-family: 'Cinzel', serif;">
-                    {{ $product->title }}
-                </h3>
-                <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 25px; font-size: 0.95rem;">
-                    Safari doesn't support PDF viewing with controls in the browser.<br>
-                    Please download the PDF to view it with full functionality.
-                </p>
-                <a href="{{ route('products.download-pdf', $product->slug) }}" 
-                download="{{ Str::slug($product->title) }}.pdf"
-                class="btn-download"
-                style="display: inline-flex; align-items: center; gap: 10px;">
-                    <i class="fas fa-download"></i> Download PDF
-                </a>
-            </div>
-        </div>
+            @if($isSafari)
+                <div style="width: 100%; text-align: center; padding: 30px; background: rgba(10, 10, 30, 0.95); border-radius: 15px; border: 1px solid rgba(138, 43, 226, 0.4);">
+                    <i class="fas fa-file-pdf" style="font-size: 5rem; color: rgba(138, 43, 226, 0.8); margin-bottom: 20px;"></i>
+                    <h3 style="color: #d8b5ff; margin-bottom: 15px; font-family: 'Cinzel', serif; letter-spacing: 2px;">
+                        {{ $product->title }}
+                    </h3>
+                    <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 25px; font-size: 0.95rem; line-height: 1.6;">
+                        Safari doesn't support PDF viewing with controls in the browser.<br>
+                        Please download the PDF to view it with full functionality.
+                    </p>
+                    <a href="{{ route('products.download-pdf', $product->slug) }}" 
+                       download="{{ Str::slug($product->title) }}.pdf"
+                       class="btn-download">
+                        <i class="fas fa-download"></i> Download PDF
+                    </a>
+                </div>
+            @else
+                <div class="pdf-iframe-wrapper">
+                    <iframe src="{{ route('products.download-pdf', $product->slug) }}#toolbar=1&navpanes=1" 
+                            type="application/pdf">
+                    </iframe>
+                </div>
+            @endif
         @else
         <div class="no-image-placeholder" style="margin-top: 20px;">
             <i class="fas fa-file-pdf"></i>
@@ -364,33 +366,6 @@
 
 @push('scripts')
 <script>
-// Safari Detection Script
-(function() {
-    // Comprehensive Safari detection
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    
-    if (isSafari || isIOS) {
-        // PDF Fallback
-        const iframe = document.getElementById('pdfIframe');
-        const pdfFallback = document.getElementById('safari-pdf-container');
-        
-        if (iframe && pdfFallback) {
-            iframe.style.display = 'none';
-            pdfFallback.style.display = 'block';
-        }
-        
-        // Audio Fallback
-        const audioPlayer = document.getElementById('audioPlayer');
-        const audioFallback = document.getElementById('safari-audio-container');
-        
-        if (audioPlayer && audioFallback) {
-            audioPlayer.style.display = 'none';
-            audioFallback.style.display = 'block';
-        }
-    }
-})();
-
 function showAuthPopup() {
     document.getElementById('authPopup').classList.add('active');
     document.body.style.overflow = 'hidden';
