@@ -54,3 +54,5 @@ Homestead.json
 .phpactor.json
 auth.json
 >>>>>>> 72d19a125bbf4db86237b9160665e1b79be9d00d
+vendor.zip
+.DS_Store

@@ -177,7 +177,7 @@
                 @endif
                 
                 <input type="file" class="admin-form-file" id="audio_file" name="audio_file" accept="audio/mpeg,audio/wav,audio/x-m4a,audio/ogg">
-                <small class="admin-form-help">MP3, WAV, M4A, or OGG. Max 100MB</small>
+                <small class="admin-form-help">MP3, WAV, or OGG. Max 100MB</small>
             </div>
         </div>
     </div>

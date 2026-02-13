@@ -6,6 +6,7 @@
         max-width: 1400px;
         margin: 0 auto;
         padding: 30px 30px;
+        margin-bottom: 40px;
         position: relative;
         z-index: 1;
     }
@@ -631,6 +632,26 @@
             font-size: 0.85rem;
         }
     }
+    .legal-ticker-track {
+        display: flex;
+        position: fixed;
+        bottom: 60px;
+        width: max-content;
+        animation: legalScroll 30s linear infinite;
+    }
+
+    .legal-ticker-text {
+        white-space: nowrap;
+        font-size: 0.72rem;
+        background: rgba(255, 255, 255, 0.1);
+        letter-spacing: 0.8px;
+        padding-right: 0;
+    }
+
+    @keyframes legalScroll {
+        0%   { transform: translateX(0); }
+        100% { transform: translateX(-20%); }
+    }
 </style>
 @endpush
 
@@ -868,6 +889,24 @@
             <div class="modal-body">
                 <div id="modalDescription" class="modal-description"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- scrollin disclaimer -->
+    <div>
+        <div class="legal-ticker-track">
+            <span class="legal-ticker-text">
+                The Master Magical Key is a digital self-guided experience provided by People of Peony Pty Ltd (ABN 35 629 544 921). By purchasing you acknowledge you are buying immediate digital access, not a physical item or personalised advice, and results are not guaranteed.
+                &nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;
+                The Master Magical Key is a digital self-guided experience provided by People of Peony Pty Ltd (ABN 35 629 544 921). By purchasing you acknowledge you are buying immediate digital access, not a physical item or personalised advice, and results are not guaranteed.
+                &nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;
+            </span>
+            <span class="legal-ticker-text" aria-hidden="true">
+                The Master Magical Key is a digital self-guided experience provided by People of Peony Pty Ltd (ABN 35 629 544 921). By purchasing you acknowledge you are buying immediate digital access, not a physical item or personalised advice, and results are not guaranteed.
+                &nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;
+                The Master Magical Key is a digital self-guided experience provided by People of Peony Pty Ltd (ABN 35 629 544 921). By purchasing you acknowledge you are buying immediate digital access, not a physical item or personalised advice, and results are not guaranteed.
+                &nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;
+            </span>
         </div>
     </div>
 </div>

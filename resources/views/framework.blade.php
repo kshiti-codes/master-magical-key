@@ -501,7 +501,7 @@
         </p>
         
         <div class="signature">
-            Chanell xxxx
+            Coco Chanell xxxx
         </div>
     </div>
 </div>

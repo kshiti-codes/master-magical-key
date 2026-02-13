@@ -568,6 +568,324 @@
                     </div>
                 </div>
             </div>
+
+            <div class="faq-item">
+                <div class="faq-header">
+                    <h3 class="faq-question">refund policy 🤍</h3>
+                    <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="faq-content">
+                    <div class="faq-content-inner">
+                        <p class="faq-text">
+                            <strong>digital access policy</strong><br>
+                            this is a digital experience.<br>
+                            once access is delivered, it cannot be returned.
+                        </p>
+                        <p class="faq-text">
+                            purchases are final for:<br>
+                            — change of mind<br>
+                            — curiosity purchases<br>
+                            — not resonating with the material<br>
+                            — choosing not to complete the experience
+                        </p>
+                        <p class="faq-text">
+                            under Australian Consumer Law you are entitled to a refund if the product is faulty, not delivered, or cannot be accessed.<br>
+                            if this occurs, contact us and we will resolve it.
+                        </p>
+                        <p class="faq-text">
+                            we do not guarantee personal, financial or emotional outcomes.<br>
+                            the Key is a self-guided tool.<br>
+                            your results depend entirely on your own actions and decisions.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header">
+                    <h3 class="faq-question">disclaimer 🤍</h3>
+                    <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="faq-content">
+                    <div class="faq-content-inner">
+                        <p class="faq-text">
+                            the Money Key is a guided reflective exercise.
+                        </p>
+                        <p class="faq-text">
+                            it is not:<br>
+                            — financial advice<br>
+                            — investment advice<br>
+                            — therapeutic counselling<br>
+                            — psychological treatment<br>
+                            — medical advice
+                        </p>
+                        <p class="faq-text">
+                            nothing on this website should be relied upon as professional advice.<br>
+                            always seek a qualified professional for financial, legal, medical or mental health decisions.
+                        </p>
+                        <p class="faq-text">
+                            payments are securely processed through PayPal.<br>
+                            we do not store or have access to your card details.
+                        </p>
+                        <p class="faq-text">
+                            your email may receive occasional updates.<br>
+                            you can unsubscribe at any time using the link in any email.<br>
+                            you may request your information be deleted by contacting us.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header">
+                    <h3 class="faq-question">privacy statement & terms of use 🤍</h3>
+                    <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="faq-content">
+                    <div class="faq-content-inner">
+                        <p class="faq-text">
+                            by purchasing you acknowledge:<br>
+                            — this is a digital product<br>
+                            — access is delivered immediately<br>
+                            — no physical item is shipped<br>
+                            — you are purchasing access to content, not guaranteed results<br>
+                            — you are responsible for your own decisions and actions
+                        </p>
+                        <p class="faq-text">
+                            sharing, reproducing or distributing the content publicly is not permitted.
+                        </p>
+                        <p class="faq-text">
+                            we collect your name and email to deliver access to your purchase and to communicate updates related to your access.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header">
+                    <h3 class="faq-question">need help with your access? 🤍</h3>
+                    <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="faq-content">
+                    <div class="faq-content-inner">
+                        <p class="faq-text">
+                            for any questions about your access, please contact us at<br>
+                            <strong>support@mastermagicalkey.com</strong>
+                        </p>
+                        <p class="faq-text">
+                            we aim to respond within 2 business days.<br>
+                            this inbox is for purchase and access support only.<br>
+                            the Master Magical Key is a self-guided digital experience and personalised coaching or advice is not provided via email.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header">
+                    <h3 class="faq-question">can I use the Key in my own language?</h3>
+                    <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="faq-content">
+                    <div class="faq-content-inner">
+                        <p class="faq-text">
+                            yes — you can complete the Key in any language you naturally think in.<br>
+                            first listen passively to the original audio in my voice 3 times, then speak the statement in your language 6 times and read it in your language 9 times.<br>
+                            the words may be translated, but the audio stays the same and acts as the guide.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header">
+                    <h3 class="faq-question">is there a right way to say or read the words?</h3>
+                    <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="faq-content">
+                    <div class="faq-content-inner">
+                        <p class="faq-text">
+                            no — you do not need perfect pronunciation, reading ability, accent, mood, or environment.<br>
+                            you cannot fail or do it wrong.<br>
+                            if you stumble, forget words, misread, go slowly, whisper, restart, or feel nothing — that is completely fine.<br>
+                            you are simply participating.<br>
+                            listen 3 times, speak 6 times, read 9 times.<br>
+                            just complete it once and return to your normal day.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header">
+                    <h3 class="faq-question">can I play it while driving, working, or multitasking?</h3>
+                    <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="faq-content">
+                    <div class="faq-content-inner">
+                        <p class="faq-text">
+                            no — you should sit and participate in the speaking and reading portions.<br>
+                            it needs your attention for those minutes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header">
+                    <h3 class="faq-question">should I focus hard or try to make something happen?</h3>
+                    <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="faq-content">
+                    <div class="faq-content-inner">
+                        <p class="faq-text">
+                            no — do not force concentration, visualise, or try to produce a feeling or result.<br>
+                            simply listen 3 times, then speak 6 times, then read 9 times at a normal pace and let the experience complete.<br>
+                            afterward there is nothing you need to analyse or repeat.<br>
+                            drink some water, return to your normal day, and allow your mind to settle naturally.<br>
+                            avoid immediately re-doing it, overthinking it, or searching for signs.<br>
+                            just leave it finished and carry on with ordinary life.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header">
+                    <h3 class="faq-question">should I try to track results or watch for signs?</h3>
+                    <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="faq-content">
+                    <div class="faq-content-inner">
+                        <p class="faq-text">
+                            no — do not monitor, test, or constantly check for proof.<br>
+                            over-watching keeps your attention on the loop instead of closing it.<br>
+                            just continue normal life.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header">
+                    <h3 class="faq-question">can I change the words?</h3>
+                    <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="faq-content">
+                    <div class="faq-content-inner">
+                        <p class="faq-text">
+                            you may translate them into your own language, but do not rewrite, add affirmations, or modify the structure.<br>
+                            the steps stay the same.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header">
+                    <h3 class="faq-question">should I combine it with other methods, rituals, or techniques?</h3>
+                    <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="faq-content">
+                    <div class="faq-content-inner">
+                        <p class="faq-text">
+                            no — complete it on its own.<br>
+                            you don't need to stack it with manifesting practices, tarot, scripting, or additional exercises.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header">
+                    <h3 class="faq-question">what if I feel emotional afterward?</h3>
+                    <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="faq-content">
+                    <div class="faq-content-inner">
+                        <p class="faq-text">
+                            that can happen — just rest, hydrate, and go gently for the day.<br>
+                            you don't need to interpret it.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header">
+                    <h3 class="faq-question">what if nothing obvious happens?</h3>
+                    <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="faq-content">
+                    <div class="faq-content-inner">
+                        <p class="faq-text">
+                            that is normal — the process is the completion itself.<br>
+                            you are not required to notice a change immediately.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header">
+                    <h3 class="faq-question">should I explain it to others while they are doing it?</h3>
+                    <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="faq-content">
+                    <div class="faq-content-inner">
+                        <p class="faq-text">
+                            let each person experience it directly.<br>
+                            avoid coaching or guiding them through it — they only need the instructions.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header">
+                    <h3 class="faq-question">is there anything else I need to know before using the Key?</h3>
+                    <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="faq-content">
+                    <div class="faq-content-inner">
+                        <p class="faq-text">
+                            each access is personal and must be completed by you, not for someone else.<br>
+                            you only need a quiet 11–30 minutes where you can hear the audio clearly (headphones optional).<br>
+                            if interrupted, simply restart later.
+                        </p>
+                        <p class="faq-text">
+                            it is a one-time access, not a subscription, and you can use it whenever you are ready.<br>
+                            you do not need belief, special mood, or perfect reading.
+                        </p>
+                        <p class="faq-text">
+                            do not rewrite, share, screenshot, coach others through it, or combine it with other practices.<br>
+                            do not track results, repeat it out of reassurance, or analyse afterward.<br>
+                            complete the steps once, rest, hydrate, and return to normal life.<br>
+                            feeling emotional, tired, or noticing nothing is all fine — just leave it finished.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header">
+                    <h3 class="faq-question">what if I have technical issues or can't access it?</h3>
+                    <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="faq-content">
+                    <div class="faq-content-inner">
+                        <p class="faq-text">
+                            after purchase you receive a downloadable PDF and audio file you can save and use anytime.<br>
+                            it works on any normal phone, tablet, or computer — no special apps or software required.<br>
+                            you only need internet to download it the first time.
+                        </p>
+                        <p class="faq-text">
+                            if you get interrupted, close the file, or lose your place — simply reopen it later and start again when you have a quiet 11 minutes.<br>
+                            you won't break it and nothing is lost.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     

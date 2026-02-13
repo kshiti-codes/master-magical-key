@@ -3,11 +3,12 @@
 .mystical-footer {
     background-color: transparent;
     color: rgb(255, 255, 255);
+    background-color: rgba(0, 0, 0, 0.522);
     position: fixed;
     bottom: 0;
     width: 100%;
     z-index: 100;
-    padding: 15px 0;
+    padding: 5px 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -49,9 +50,10 @@
 @media (max-width: 768px) {
     .mystical-footer {
         flex-direction: column;
-        gap: 10px;
+        gap: 5px;
         position: fixed !important;
         bottom:0;
+        padding: 5px 0;
     }
     
     .footer-copyright, .social-icons-container {
