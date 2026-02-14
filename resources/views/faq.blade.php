@@ -8,6 +8,7 @@
         padding: 30px 20px;
         position: relative;
         z-index: 1;
+        margin-bottom: 50px;
     }
     
     .faq-main-title {

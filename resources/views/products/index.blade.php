@@ -658,7 +658,7 @@
 @section('content')
 <div class="products-container">
     <h1 class="products-title">✨ The Master Magical Keys ✨</h1>
-    <p class="products-subtitle">Transform Your Reality with Divine Intelligence</p>
+    <p class="products-subtitle">A gentle 11-minute audio and reading experience you can do privately to help you reset and move forward around money. 🤍</p>
     
     @if(session('success'))
         <div class="alert alert-success">
