@@ -112,7 +112,7 @@
 
 @section('content')
 <div class="cart-container fade-transition">
-    <h1 class="cart-title">Your Mystical Cart</h1>
+    <h1 class="cart-title">Cart</h1>
     
     @if(session('success'))
         <div class="alert alert-success">
