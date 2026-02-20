@@ -74,7 +74,7 @@
         <p>Your purchased chapters are now available in your digital book. We hope they bring you wisdom and enlightenment on your journey.</p>
         
         <div style="text-align: center;">
-            <a href="{{ route('home') }}" class="button">Access Your Digital Book</a>
+            <a href="{{ route('products') }}" class="button">Access Your Digital Book</a>
         </div>
         
         <div class="footer">

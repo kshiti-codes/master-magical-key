@@ -743,7 +743,7 @@
                 @else
                     <div class="product-actions">
                         @auth
-                            <form action="{{ route('products.add-to-cart', $product->slug) }}" method="POST" style="flex: 1;">
+                            <!-- <form action="{{ route('products.add-to-cart', $product->slug) }}" method="POST" style="flex: 1;">
                                 @csrf
                                 <button type="submit" 
                                         class="btn-view-product {{ in_array($product->id, $productsInCart ?? []) ? 'btn-disabled' : '' }}" 
@@ -752,7 +752,20 @@
                                     <i class="fas {{ in_array($product->id, $productsInCart ?? []) ? 'fa-check' : 'fa-cart-plus' }}"></i> 
                                     {{ in_array($product->id, $productsInCart ?? []) ? 'Added' : 'Add to Cart' }}
                                 </button>
-                            </form>
+                            </form> -->
+                            @if(!in_array($product->id, $productsInCart ?? []))
+                                <form action="{{ route('products.add-to-cart', $product->slug) }}" method="POST" style="flex: 1;">
+                                    @csrf
+                                    <input type="hidden" name="buy_now" value="1">
+                                    <button type="submit" class="btn-view-product" style="width: 100%; border: none; background: rgba(80, 0, 180, 0.6);">
+                                        <i class="fas fa-bolt"></i> Buy Now
+                                    </button>
+                                </form>
+                            @else
+                                <a href="{{ route('cart.index') }}" class="btn-view-product" style="width: 100%; background: rgba(80, 0, 180, 0.6);">
+                                    <i class="fas fa-shopping-cart"></i> View Cart
+                                </a>
+                            @endif  
                         @else
                             <a href="{{ route('login') }}" class="btn-view-product">
                                 <i class="fas fa-sign-in-alt"></i> Login to Purchase
@@ -834,7 +847,7 @@
                 @else
                     <div class="product-actions-mobile">
                         @auth
-                            <form action="{{ route('products.add-to-cart', $product->slug) }}" method="POST" style="width: 100%;">
+                            <!-- <form action="{{ route('products.add-to-cart', $product->slug) }}" method="POST" style="width: 100%;">
                                 @csrf
                                 <button type="submit" 
                                         class="btn-view-product {{ in_array($product->id, $productsInCart ?? []) ? 'btn-disabled' : '' }}" 
@@ -843,7 +856,20 @@
                                     <i class="fas {{ in_array($product->id, $productsInCart ?? []) ? 'fa-check' : 'fa-cart-plus' }}"></i> 
                                     {{ in_array($product->id, $productsInCart ?? []) ? 'Added' : 'Add to Cart' }}
                                 </button>
-                            </form>
+                            </form> -->
+                            @if(!in_array($product->id, $productsInCart ?? []))
+                                <form action="{{ route('products.add-to-cart', $product->slug) }}" method="POST" style="flex: 1;">
+                                    @csrf
+                                    <input type="hidden" name="buy_now" value="1">
+                                    <button type="submit" class="btn-view-product" style="width: 100%; border: none; font-size: 1rem; background: rgba(80, 0, 180, 0.6);">
+                                        <i class="fas fa-bolt"></i> Buy Now
+                                    </button>
+                                </form>
+                            @else
+                                <a href="{{ route('cart.index') }}" class="btn-view-product" style="width: 100%; background: rgba(80, 0, 180, 0.6);">
+                                    <i class="fas fa-shopping-cart"></i> View Cart
+                                </a>
+                            @endif
                         @else
                             <a href="{{ route('login') }}" class="btn-view-product" style="width: 100%;">
                                 <i class="fas fa-sign-in-alt"></i> Login to Purchase

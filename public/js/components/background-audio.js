@@ -42,9 +42,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Browser likely blocked autoplay
                     console.warn('Autoplay blocked:', err);
                     bgAudioPlaying = false;
-                    
-                    // Show a subtle notification about autoplay being blocked
-                    showAutoplayNotice();
                 });
             }
         }
@@ -215,8 +212,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Play audio
             bgAudio.play().catch(err => {
                 console.warn('Playback failed:', err);
-                // May fail due to browser autoplay restrictions
-                showAutoplayNotice();
             });
             
             bgAudioPlaying = true;

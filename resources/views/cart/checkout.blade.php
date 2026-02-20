@@ -148,15 +148,15 @@
     .payment-section {
         background: rgba(10, 10, 30, 0.6);
         border-radius: 10px;
-        padding: 25px;
-        margin-top: 30px;
+        padding: 5px;
+        margin-top: 5px;
         border: 1px solid rgba(138, 43, 226, 0.3);
     }
     
     .payment-section h3 {
         font-family: 'Cinzel', serif;
         text-align: center;
-        margin-bottom: 20px;
+        margin-bottom: 5px;
         color: white;
     }
     
@@ -385,19 +385,23 @@
         <div class="payment-section">
             <h3>Complete Your Order</h3>
             
-            <div class="secure-payment-note text-center mb-4">
-                <i class="fas fa-lock"></i> Secure Payment with PayPal
-            </div>
-            
             <form action="{{ route('payment.processCart') }}" method="POST" id="checkout-form">
                 @csrf
                 <button type="submit" class="btn-paypal">
                     <img src="https://www.paypalobjects.com/webstatic/en_US/i/buttons/checkout-logo-large.png" alt="Check out with PayPal">
                 </button>
             </form>
+
+            <!-- Stripe Button -->
+            <form action="{{ route('payment.processCartStripe') }}" method="POST" id="stripe-form">
+                @csrf
+                <button type="submit" class="btn-stripe" style="display: block; margin: 5px auto; background: #ffffff; color: black; border: none; padding: 12px 20px; border-radius: 5px; font-size: 1rem; cursor: pointer;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Pay with Stripe" style="height:28px;">
+                </button>
+            </form>
             
-            <div class="payment-note text-center mt-4">
-                <p>You will be redirected to PayPal to complete your payment.</p>
+            <div class="payment-note text-center" style="margin-top: 5px; font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);">
+                <p>You will be redirected to PayPal or Stripe to complete your payment.</p>
                 <p>After payment, you'll have immediate access to all purchased items.</p>
             </div>
         </div>

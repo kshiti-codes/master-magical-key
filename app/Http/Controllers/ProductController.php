@@ -122,7 +122,9 @@ class ProductController extends Controller
                 'price' => $product->price,
             ]);
         }
-
+        if ($request->buy_now) {
+            return redirect()->route('cart.checkout');
+        }
         return redirect()->route('cart.index')->with('success', 'Product added to cart!');
     }
 

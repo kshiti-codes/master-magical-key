@@ -60,6 +60,10 @@ Route::get('/videos/{video}', [TrainingVideoController::class, 'show'])->name('v
 Route::post('api/webhooks/paypal', [PayPalWebhookController::class, 'handleWebhook'])
     ->name('paypal.webhook')
     ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+//webhook for stripe
+Route::post('api/webhooks/stripe', [StripeWebhookController::class, 'handleWebhook'])
+    ->name('stripe.webhook')
+    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 // Auth routes (already included with Laravel UI)
 
 // Protected routes
@@ -79,6 +83,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/payment/process-spell', [PaymentController::class, 'processSpell'])->name('payment.processSpell');
     Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
     Route::get('/payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
+    Route::post('/payment/process-cart-stripe', [PaymentController::class, 'processCartStripe'])->name('payment.processCartStripe');
+    Route::get('/payment/stripe-success', [PaymentController::class, 'stripeSuccess'])->name('payment.stripeSuccess');
+    Route::get('/payment/stripe-cancel', [PaymentController::class, 'stripeCancel'])->name('payment.stripeCancel');
 
     // Cart routes
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
