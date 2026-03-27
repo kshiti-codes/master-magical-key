@@ -61,10 +61,31 @@ Route::get('/videos/{video}', [TrainingVideoController::class, 'show'])->name('v
 //     ->name('paypal.webhook')
 //     ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 //webhook for stripe
-Route::post('api/webhooks/stripe', [StripeWebhookController::class, 'handleWebhook'])
-    ->name('stripe.webhook')
-    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
-// Auth routes (already included with Laravel UI)
+Route::post('api/webhooks/stripe', function (\Illuminate\Http\Request $request) {
+    \Log::info('Stripe webhook received', ['type' => $request->input('type')]);
+    return response()->json(['status' => 'received'], 200);
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])->name('stripe.webhook');
+
+// Cart & Checkout — public (guest + auth)
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add', [CartController::class, 'addItem'])->name('cart.add');
+Route::post('/cart/add-product', [CartController::class, 'addProduct'])->name('cart.addProduct');
+Route::post('/cart/add-spell', [CartController::class, 'addSpell'])->name('cart.addSpell');
+Route::post('/cart/update', [CartController::class, 'updateItem'])->name('cart.update');
+Route::delete('/cart/remove', [CartController::class, 'removeItem'])->name('cart.remove');
+Route::post('/cart/apply-promo', [CartController::class, 'applyPromoCode'])->name('cart.applyPromo');
+Route::delete('/cart/remove-promo', [CartController::class, 'removePromoCode'])->name('cart.removePromo');
+Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+Route::get('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
+Route::post('/payment/process-cart-stripe', [PaymentController::class, 'processCartStripe'])->name('payment.processCartStripe');
+Route::get('/payment/stripe-success', [PaymentController::class, 'stripeSuccess'])->name('payment.stripeSuccess');
+Route::get('/payment/stripe-cancel', [PaymentController::class, 'stripeCancel'])->name('payment.stripeCancel');
+
+
+// Stripe payment — public (guest + auth)
+Route::post('/payment/process-cart-stripe', [PaymentController::class, 'processCartStripe'])->name('payment.processCartStripe');
+Route::get('/payment/stripe-success', [PaymentController::class, 'stripeSuccess'])->name('payment.stripeSuccess');
+Route::get('/payment/stripe-cancel', [PaymentController::class, 'stripeCancel'])->name('payment.stripeCancel');
 
 // Protected routes
 Route::middleware(['auth'])->group(function () {
@@ -83,20 +104,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/payment/process-spell', [PaymentController::class, 'processSpell'])->name('payment.processSpell');
     Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
     Route::get('/payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
-    Route::post('/payment/process-cart-stripe', [PaymentController::class, 'processCartStripe'])->name('payment.processCartStripe');
-    Route::get('/payment/stripe-success', [PaymentController::class, 'stripeSuccess'])->name('payment.stripeSuccess');
-    Route::get('/payment/stripe-cancel', [PaymentController::class, 'stripeCancel'])->name('payment.stripeCancel');
-
-    // Cart routes
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add-spell', [CartController::class, 'addSpell'])->name('cart.addSpell');
-    Route::post('/cart/add', [CartController::class, 'addItem'])->name('cart.add');
-    Route::post('/cart/update', [CartController::class, 'updateItem'])->name('cart.update');
-    Route::delete('/cart/remove', [CartController::class, 'removeItem'])->name('cart.remove');
-    Route::post('/cart/apply-promo', [CartController::class, 'applyPromoCode'])->name('cart.applyPromo');
-    Route::delete('/cart/remove-promo', [CartController::class, 'removePromoCode'])->name('cart.removePromo');
-    Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-    Route::get('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
     
     // Reading interface
     Route::get('/read/{chapter}', [ChapterController::class, 'read'])->name('chapters.read');

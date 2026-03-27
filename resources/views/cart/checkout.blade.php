@@ -223,7 +223,31 @@
 <div class="payment-container fade-transition">
     <div class="checkout-card">
         <h1 class="checkout-title">Complete Your Purchase</h1>
-        
+        @if(session('error'))
+            <div style="
+                max-width: 600px;
+                margin: 20px auto;
+                padding: 15px 20px;
+                background: rgba(255, 0, 0, 0.15);
+                border: 1px solid rgba(255, 0, 0, 0.4);
+                border-radius: 10px;
+                color: #ff9999;
+                text-align: center;
+                font-size: 0.95rem;
+                line-height: 1.6;
+            ">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ session('error') }}
+                <br><br>
+                <a href="{{ route('login') }}" style="color: #d8b5ff; text-decoration: underline;">
+                    Login here
+                </a>
+                &nbsp;|&nbsp;
+                <a href="{{ route('password.request') }}" style="color: #d8b5ff; text-decoration: underline;">
+                    Forgot password?
+                </a>
+            </div>
+        @endif
         <!-- Checkout Steps -->
         <div class="checkout-steps">
             <div class="steps-line"></div>
@@ -384,6 +408,28 @@
         <!-- Payment Section -->
         <div class="payment-section">
             <h3>Complete Your Order</h3>
+
+            {{-- Guest email fields (only shown to non-logged-in users) --}}
+            @guest
+            <div class="guest-details" style="margin-bottom: 15px;">
+                <p style="color: rgba(255,255,255,0.7); text-align:center; font-size:0.9rem; margin-bottom:10px;">
+                    Enter your details to receive your receipt and access your purchase.
+                </p>
+                <div style="margin-bottom: 10px; display: flex; flex-direction: column; align-items: center;">
+                    <input type="text" name="guest_name" form="stripe-form" required
+                        placeholder="Your full name"
+                        style="width:80%; padding:10px; border-radius:5px; border:1px solid rgba(138,43,226,0.5); background:rgba(10,10,30,0.8); color:white; font-size:0.95rem;">
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <input type="email" name="guest_email" form="stripe-form" required
+                        placeholder="Your email address"
+                        style="width:80%; padding:10px; border-radius:5px; border:1px solid rgba(138,43,226,0.5); background:rgba(10,10,30,0.8); color:white; font-size:0.95rem;">
+                </div>
+                <p style="color: rgba(255,255,255,0.5); text-align:center; font-size:0.75rem; margin-top:8px;">
+                    An account will be created for you automatically. Login details will be emailed after purchase.
+                </p>
+            </div>
+            @endguest
             
             <!-- <form action="{{ route('payment.processCart') }}" method="POST" id="checkout-form">
                 @csrf

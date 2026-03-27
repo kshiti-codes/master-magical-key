@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Chapter;
 use App\Models\Purchase;
+use App\Models\Cart;
 use App\Services\InvoiceService;
 use App\Mail\InvoiceEmail;
 use Illuminate\Support\Facades\DB;
@@ -267,36 +268,74 @@ class PaymentController extends Controller
     // }
 
     /**
-     * Initiate Stripe Checkout Session for cart
+     * Initiate Stripe Checkout Session for cart (guest + auth)
      */
     public function processCartStripe(Request $request)
     {
-        try {
-            $cart = Auth::user()->getCart();
+        // Validate guest fields if not logged in
+        if (!Auth::check()) {
+            $request->validate([
+                'guest_name'  => 'required|string|max:255',
+                'guest_email' => 'required|email|max:255',
+            ]);
+        }
 
-            if (!$cart) {
-                return redirect()->route('cart.index')
-                    ->with('error', 'There was an issue with your cart. Please try again.');
+        if (!Auth::check()) {
+            $guestEmail = $request->input('guest_email');
+            $existingUser = \App\Models\User::where('email', $guestEmail)->first();
+
+            if ($existingUser) {
+                $cart = Cart::where('session_id', $request->session()->getId())
+                            ->whereNull('user_id')
+                            ->first();
+
+                if ($cart) {
+                    $alreadyOwned = $cart->items->filter(function($item) use ($existingUser) {
+                        return $item->item_type === 'product'
+                            && $item->product
+                            && $item->product->isPurchasedBy($existingUser->id);
+                    });
+
+                    if ($alreadyOwned->isNotEmpty()) {
+                        $productTitle = $alreadyOwned->first()->product->title;
+                        return redirect()->route('cart.checkout')
+                            ->with('error', 
+                                "You already own \"{$productTitle}\" with this email. " .
+                                "Please log in to access it. " .
+                                "Forgot your password? Use the forgot password link on the login page."
+                            );
+                    }
+                }
+            }
+        }
+
+        try {
+            // Resolve cart for both guest and auth
+            if (Auth::check()) {
+                $cart = Auth::user()->getCart();
+            } else {
+                $cart = Cart::where('session_id', $request->session()->getId())
+                            ->whereNull('user_id')
+                            ->first();
             }
 
-            if ($cart->items->isEmpty()) {
+            if (!$cart || $cart->items->isEmpty()) {
                 return redirect()->route('cart.index')
                     ->with('error', 'Your cart is empty. Please add items before checkout.');
             }
 
-            // Calculate totals (same logic as processCart)
-            $subtotal      = $cart->subtotal;
-            $promoDiscount = min($request->session()->get('promo_discount', 0), $subtotal);
+            $subtotal           = $cart->subtotal;
+            $promoDiscount      = min($request->session()->get('promo_discount', 0), $subtotal);
             $discountedSubtotal = $subtotal - $promoDiscount;
-            $tax   = round($discountedSubtotal * 0.1, 2);
-            $total = $discountedSubtotal + $tax;
+            $tax                = round($discountedSubtotal * 0.1, 2);
+            $total              = $discountedSubtotal + $tax;
 
             \Log::info('Stripe cart checkout initiated', [
                 'cart_id'  => $cart->id,
                 'subtotal' => $subtotal,
                 'tax'      => $tax,
                 'total'    => $total,
-                'user_id'  => Auth::id(),
+                'user_id'  => Auth::id() ?? 'guest',
             ]);
 
             // Build Stripe line items
@@ -306,42 +345,54 @@ class PaymentController extends Controller
                 : 1;
 
             foreach ($cart->items as $item) {
-            if (!$item || !$item->product) continue;
+                if (!$item || !$item->product) continue;
 
-            $itemPrice   = round($item->price * $taxRatio, 2);
-            $itemWithTax = round($itemPrice * 1.1, 2);
+                $itemPrice   = round($item->price * $taxRatio, 2);
+                $itemWithTax = round($itemPrice * 1.1, 2);
 
-            $lineItems[] = [
-                'price_data' => [
-                    'currency'     => 'aud',
-                    'unit_amount'  => (int) round($itemWithTax * 100),
-                    'product_data' => [
-                        'name'        => $item->product->title,
-                        'description' => $item->product->description ?? null,
+                $lineItems[] = [
+                    'price_data' => [
+                        'currency'     => 'aud',
+                        'unit_amount'  => (int) round($itemWithTax * 100),
+                        'product_data' => [
+                            'name'        => $item->product->title,
+                            'description' => $item->product->description ?? null,
+                        ],
                     ],
-                ],
-                'quantity' => $item->quantity,
-            ];
-        }
+                    'quantity' => $item->quantity,
+                ];
+            }
 
-            // Create Stripe Checkout Session
+            if (empty($lineItems)) {
+                return redirect()->route('cart.index')
+                    ->with('error', 'No valid items in cart.');
+            }
+
+            $customerEmail = Auth::check()
+                ? Auth::user()->email
+                : $request->input('guest_email');
+
             Stripe::setApiKey(config('stripe.secret'));
 
             $session = StripeSession::create([
-                // 'payment_method_types' => ['card'],
-                'line_items'           => $lineItems,
-                'mode'                 => 'payment',
-                'success_url'          => route('payment.stripeSuccess') . '?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url'           => route('cart.checkout'),
-                'customer_email'       => Auth::user()->email,
+                'line_items'     => $lineItems,
+                'mode'           => 'payment',
+                'success_url'    => route('payment.stripeSuccess') . '?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url'     => route('cart.checkout'),
+                'customer_email' => $customerEmail,
             ]);
 
-            // Store session data (same keys pattern as PayPal)
+            // Store in session
             $request->session()->put('stripe_session_id', $session->id);
             $request->session()->put('cart_id',   $cart->id);
             $request->session()->put('subtotal',  $subtotal);
             $request->session()->put('tax',       $tax);
             $request->session()->put('total',     $total);
+
+            if (!Auth::check()) {
+                $request->session()->put('guest_email', $request->input('guest_email'));
+                $request->session()->put('guest_name',  $request->input('guest_name'));
+            }
 
             \Log::info('Stripe session created', ['stripe_session_id' => $session->id]);
 
@@ -351,7 +402,7 @@ class PaymentController extends Controller
             \Log::error('Stripe cart checkout error', [
                 'error'   => $e->getMessage(),
                 'trace'   => $e->getTraceAsString(),
-                'user_id' => Auth::id(),
+                'user_id' => Auth::id() ?? 'guest',
             ]);
 
             return redirect()->route('cart.checkout')
@@ -360,7 +411,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Handle success callback from Stripe
+     * Handle Stripe success callback (guest + auth)
      */
     public function stripeSuccess(Request $request)
     {
@@ -375,138 +426,244 @@ class PaymentController extends Controller
 
         try {
             Stripe::setApiKey(config('stripe.secret'));
-
-            // Retrieve Stripe session to verify payment was paid
             $stripeSession = StripeSession::retrieve($stripeSessionId);
 
             if ($stripeSession->payment_status !== 'paid') {
                 throw new \Exception('Stripe payment not completed. Status: ' . $stripeSession->payment_status);
             }
 
-            // Use payment_intent as the transaction ID (equivalent to PayPal capture ID)
             $captureId = $stripeSession->payment_intent;
-            $amount    = $stripeSession->amount_total / 100; // convert cents back
             $currency  = strtoupper($stripeSession->currency);
+            $amount    = $stripeSession->amount_total / 100;
 
-            // Get stored session values (same as PayPal success)
+            // IDEMPOTENCY: if this payment_intent was already processed, 
+            // just redirect to success without reprocessing
+            $existingPurchase = \App\Models\Purchase::where('transaction_id', $captureId)->first();
+            if ($existingPurchase) {
+                \Log::info('Stripe payment already processed, skipping', [
+                    'transaction_id' => $captureId,
+                    'purchase_id'    => $existingPurchase->id,
+                ]);
+                $request->session()->forget([
+                    'stripe_session_id', 'cart_id', 'subtotal', 'tax', 'total',
+                    'promo_code', 'promo_id', 'promo_discount',
+                    'guest_email', 'guest_name',
+                ]);
+                return redirect()->route('products')
+                    ->with('success', 'Payment successful! Your purchase is now available.');
+            }
+
+            // Get session values — fall back to Stripe amounts if session expired
             $subtotal = $request->session()->get('subtotal');
             $tax      = $request->session()->get('tax');
             $total    = $request->session()->get('total');
             $cartId   = $request->session()->get('cart_id');
 
+            // SESSION EXPIRY FALLBACK: try to recover cart from Stripe customer email
             if (!$cartId) {
-                throw new \Exception('Cart ID not found in session');
+                \Log::warning('Cart ID missing from session, attempting recovery', [
+                    'stripe_session_id' => $stripeSessionId,
+                    'customer_email'    => $stripeSession->customer_details->email ?? 'unknown',
+                ]);
+
+                // Try to find cart via the customer email on the Stripe session
+                $customerEmail = $stripeSession->customer_details->email ?? null;
+                if ($customerEmail) {
+                    $user = \App\Models\User::where('email', $customerEmail)->first();
+                    if ($user) {
+                        $cart = Cart::where('user_id', $user->id)->latest()->first();
+                        if ($cart && !$cart->items->isEmpty()) {
+                            $cartId = $cart->id;
+                        }
+                    }
+                }
+
+                if (!$cartId) {
+                    throw new \Exception('Cart not found and session recovery failed. Please contact support with reference: ' . $captureId);
+                }
+
+                // Recalculate totals from the Stripe session amount
+                $total    = $amount;
+                $tax      = round($amount / 1.1 * 0.1, 2);
+                $subtotal = round($amount / 1.1, 2);
+            }
+
+            // GUEST: create or find account before processing purchase
+            if (!Auth::check()) {
+                $guestEmail = $request->session()->get('guest_email')
+                        ?? $stripeSession->customer_details->email
+                        ?? null;
+                $guestName  = $request->session()->get('guest_name')
+                        ?? $stripeSession->customer_details->name
+                        ?? 'Customer';
+
+                if (!$guestEmail) {
+                    throw new \Exception('Guest email not found. Cannot create account.');
+                }
+
+                $existingUser = \App\Models\User::where('email', $guestEmail)->first();
+
+                if ($existingUser) {
+                    // Account already exists — just log them in, no email sent
+                    Auth::login($existingUser);
+                    \Log::info('Guest matched existing account', ['email' => $guestEmail]);
+                } else {
+                    // Create new account
+                    $tempPassword = \Illuminate\Support\Str::random(12);
+                    $newUser = \App\Models\User::create([
+                        'name'             => $guestName,
+                        'email'            => $guestEmail,
+                        'password'         => bcrypt($tempPassword),
+                        'is_guest'         => 1,
+                        'password_set'     => 0,
+                        'email_verified_at' => now(),
+                    ]);
+
+                    Auth::login($newUser);
+
+                    // Send welcome email with temp password
+                    try {
+                        \Mail::to($guestEmail)->send(
+                            new \App\Mail\GuestWelcomeEmail($newUser, $tempPassword)
+                        );
+                    } catch (\Exception $mailEx) {
+                        // Don't fail the purchase if email fails — log it
+                        \Log::error('Failed to send guest welcome email', [
+                            'email' => $guestEmail,
+                            'error' => $mailEx->getMessage(),
+                        ]);
+                    }
+
+                    \Log::info('Guest account created', ['email' => $guestEmail, 'user_id' => $newUser->id]);
+                }
+
+                // Attach the session cart to the now-logged-in user
+                $cart = Cart::find($cartId);
+                if ($cart && is_null($cart->user_id)) {
+                    $cart->update(['user_id' => Auth::id(), 'session_id' => null]);
+                }
             }
 
             \Log::info('Stripe payment captured', [
                 'stripe_session_id' => $stripeSessionId,
                 'payment_intent'    => $captureId,
                 'amount'            => $amount,
+                'user_id'           => Auth::id(),
             ]);
 
-            // Reuse the exact same helper as PayPal — no duplication
             list($purchase, $purchasedItems) = $this->processCartPurchase(
                 $cartId, $captureId, $amount, $currency, $subtotal, $tax, $total
             );
 
-            // Increment promo used_count if one was applied
             $promoId = $request->session()->get('promo_id');
             if ($promoId) {
                 \App\Models\PromoCode::find($promoId)?->increment('used_count');
             }
 
-            // Clear session data (same keys as PayPal + stripe_session_id)
             $request->session()->forget([
                 'stripe_session_id', 'cart_id', 'subtotal', 'tax', 'total',
                 'promo_code', 'promo_id', 'promo_discount',
+                'guest_email', 'guest_name',
             ]);
 
-            return redirect()->route('products')->with('success', 'Payment successful! Your purchase is now available.');
+            // Get the purchased product slug for direct redirect
+            $productItem = collect($purchasedItems)->firstWhere('type', 'product');
 
+            if ($productItem) {
+                $product = \App\Models\Product::find($productItem['product_id']);
+                if ($product) {
+                    return redirect()->route('products.show', $product->slug)
+                        ->with('success', '✨ Payment successful! Your product is ready to access.');
+                }
+            }
+
+            // Fallback to products index if no product found
+            return redirect()->route('products')
+                ->with('success', '✨ Payment successful! Your purchase is now available.');
         } catch (\Exception $e) {
-            \Log::error('Stripe capture error', [
+            \Log::error('Stripe success error', [
                 'error'             => $e->getMessage(),
                 'trace'             => $e->getTraceAsString(),
                 'stripe_session_id' => $stripeSessionId,
             ]);
 
             return redirect()->route('products')
-                ->with('error', 'An error occurred while processing your Stripe payment: ' . $e->getMessage());
+                ->with('error', 'Error confirming payment: ' . $e->getMessage());
         }
     }
         
     /**
      * Handle success callback from PayPal
      */
-    public function success(Request $request)
-    {
-        // Get order ID from session
-        $orderId = $request->session()->get('paypal_order_id');
+    // public function success(Request $request)
+    // {
+    //     // Get order ID from session
+    //     $orderId = $request->session()->get('paypal_order_id');
         
-        if (!$orderId) {
-            \Log::error('PayPal order ID not found in session');
-            return redirect()->route('products')
-                ->with('error', 'Payment information not found.');
-        }
+    //     if (!$orderId) {
+    //         \Log::error('PayPal order ID not found in session');
+    //         return redirect()->route('products')
+    //             ->with('error', 'Payment information not found.');
+    //     }
         
-        try {
-            // Initialize PayPal and capture payment
-            $provider = new PayPalClient;
-            $provider->setApiCredentials(config('paypal'));
-            $provider->getAccessToken();
+    //     try {
+    //         // Initialize PayPal and capture payment
+    //         $provider = new PayPalClient;
+    //         $provider->setApiCredentials(config('paypal'));
+    //         $provider->getAccessToken();
             
-            \Log::info('Attempting to capture PayPal payment', ['order_id' => $orderId]);
-            $response = $provider->capturePaymentOrder($orderId);
+    //         \Log::info('Attempting to capture PayPal payment', ['order_id' => $orderId]);
+    //         $response = $provider->capturePaymentOrder($orderId);
             
-            if (!$response || !isset($response['status']) || $response['status'] !== 'COMPLETED') {
-                throw new \Exception('Payment not completed. Status: ' . ($response['status'] ?? 'unknown'));
-            }
+    //         if (!$response || !isset($response['status']) || $response['status'] !== 'COMPLETED') {
+    //             throw new \Exception('Payment not completed. Status: ' . ($response['status'] ?? 'unknown'));
+    //         }
             
-            // Extract payment details
-            $captureId = $this->extractCaptureId($response);
-            $amount = $this->extractAmount($response);
-            $currency = $this->extractCurrency($response);
+    //         // Extract payment details
+    //         $captureId = $this->extractCaptureId($response);
+    //         $amount = $this->extractAmount($response);
+    //         $currency = $this->extractCurrency($response);
             
-            // Get stored values from session
-            $subtotal = $request->session()->get('subtotal');
-            $tax = $request->session()->get('tax');
-            $total = $request->session()->get('total');
-            $cartId = $request->session()->get('cart_id');
+    //         // Get stored values from session
+    //         $subtotal = $request->session()->get('subtotal');
+    //         $tax = $request->session()->get('tax');
+    //         $total = $request->session()->get('total');
+    //         $cartId = $request->session()->get('cart_id');
             
-            if (!$cartId) {
-                throw new \Exception('Cart ID not found in session');
-            }
+    //         if (!$cartId) {
+    //             throw new \Exception('Cart ID not found in session');
+    //         }
             
-            // Process cart purchase
-            list($purchase, $purchasedItems) = $this->processCartPurchase($cartId, $captureId, $amount, $currency, $subtotal, $tax, $total);
+    //         // Process cart purchase
+    //         list($purchase, $purchasedItems) = $this->processCartPurchase($cartId, $captureId, $amount, $currency, $subtotal, $tax, $total);
             
-            // Clear session data
-            // Increment promo used_count if one was applied
-            $promoId = $request->session()->get('promo_id');
-            if ($promoId) {
-                \App\Models\PromoCode::find($promoId)?->increment('used_count');
-            }
+    //         // Clear session data
+    //         // Increment promo used_count if one was applied
+    //         $promoId = $request->session()->get('promo_id');
+    //         if ($promoId) {
+    //             \App\Models\PromoCode::find($promoId)?->increment('used_count');
+    //         }
 
-            $request->session()->forget([
-                'paypal_order_id', 'purchase_type', 'product_id', 'chapter_id', 'spell_id', 
-                'training_video_id', 'cart_id', 'subtotal', 'tax', 'total',
-                'promo_code', 'promo_id', 'promo_discount'
-            ]);
+    //         $request->session()->forget([
+    //             'paypal_order_id', 'purchase_type', 'product_id', 'chapter_id', 'spell_id', 
+    //             'training_video_id', 'cart_id', 'subtotal', 'tax', 'total',
+    //             'promo_code', 'promo_id', 'promo_discount'
+    //         ]);
             
-            // Return success view
-            return redirect()->route('products')->with('success', 'Payment successful! Your purchase is now available.');
+    //         // Return success view
+    //         return redirect()->route('products')->with('success', 'Payment successful! Your purchase is now available.');
             
-        } catch (\Exception $e) {
-            \Log::error('PayPal capture error', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'order_id' => $orderId
-            ]);
+    //     } catch (\Exception $e) {
+    //         \Log::error('PayPal capture error', [
+    //             'error' => $e->getMessage(),
+    //             'trace' => $e->getTraceAsString(),
+    //             'order_id' => $orderId
+    //         ]);
             
-            return redirect()->route('products')
-                ->with('error', 'An error occurred while processing your payment: ' . $e->getMessage());
-        }
-    }
+    //         return redirect()->route('products')
+    //             ->with('error', 'An error occurred while processing your payment: ' . $e->getMessage());
+    //     }
+    // }
 
     /**
      * Extract capture ID from PayPal response
@@ -549,7 +706,14 @@ class PaymentController extends Controller
      */
     private function processCartPurchase($cartId, $captureId, $amount, $currency, $subtotal, $tax, $total)
     {
-        $cart = Auth::user()->cart()->findOrFail($cartId);
+        // Find cart directly by ID — safe for both guest (now logged in) and auth users
+        $cart = Cart::findOrFail($cartId);
+
+        // Verify the cart belongs to the current user (safety check)
+        if ($cart->user_id !== Auth::id()) {
+            throw new \Exception('Cart ownership mismatch. Cart: ' . $cartId . ' User: ' . Auth::id());
+        }
+
         
         // Create purchase record
         $purchase = $this->createPurchaseRecord(Auth::id(), $captureId, $total, $currency, $subtotal, $tax);
@@ -595,6 +759,8 @@ class PaymentController extends Controller
             'quantity' => $item->quantity,
             'price' => $item->price
         ]);
+
+        Auth::user()->products()->syncWithoutDetaching([$item->product->id]);
         
         // Add to purchased items
         $purchasedItems[] = [

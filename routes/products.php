@@ -17,11 +17,8 @@ Route::prefix('products')->name('products.')->group(function () {
     // Browse products
     
     Route::get('/{product:slug}', [ProductController::class, 'show'])->name('show');
-    
-    // Add to cart (requires authentication)
-    Route::middleware('auth')->group(function () {
-        Route::post('/{product:slug}/add-to-cart', [ProductController::class, 'addToCart'])->name('add-to-cart');
-    });
+    // Add to cart — public (guest + auth)
+    Route::post('/{product:slug}/add-to-cart', [ProductController::class, 'addToCart'])->name('add-to-cart');
 });
 
 // My Products (requires authentication)

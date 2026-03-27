@@ -100,10 +100,15 @@ class ProductController extends Controller
         }
 
         // Get or create cart
-        $cart = Cart::firstOrCreate(
-            ['user_id' => Auth::id()],
-            ['session_id' => session()->getId()]
-        );
+        // Resolve cart for guest or auth user
+        if (Auth::check()) {
+            $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
+        } else {
+            $cart = Cart::firstOrCreate([
+                'session_id' => session()->getId(),
+                'user_id'    => null,
+            ]);
+        }
 
         // Check if product already in cart
         $cartItem = CartItem::where('cart_id', $cart->id)
@@ -111,21 +116,22 @@ class ProductController extends Controller
             ->first();
 
         if ($cartItem) {
-            $cartItem->quantity += $quantity;
-            $cartItem->save();
-        } else {
-            CartItem::create([
-                'cart_id' => $cart->id,
-                'product_id' => $product->id,
-                'item_type' => 'product',
-                'quantity' => $quantity,
-                'price' => $product->price,
-            ]);
+            // Already in cart — just redirect without adding again
+            if ($request->buy_now) {
+                return redirect()->route('cart.checkout');
+            }
+            return redirect()->route('cart.index')->with('info', 'Product is already in your cart.');
         }
-        if ($request->buy_now) {
-            return redirect()->route('cart.checkout');
-        }
-        return redirect()->route('cart.index')->with('success', 'Product added to cart!');
+
+        CartItem::create([
+            'cart_id'    => $cart->id,
+            'product_id' => $product->id,
+            'item_type'  => 'product',
+            'quantity'   => $quantity,
+            'price'      => $product->price,
+        ]);
+
+        return redirect()->route('cart.checkout');
     }
 
     /**
