@@ -658,8 +658,8 @@
 @section('content')
 <div class="products-container">
     <h1 class="products-title">✨ The Master Magical Keys ✨</h1>
-    <p class="products-subtitle">A gentle 11-minute audio and reading experience you can do privately to help you reset and move forward around money. 🤍</p>
-    
+    <p class="products-subtitle">A private audio and reading experience designed to reset your internal state and help you move forward with clarity in any area of your life.
+    </p>
     @if(session('success'))
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i> {{ session('success') }}

@@ -56,10 +56,10 @@ Route::get('/subscriptions/{plan}', [SubscriptionController::class, 'show'])->na
 Route::get('/videos', [TrainingVideoController::class, 'index'])->name('videos.index');
 Route::get('/videos/{video}', [TrainingVideoController::class, 'show'])->name('videos.show');
 
-//webhook for PayPal
-Route::post('api/webhooks/paypal', [PayPalWebhookController::class, 'handleWebhook'])
-    ->name('paypal.webhook')
-    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+//webhook for PayPal (DISABLED FOR NOW - STRIPE ONLY)
+// Route::post('api/webhooks/paypal', [PayPalWebhookController::class, 'handleWebhook'])
+//     ->name('paypal.webhook')
+//     ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 //webhook for stripe
 Route::post('api/webhooks/stripe', [StripeWebhookController::class, 'handleWebhook'])
     ->name('stripe.webhook')

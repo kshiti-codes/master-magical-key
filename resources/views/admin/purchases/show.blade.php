@@ -43,7 +43,7 @@
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">Payment Method</div>
-                    <div class="detail-value">PayPal</div>
+                    <div class="detail-value">Stripe</div>
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">Currency</div>

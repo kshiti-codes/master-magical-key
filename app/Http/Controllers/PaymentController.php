@@ -10,260 +10,261 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Srmklive\PayPal\Services\PayPal as PayPalClient;
+// use Srmklive\PayPal\Services\PayPal as PayPalClient;
 use Stripe\Stripe;
 use Stripe\Checkout\Session as StripeSession;
 
 class PaymentController extends Controller
 {
-    public function processCart(Request $request)
-    {
-        try {
-            // Get user's cart
-            $cart = Auth::user()->getCart();
+    // DISABLED PAYPAL FOR NOW - STRIPE ONLY
+    // public function processCart(Request $request)
+    // {
+    //     try {
+    //         // Get user's cart
+    //         $cart = Auth::user()->getCart();
             
-            // Check if cart is null
-            if (!$cart) {
-                \Log::error('Cart is null during checkout', [
-                    'user_id' => Auth::id()
-                ]);
-                return redirect()->route('cart.index')
-                    ->with('error', 'There was an issue with your cart. Please try again.');
-            }
+    //         // Check if cart is null
+    //         if (!$cart) {
+    //             \Log::error('Cart is null during checkout', [
+    //                 'user_id' => Auth::id()
+    //             ]);
+    //             return redirect()->route('cart.index')
+    //                 ->with('error', 'There was an issue with your cart. Please try again.');
+    //         }
             
-            // Check if cart is empty
-            if ($cart->items->isEmpty()) {
-                return redirect()->route('cart.index')
-                    ->with('error', 'Your cart is empty. Please add items before checkout.');
-            }
+    //         // Check if cart is empty
+    //         if ($cart->items->isEmpty()) {
+    //             return redirect()->route('cart.index')
+    //                 ->with('error', 'Your cart is empty. Please add items before checkout.');
+    //         }
             
-            // Calculate prices including GST (with promo discount)
-            $subtotal = $cart->subtotal;
-            $promoDiscount = min($request->session()->get('promo_discount', 0), $subtotal);
-            $discountedSubtotal = $subtotal - $promoDiscount;
-            $tax = round($discountedSubtotal * 0.1, 2);
-            $total = $discountedSubtotal + $tax;
+    //         // Calculate prices including GST (with promo discount)
+    //         $subtotal = $cart->subtotal;
+    //         $promoDiscount = min($request->session()->get('promo_discount', 0), $subtotal);
+    //         $discountedSubtotal = $subtotal - $promoDiscount;
+    //         $tax = round($discountedSubtotal * 0.1, 2);
+    //         $total = $discountedSubtotal + $tax;
             
-            // Log cart details for debugging
-            \Log::info('Cart details before PayPal checkout', [
-                'cart_id' => $cart->id,
-                'items_count' => $cart->items->count(),
-                'subtotal' => $subtotal,
-                'tax' => $tax,
-                'total' => $total
-            ]);
+    //         // Log cart details for debugging
+    //         \Log::info('Cart details before PayPal checkout', [
+    //             'cart_id' => $cart->id,
+    //             'items_count' => $cart->items->count(),
+    //             'subtotal' => $subtotal,
+    //             'tax' => $tax,
+    //             'total' => $total
+    //         ]);
             
-            // Prepare PayPal items with null checks
-            $paypalItems = [];
-            $taxRatio = ($subtotal > 0 && $promoDiscount > 0) ? $discountedSubtotal / $subtotal : 1.0;
-            $actualTaxTotal = 0;
+    //         // Prepare PayPal items with null checks
+    //         $paypalItems = [];
+    //         $taxRatio = ($subtotal > 0 && $promoDiscount > 0) ? $discountedSubtotal / $subtotal : 1.0;
+    //         $actualTaxTotal = 0;
 
-            foreach ($cart->items as $item) {
-                // Skip any null items
-                if (!$item) continue;
+    //         foreach ($cart->items as $item) {
+    //             // Skip any null items
+    //             if (!$item) continue;
                 
-                $itemSubtotal = $item->price;
-                $itemTax = round($itemSubtotal * 0.1 * $taxRatio, 2);
-                $actualTaxTotal += $itemTax * $item->quantity;
+    //             $itemSubtotal = $item->price;
+    //             $itemTax = round($itemSubtotal * 0.1 * $taxRatio, 2);
+    //             $actualTaxTotal += $itemTax * $item->quantity;
                 
-                $itemName = "Unknown Item";
-                if($item->item_type === 'product' && $item->product) {
-                    $itemName = "Product: {$item->product->title}";
-                } else if ($item->item_type === 'chapter' && $item->chapter) {
-                    $itemName = "Chapter {$item->chapter->id}: {$item->chapter->title}";
-                } else if ($item->item_type === 'spell' && $item->spell) {
-                    $itemName = "Spell: {$item->spell->title}";
-                } else if ($item->item_type === 'video' && $item->video) {
-                    $itemName = "Training Video: {$item->video->title}";
-                }
+    //             $itemName = "Unknown Item";
+    //             if($item->item_type === 'product' && $item->product) {
+    //                 $itemName = "Product: {$item->product->title}";
+    //             } else if ($item->item_type === 'chapter' && $item->chapter) {
+    //                 $itemName = "Chapter {$item->chapter->id}: {$item->chapter->title}";
+    //             } else if ($item->item_type === 'spell' && $item->spell) {
+    //                 $itemName = "Spell: {$item->spell->title}";
+    //             } else if ($item->item_type === 'video' && $item->video) {
+    //                 $itemName = "Training Video: {$item->video->title}";
+    //             }
                 
-                $paypalItems[] = [
-                    "name" => $itemName,
-                    "quantity" => "{$item->quantity}",
-                    "category" => "DIGITAL_GOODS",
-                    "unit_amount" => [
-                        "currency_code" => 'AUD',
-                        "value" => number_format($itemSubtotal, 2, '.', '')
-                    ],
-                    "tax" => [
-                        "currency_code" => 'AUD',
-                        "value" => number_format($itemTax, 2, '.', '')
-                    ]
-                ];
-            }
+    //             $paypalItems[] = [
+    //                 "name" => $itemName,
+    //                 "quantity" => "{$item->quantity}",
+    //                 "category" => "DIGITAL_GOODS",
+    //                 "unit_amount" => [
+    //                     "currency_code" => 'AUD',
+    //                     "value" => number_format($itemSubtotal, 2, '.', '')
+    //                 ],
+    //                 "tax" => [
+    //                     "currency_code" => 'AUD',
+    //                     "value" => number_format($itemTax, 2, '.', '')
+    //                 ]
+    //             ];
+    //         }
 
-            // Recalculate tax/total from adjusted per-item taxes so PayPal validation passes
-            $tax = round($actualTaxTotal, 2);
-            $total = $discountedSubtotal + $tax;
+    //         // Recalculate tax/total from adjusted per-item taxes so PayPal validation passes
+    //         $tax = round($actualTaxTotal, 2);
+    //         $total = $discountedSubtotal + $tax;
             
-            // Check if we have PayPal items
-            if (empty($paypalItems)) {
-                \Log::error('No valid PayPal items found in cart', [
-                    'cart_id' => $cart->id
-                ]);
-                return redirect()->route('cart.index')
-                    ->with('error', 'There was an issue with your cart items. Please try again.');
-            }
+    //         // Check if we have PayPal items
+    //         if (empty($paypalItems)) {
+    //             \Log::error('No valid PayPal items found in cart', [
+    //                 'cart_id' => $cart->id
+    //             ]);
+    //             return redirect()->route('cart.index')
+    //                 ->with('error', 'There was an issue with your cart items. Please try again.');
+    //         }
             
-            // Initialize PayPal with error handling
-            try {
-                // Initialize PayPal with detailed error logging
-                $provider = new PayPalClient;
+    //         // Initialize PayPal with error handling
+    //         try {
+    //             // Initialize PayPal with detailed error logging
+    //             $provider = new PayPalClient;
                 
-                // Log the configuration being used (redact sensitive info)
-                \Log::info('PayPal configuration', [
-                    'mode' => config('paypal.mode'),
-                    'client_id_length' => strlen(config('paypal.live.client_id')),
-                    'client_secret_length' => strlen(config('paypal.live.client_secret'))
-                ]);
+    //             // Log the configuration being used (redact sensitive info)
+    //             \Log::info('PayPal configuration', [
+    //                 'mode' => config('paypal.mode'),
+    //                 'client_id_length' => strlen(config('paypal.live.client_id')),
+    //                 'client_secret_length' => strlen(config('paypal.live.client_secret'))
+    //             ]);
                 
-                $provider->setApiCredentials(config('paypal'));
+    //             $provider->setApiCredentials(config('paypal'));
                 
-                // Get token with extended error handling
-                try {
-                    $paypalToken = $provider->getAccessToken();
-                    if (!$paypalToken) {
-                        throw new \Exception('Empty token response from PayPal');
-                    }
-                    \Log::info('Successfully obtained PayPal access token');
-                } catch (\Exception $tokenEx) {
-                    \Log::error('PayPal token retrieval failed', [
-                        'error' => $tokenEx->getMessage(),
-                        'trace' => $tokenEx->getTraceAsString()
-                    ]);
-                    throw new \Exception('Failed to get PayPal access token: ' . $tokenEx->getMessage());
-                }
+    //             // Get token with extended error handling
+    //             try {
+    //                 $paypalToken = $provider->getAccessToken();
+    //                 if (!$paypalToken) {
+    //                     throw new \Exception('Empty token response from PayPal');
+    //                 }
+    //                 \Log::info('Successfully obtained PayPal access token');
+    //             } catch (\Exception $tokenEx) {
+    //                 \Log::error('PayPal token retrieval failed', [
+    //                     'error' => $tokenEx->getMessage(),
+    //                     'trace' => $tokenEx->getTraceAsString()
+    //                 ]);
+    //                 throw new \Exception('Failed to get PayPal access token: ' . $tokenEx->getMessage());
+    //             }
 
-                // Add merchant ID for identification
-                $merchantId = config('paypal.' . config('paypal.mode') . '.merchant_id');
-                if ($merchantId) {
-                    \Log::info('Using PayPal with merchant ID', [
-                        'merchant_id' => $merchantId,
-                        'mode' => config('paypal.mode')
-                    ]);
-                }
-            } catch (\Exception $e) {
-                \Log::error('PayPal authentication error', [
-                    'error' => $e->getMessage()
-                ]);
-                return redirect()->route('cart.checkout')
-                    ->with('error', 'We couldn\'t connect to PayPal. Please try again later.');
-            }
+    //             // Add merchant ID for identification
+    //             $merchantId = config('paypal.' . config('paypal.mode') . '.merchant_id');
+    //             if ($merchantId) {
+    //                 \Log::info('Using PayPal with merchant ID', [
+    //                     'merchant_id' => $merchantId,
+    //                     'mode' => config('paypal.mode')
+    //                 ]);
+    //             }
+    //         } catch (\Exception $e) {
+    //             \Log::error('PayPal authentication error', [
+    //                 'error' => $e->getMessage()
+    //             ]);
+    //             return redirect()->route('cart.checkout')
+    //                 ->with('error', 'We couldn\'t connect to PayPal. Please try again later.');
+    //         }
             
-            // Create PayPal order with proper error handling
-            try {
-                // Create the order
-                $response = $provider->createOrder([
-                    "intent" => "CAPTURE",
-                    "application_context" => [
-                        "return_url" => route('payment.success'),
-                        "cancel_url" => route('payment.cancel'),
-                        "brand_name" => "Master Magical Key",
-                        "landing_page" => "BILLING",
-                        "user_action" => "PAY_NOW",
-                    ],
-                    "purchase_units" => [
-                        [
-                            "amount" => [
-                                "currency_code" => 'AUD',
-                                "value" => number_format($total, 2, '.', ''),
-                                "breakdown" => [
-                                    "item_total" => [
-                                        "currency_code" => 'AUD',
-                                        "value" => number_format($subtotal, 2, '.', '')
-                                    ],
-                                    ...($promoDiscount > 0 ? ["discount" => [
-                                        "currency_code" => 'AUD',
-                                        "value" => number_format($promoDiscount, 2, '.', '')
-                                    ]] : []),
-                                    "tax_total" => [
-                                        "currency_code" => 'AUD',
-                                        "value" => number_format($tax, 2, '.', '')
-                                    ]
-                                ]
-                            ],
-                            "items" => $paypalItems
-                        ]
-                    ]
-                ]);
+    //         // Create PayPal order with proper error handling
+    //         try {
+    //             // Create the order
+    //             $response = $provider->createOrder([
+    //                 "intent" => "CAPTURE",
+    //                 "application_context" => [
+    //                     "return_url" => route('payment.success'),
+    //                     "cancel_url" => route('payment.cancel'),
+    //                     "brand_name" => "Master Magical Key",
+    //                     "landing_page" => "BILLING",
+    //                     "user_action" => "PAY_NOW",
+    //                 ],
+    //                 "purchase_units" => [
+    //                     [
+    //                         "amount" => [
+    //                             "currency_code" => 'AUD',
+    //                             "value" => number_format($total, 2, '.', ''),
+    //                             "breakdown" => [
+    //                                 "item_total" => [
+    //                                     "currency_code" => 'AUD',
+    //                                     "value" => number_format($subtotal, 2, '.', '')
+    //                                 ],
+    //                                 ...($promoDiscount > 0 ? ["discount" => [
+    //                                     "currency_code" => 'AUD',
+    //                                     "value" => number_format($promoDiscount, 2, '.', '')
+    //                                 ]] : []),
+    //                                 "tax_total" => [
+    //                                     "currency_code" => 'AUD',
+    //                                     "value" => number_format($tax, 2, '.', '')
+    //                                 ]
+    //                             ]
+    //                         ],
+    //                         "items" => $paypalItems
+    //                     ]
+    //                 ]
+    //             ]);
                 
-                \Log::info('PayPal order created', [
-                    'order_id' => $response['id'] ?? 'No ID found',
-                    'status' => $response['status'] ?? 'No status found'
-                ]);
+    //             \Log::info('PayPal order created', [
+    //                 'order_id' => $response['id'] ?? 'No ID found',
+    //                 'status' => $response['status'] ?? 'No status found'
+    //             ]);
 
-                // Validate the response structure
-                if (!isset($response['id']) || empty($response['id'])) {
-                    throw new \Exception('PayPal order ID not found in response: ' . json_encode($response));
-                }
+    //             // Validate the response structure
+    //             if (!isset($response['id']) || empty($response['id'])) {
+    //                 throw new \Exception('PayPal order ID not found in response: ' . json_encode($response));
+    //             }
                 
-                if (!isset($response['status']) || $response['status'] !== 'CREATED') {
-                    throw new \Exception('PayPal order not in CREATED status: ' . ($response['status'] ?? 'unknown'));
-                }
+    //             if (!isset($response['status']) || $response['status'] !== 'CREATED') {
+    //                 throw new \Exception('PayPal order not in CREATED status: ' . ($response['status'] ?? 'unknown'));
+    //             }
                 
-                // Find the approval URL
-                $approvalUrl = null;
-                if (isset($response['links']) && is_array($response['links'])) {
-                    foreach ($response['links'] as $link) {
-                        if ($link['rel'] === 'approve') {
-                            $approvalUrl = $link['href'];
-                            \Log::info('Found PayPal approval URL', ['url' => $approvalUrl]);
-                            break;
-                        }
-                    }
-                }
+    //             // Find the approval URL
+    //             $approvalUrl = null;
+    //             if (isset($response['links']) && is_array($response['links'])) {
+    //                 foreach ($response['links'] as $link) {
+    //                     if ($link['rel'] === 'approve') {
+    //                         $approvalUrl = $link['href'];
+    //                         \Log::info('Found PayPal approval URL', ['url' => $approvalUrl]);
+    //                         break;
+    //                     }
+    //                 }
+    //             }
                 
-                if (!$approvalUrl) {
-                    throw new \Exception('PayPal approval URL not found in response');
-                }
+    //             if (!$approvalUrl) {
+    //                 throw new \Exception('PayPal approval URL not found in response');
+    //             }
                 
-                // Store order ID and cart info in session
-                if (isset($response['id']) && $response['id']) {
-                    $request->session()->put('paypal_order_id', $response['id']);
-                    $request->session()->put('purchase_type', 'cart');
-                    $request->session()->put('cart_id', $cart->id);
-                    $request->session()->put('subtotal', $subtotal);
-                    $request->session()->put('tax', $tax);
-                    $request->session()->put('total', $total);
+    //             // Store order ID and cart info in session
+    //             if (isset($response['id']) && $response['id']) {
+    //                 $request->session()->put('paypal_order_id', $response['id']);
+    //                 $request->session()->put('purchase_type', 'cart');
+    //                 $request->session()->put('cart_id', $cart->id);
+    //                 $request->session()->put('subtotal', $subtotal);
+    //                 $request->session()->put('tax', $tax);
+    //                 $request->session()->put('total', $total);
                     
-                    // Find and redirect to PayPal approval URL
-                    $approvalUrl = null;
-                    foreach ($response['links'] as $link) {
-                        if ($link['rel'] === 'approve') {
-                            $approvalUrl = $link['href'];
-                            break;
-                        }
-                    }
+    //                 // Find and redirect to PayPal approval URL
+    //                 $approvalUrl = null;
+    //                 foreach ($response['links'] as $link) {
+    //                     if ($link['rel'] === 'approve') {
+    //                         $approvalUrl = $link['href'];
+    //                         break;
+    //                     }
+    //                 }
                     
-                    if ($approvalUrl) {
-                        return redirect()->away($approvalUrl);
-                    } else {
-                        throw new \Exception('PayPal approval URL not found in response');
-                    }
-                } else {
-                    throw new \Exception('PayPal order ID not found in response');
-                }
-            } catch (\Exception $e) {
-                \Log::error('PayPal order creation failed', [
-                    'error' => $e->getMessage(),
-                    'response' => $response ?? 'No response'
-                ]);
-                return redirect()->route('cart.checkout')
-                    ->with('error', 'We couldn\'t set up your PayPal payment. Please try again.');
-            }
+    //                 if ($approvalUrl) {
+    //                     return redirect()->away($approvalUrl);
+    //                 } else {
+    //                     throw new \Exception('PayPal approval URL not found in response');
+    //                 }
+    //             } else {
+    //                 throw new \Exception('PayPal order ID not found in response');
+    //             }
+    //         } catch (\Exception $e) {
+    //             \Log::error('PayPal order creation failed', [
+    //                 'error' => $e->getMessage(),
+    //                 'response' => $response ?? 'No response'
+    //             ]);
+    //             return redirect()->route('cart.checkout')
+    //                 ->with('error', 'We couldn\'t set up your PayPal payment. Please try again.');
+    //         }
             
-        } catch (\Exception $e) {
-            \Log::error('PayPal cart checkout error', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'user_id' => Auth::id(),
-                'cart_id' => $cart->id ?? null
-            ]);
+    //     } catch (\Exception $e) {
+    //         \Log::error('PayPal cart checkout error', [
+    //             'error' => $e->getMessage(),
+    //             'trace' => $e->getTraceAsString(),
+    //             'user_id' => Auth::id(),
+    //             'cart_id' => $cart->id ?? null
+    //         ]);
             
-            return redirect()->route('cart.checkout')
-                ->with('error', 'Something went wrong with PayPal: ' . $e->getMessage());
-        }
-    }
+    //         return redirect()->route('cart.checkout')
+    //             ->with('error', 'Something went wrong with PayPal: ' . $e->getMessage());
+    //     }
+    // }
 
     /**
      * Initiate Stripe Checkout Session for cart

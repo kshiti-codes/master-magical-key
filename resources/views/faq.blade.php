@@ -625,7 +625,7 @@
                             always seek a qualified professional for financial, legal, medical or mental health decisions.
                         </p>
                         <p class="faq-text">
-                            payments are securely processed through PayPal.<br>
+                            payments are securely processed through Stripe.<br>
                             we do not store or have access to your card details.
                         </p>
                         <p class="faq-text">

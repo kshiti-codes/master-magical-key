@@ -385,12 +385,12 @@
         <div class="payment-section">
             <h3>Complete Your Order</h3>
             
-            <form action="{{ route('payment.processCart') }}" method="POST" id="checkout-form">
+            <!-- <form action="{{ route('payment.processCart') }}" method="POST" id="checkout-form">
                 @csrf
                 <button type="submit" class="btn-paypal">
                     <img src="https://www.paypalobjects.com/webstatic/en_US/i/buttons/checkout-logo-large.png" alt="Check out with PayPal">
                 </button>
-            </form>
+            </form> -->
 
             <!-- Stripe Button -->
             <form action="{{ route('payment.processCartStripe') }}" method="POST" id="stripe-form">
@@ -401,7 +401,7 @@
             </form>
             
             <div class="payment-note text-center" style="margin-top: 5px; font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);">
-                <p>You will be redirected to PayPal or Stripe to complete your payment.</p>
+                <p>You will be redirected to Stripe to complete your payment.</p>
                 <p>After payment, you'll have immediate access to all purchased items.</p>
             </div>
         </div>
