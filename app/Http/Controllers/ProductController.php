@@ -20,7 +20,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::active()
-            ->orderBy('created_at', 'desc')
+            ->orderBy('sort_order', 'asc')
             ->paginate(12);
 
         // Get products in user's cart for showing "Added" state
@@ -259,6 +259,7 @@ class ProductController extends Controller
             'is_active' => 'boolean',
             'sku' => 'nullable|string|unique:products,sku',
             'slug' => 'nullable|string|unique:products,slug',
+            'sort_order' => 'nullable|integer|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
         ]);
 
@@ -364,6 +365,7 @@ class ProductController extends Controller
             'is_active' => 'boolean',
             'sku' => 'nullable|string|unique:products,sku,' . $product->id,
             'slug' => 'nullable|string|unique:products,slug,' . $product->id,
+            'sort_order' => 'nullable|integer|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
             'remove_pdf' => 'boolean',
             'remove_audio' => 'boolean',

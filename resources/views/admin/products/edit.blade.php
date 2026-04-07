@@ -95,6 +95,12 @@
                     <label for="is_active">Active (visible to customers)</label>
                 </div>
             </div>
+
+            <div class="admin-form-group">
+                <label for="sort_order" class="admin-form-label">Display Order</label>
+                <input type="number" class="admin-form-input" id="sort_order" name="sort_order" value="{{ old('sort_order', $product->sort_order) }}" min="0">
+                <small class="admin-form-help">Lower number = shown first (0, 1, 2...)</small>
+            </div>
         </div>
     </div>
 
