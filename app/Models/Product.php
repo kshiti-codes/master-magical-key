@@ -20,6 +20,7 @@ class Product extends Model
         'audio_file_path',
         'popup_text',
         'is_active',
+        'sort_order',
         'sku',
         'slug',
         'image',
